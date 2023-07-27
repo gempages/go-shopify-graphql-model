@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	null "gopkg.in/guregu/null.v4"
+	"github.com/shopspring/decimal"
 )
 
 // The information about the price that's charged to a shop every plan period.
@@ -1637,7 +1637,7 @@ type AppSubscriptionDiscountValueInput struct {
 	// The percentage value of a discount.
 	Percentage *float64 `json:"percentage,omitempty,omitempty"`
 	// The monetary value of a discount.
-	Amount *null.String `json:"amount,omitempty,omitempty"`
+	Amount *decimal.Decimal `json:"amount,omitempty,omitempty"`
 }
 
 // An auto-generated type which holds one AppSubscription and a cursor during pagination.
@@ -2277,7 +2277,7 @@ type CalculatedDraftOrder struct {
 	ShippingLine *ShippingLine `json:"shippingLine,omitempty,omitempty"`
 	// Subtotal of the line items and their discounts (does not contain shipping charges or shipping discounts, or taxes).
 	//
-	SubtotalPrice null.String `json:"subtotalPrice"`
+	SubtotalPrice decimal.Decimal `json:"subtotalPrice"`
 	// Subtotal of the line items and their discounts (does not contain shipping charges or shipping discounts, or taxes).
 	SubtotalPriceSet *MoneyBag `json:"subtotalPriceSet,omitempty"`
 	// Total amount of taxes charged for each line item and shipping line.
@@ -2287,15 +2287,15 @@ type CalculatedDraftOrder struct {
 	// Total price of line items for this draft order.
 	TotalLineItemsPriceSet *MoneyBag `json:"totalLineItemsPriceSet,omitempty"`
 	// Total amount of the draft order (includes taxes, shipping charges, and discounts).
-	TotalPrice null.String `json:"totalPrice"`
+	TotalPrice decimal.Decimal `json:"totalPrice"`
 	// Total amount of the draft order(includes taxes, shipping charges, and discounts).
 	TotalPriceSet *MoneyBag `json:"totalPriceSet,omitempty"`
 	// Total shipping charge for the draft order.
-	TotalShippingPrice null.String `json:"totalShippingPrice"`
+	TotalShippingPrice decimal.Decimal `json:"totalShippingPrice"`
 	// Total shipping charge for the draft order.
 	TotalShippingPriceSet *MoneyBag `json:"totalShippingPriceSet,omitempty"`
 	// Total amount of taxes for the draft order.
-	TotalTax null.String `json:"totalTax"`
+	TotalTax decimal.Decimal `json:"totalTax"`
 	// Total amount of taxes for the draft order.
 	TotalTaxSet *MoneyBag `json:"totalTaxSet,omitempty"`
 }
@@ -4536,7 +4536,7 @@ type Customer struct {
 	// The total amount that the customer has spent on orders in their lifetime.
 	AmountSpent *MoneyV2 `json:"amountSpent,omitempty"`
 	// The average amount that the customer spent per order.
-	AverageOrderAmount *null.String `json:"averageOrderAmount,omitempty,omitempty"`
+	AverageOrderAmount *decimal.Decimal `json:"averageOrderAmount,omitempty,omitempty"`
 	// The average amount that the customer spent per order.
 	AverageOrderAmountV2 *MoneyV2 `json:"averageOrderAmountV2,omitempty,omitempty"`
 	// Whether the merchant can delete the customer from their store.
@@ -6811,7 +6811,7 @@ func (DiscountAmount) IsDiscountCustomerGetsValue() {}
 // The input fields for the value of the discount and how it is applied.
 type DiscountAmountInput struct {
 	// The value of the discount.
-	Amount *null.String `json:"amount,omitempty,omitempty"`
+	Amount *decimal.Decimal `json:"amount,omitempty,omitempty"`
 	// If true, then the discount is applied to each of the entitled items. If false, then the amount is split across all of the entitled items.
 	AppliesOnEachItem *bool `json:"appliesOnEachItem,omitempty,omitempty"`
 }
@@ -7633,7 +7633,7 @@ type DiscountCodeFreeShippingInput struct {
 	// A list of destinations where the discount will apply.
 	Destination *DiscountShippingDestinationSelectionInput `json:"destination,omitempty,omitempty"`
 	// The maximum shipping price that qualifies for the discount.
-	MaximumShippingPrice *null.String `json:"maximumShippingPrice,omitempty,omitempty"`
+	MaximumShippingPrice *decimal.Decimal `json:"maximumShippingPrice,omitempty,omitempty"`
 	// The number of times a discount applies on recurring purchases (subscriptions).
 	RecurringCycleLimit *int `json:"recurringCycleLimit,omitempty,omitempty"`
 	// Whether the discount applies on regular one-time-purchase items.
@@ -7824,7 +7824,7 @@ type DiscountCustomerBuysValueInput struct {
 	// The quantity of prerequisite items.
 	Quantity *string `json:"quantity,omitempty,omitempty"`
 	// The prerequisite minimum purchase amount required for the discount to be applicable.
-	Amount *null.String `json:"amount,omitempty,omitempty"`
+	Amount *decimal.Decimal `json:"amount,omitempty,omitempty"`
 }
 
 // The qualifying items in an order, the quantity of each one, and the total value of the discount.
@@ -7952,7 +7952,7 @@ func (DiscountMinimumSubtotal) IsDiscountMinimumRequirement() {}
 // The input fields for the minimum subtotal required for a discount.
 type DiscountMinimumSubtotalInput struct {
 	// The minimum subtotal that's required for the discount to be applied.
-	GreaterThanOrEqualToSubtotal *null.String `json:"greaterThanOrEqualToSubtotal,omitempty,omitempty"`
+	GreaterThanOrEqualToSubtotal *decimal.Decimal `json:"greaterThanOrEqualToSubtotal,omitempty,omitempty"`
 }
 
 // A discount wrapper node.
@@ -8081,7 +8081,7 @@ type DiscountProductsInput struct {
 // A purchase amount in the context of a discount. This object can be used to define the minimum purchase amount required for a discount to be applicable.
 type DiscountPurchaseAmount struct {
 	// The purchase amount in decimal format.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 }
 
 func (DiscountPurchaseAmount) IsDiscountCustomerBuysValue() {}
@@ -8411,7 +8411,7 @@ type DraftOrder struct {
 	Status DraftOrderStatus `json:"status"`
 	// The subtotal of the line items and their discounts. The subtotal doesn't include shipping charges, shipping discounts, or taxes.
 	//
-	SubtotalPrice null.String `json:"subtotalPrice"`
+	SubtotalPrice decimal.Decimal `json:"subtotalPrice"`
 	// A subtotal of the line items and corresponding discounts. The subtotal doesn't include shipping charges, shipping discounts, or taxes.
 	SubtotalPriceSet *MoneyBag `json:"subtotalPriceSet,omitempty"`
 	// A comma separated list of tags associated with the draft order. Updating `tags` overwrites
@@ -8431,15 +8431,15 @@ type DraftOrder struct {
 	// The total price of line items for this draft order.
 	TotalLineItemsPriceSet *MoneyBag `json:"totalLineItemsPriceSet,omitempty"`
 	// The total amount of the draft order, including taxes, shipping charges, and discounts.
-	TotalPrice null.String `json:"totalPrice"`
+	TotalPrice decimal.Decimal `json:"totalPrice"`
 	// The total amount of the draft order including taxes, shipping charges, and discounts.
 	TotalPriceSet *MoneyBag `json:"totalPriceSet,omitempty"`
 	// The total shipping charge for the draft order.
-	TotalShippingPrice null.String `json:"totalShippingPrice"`
+	TotalShippingPrice decimal.Decimal `json:"totalShippingPrice"`
 	// The total shipping charge for the draft order.
 	TotalShippingPriceSet *MoneyBag `json:"totalShippingPriceSet,omitempty"`
 	// The total amount of taxes for the draft order.
-	TotalTax null.String `json:"totalTax"`
+	TotalTax decimal.Decimal `json:"totalTax"`
 	// The total amount of taxes for the draft order.
 	TotalTaxSet *MoneyBag `json:"totalTaxSet,omitempty"`
 	// The total weight in grams of the draft order.
@@ -8509,7 +8509,7 @@ func (DraftOrder) IsMetafieldReferencer() {}
 // The order-level discount applied to a draft order.
 type DraftOrderAppliedDiscount struct {
 	// Amount of the order-level discount that is applied to the draft order.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The amount of money discounted, with values shown in both shop currency and presentment currency.
 	AmountSet *MoneyBag `json:"amountSet,omitempty"`
 	// Amount of money discounted.
@@ -8532,7 +8532,7 @@ type DraftOrderAppliedDiscountInput struct {
 	// If the type of the discount is fixed amount, then this is the fixed dollar amount.
 	// If the type is percentage, then this is the subtotal multiplied by the percentage.
 	//
-	Amount *null.String `json:"amount,omitempty,omitempty"`
+	Amount *decimal.Decimal `json:"amount,omitempty,omitempty"`
 	// Reason for the discount.
 	//
 	Description *string `json:"description,omitempty,omitempty"`
@@ -8757,12 +8757,12 @@ type DraftOrderLineItem struct {
 	CustomAttributesV2 []TypedAttribute `json:"customAttributesV2,omitempty"`
 	// The line item price after discounts are applied.
 	//
-	DiscountedTotal null.String `json:"discountedTotal"`
+	DiscountedTotal decimal.Decimal `json:"discountedTotal"`
 	// The line item price after discounts are applied.
 	DiscountedTotalSet *MoneyBag `json:"discountedTotalSet,omitempty"`
 	// The `discountedTotal` divided by `quantity`, resulting in the value of the discount per unit.
 	//
-	DiscountedUnitPrice null.String `json:"discountedUnitPrice"`
+	DiscountedUnitPrice decimal.Decimal `json:"discountedUnitPrice"`
 	// The `discountedTotal` divided by `quantity`, resulting in the value of the discount per unit.
 	DiscountedUnitPriceSet *MoneyBag `json:"discountedUnitPriceSet,omitempty"`
 	// Name of the service provider who fulfilled the order.
@@ -8787,11 +8787,11 @@ type DraftOrderLineItem struct {
 	Name string `json:"name"`
 	// The total price (without discounts) of the line item, based on the original unit price of the variant x quantity.
 	//
-	OriginalTotal null.String `json:"originalTotal"`
+	OriginalTotal decimal.Decimal `json:"originalTotal"`
 	// The total price (without discounts) of the line item,based on the original unit price of the variant x quantity.
 	OriginalTotalSet *MoneyBag `json:"originalTotalSet,omitempty"`
 	// The variant price without any discounts applied.
-	OriginalUnitPrice null.String `json:"originalUnitPrice"`
+	OriginalUnitPrice decimal.Decimal `json:"originalUnitPrice"`
 	// The variant price without any discounts applied.
 	OriginalUnitPriceSet *MoneyBag `json:"originalUnitPriceSet,omitempty"`
 	// The product corresponding to the line item’s product variant.
@@ -8812,7 +8812,7 @@ type DraftOrderLineItem struct {
 	Title string `json:"title"`
 	// The total value of the discount that is applied to the line item.
 	//
-	TotalDiscount null.String `json:"totalDiscount"`
+	TotalDiscount decimal.Decimal `json:"totalDiscount"`
 	// The total value of the discount that is applied to the line item.
 	TotalDiscountSet *MoneyBag `json:"totalDiscountSet,omitempty"`
 	// The associated variant for the line item.
@@ -8858,7 +8858,7 @@ type DraftOrderLineItemInput struct {
 	//
 	CustomAttributes []AttributeInput `json:"customAttributes,omitempty,omitempty"`
 	// The price without any discounts applied. This value is ignored when `variantId` is provided.
-	OriginalUnitPrice *null.String `json:"originalUnitPrice,omitempty,omitempty"`
+	OriginalUnitPrice *decimal.Decimal `json:"originalUnitPrice,omitempty,omitempty"`
 	// The number of products that were purchased.
 	//
 	Quantity int `json:"quantity"`
@@ -9680,7 +9680,7 @@ type FulfillmentHold struct {
 // Represents a line item from an order that's included in a fulfillment.
 type FulfillmentLineItem struct {
 	// The total price after discounts are applied.
-	DiscountedTotal null.String `json:"discountedTotal"`
+	DiscountedTotal decimal.Decimal `json:"discountedTotal"`
 	// The total price after discounts are applied in shop and presentment currencies.
 	DiscountedTotalSet *MoneyBag `json:"discountedTotalSet,omitempty"`
 	// A globally-unique ID.
@@ -9688,7 +9688,7 @@ type FulfillmentLineItem struct {
 	// The associated order's line item.
 	LineItem *LineItem `json:"lineItem,omitempty"`
 	// The total price before discounts are applied.
-	OriginalTotal null.String `json:"originalTotal"`
+	OriginalTotal decimal.Decimal `json:"originalTotal"`
 	// The total price before discounts are applied in shop and presentment currencies.
 	OriginalTotalSet *MoneyBag `json:"originalTotalSet,omitempty"`
 	// Number of line items in the fulfillment.
@@ -11282,7 +11282,7 @@ type GiftCardConnection struct {
 // The input fields to issue a gift card.
 type GiftCardCreateInput struct {
 	// The initial value of the gift card.
-	InitialValue null.String `json:"initialValue"`
+	InitialValue decimal.Decimal `json:"initialValue"`
 	// The gift card's code. It must be 8-20 characters long and contain only letters(a-z) and numbers(0-9).
 	// It is not case sensitive. If not provided, then a random code will be generated.
 	//
@@ -11840,7 +11840,7 @@ type InventoryItemEdge struct {
 // The input fields for an inventory item.
 type InventoryItemInput struct {
 	// Unit cost associated with the inventory item, the currency is the shop's default currency.
-	Cost *null.String `json:"cost,omitempty,omitempty"`
+	Cost *decimal.Decimal `json:"cost,omitempty,omitempty"`
 	// Whether the inventory item is tracked.
 	Tracked *bool `json:"tracked,omitempty,omitempty"`
 }
@@ -11848,7 +11848,7 @@ type InventoryItemInput struct {
 // The input fields for an inventory item.
 type InventoryItemUpdateInput struct {
 	// Unit cost associated with the inventory item, the currency is the shop's default currency.
-	Cost *null.String `json:"cost,omitempty,omitempty"`
+	Cost *decimal.Decimal `json:"cost,omitempty,omitempty"`
 	// Whether the inventory item is tracked. The value must be true to adjust the item's inventory levels.
 	Tracked *bool `json:"tracked,omitempty,omitempty"`
 	// The ISO 3166-1 alpha-2 country code of where the item originated from.
@@ -12114,11 +12114,11 @@ type LineItem struct {
 	// The discounts that have been allocated onto the line item by discount applications, not including order edits and refunds.
 	DiscountAllocations []DiscountAllocation `json:"discountAllocations,omitempty"`
 	// The total line price after discounts are applied, in shop currency.
-	DiscountedTotal null.String `json:"discountedTotal"`
+	DiscountedTotal decimal.Decimal `json:"discountedTotal"`
 	// The total line price after discounts are applied, in shop and presentment currencies.
 	DiscountedTotalSet *MoneyBag `json:"discountedTotalSet,omitempty"`
 	// The approximate split price of a line item unit, in shop currency. This value doesn't include discounts applied to the entire order.
-	DiscountedUnitPrice null.String `json:"discountedUnitPrice"`
+	DiscountedUnitPrice decimal.Decimal `json:"discountedUnitPrice"`
 	// The approximate split price of a line item unit, in shop and presentment currencies. This value doesn't include discounts applied to the entire order.
 	DiscountedUnitPriceSet *MoneyBag `json:"discountedUnitPriceSet,omitempty"`
 	// The duties associated with the line item.
@@ -12157,11 +12157,11 @@ type LineItem struct {
 	// The total price without discounts applied, in shop currency.
 	// This value is based on the unit price of the variant x quantity.
 	//
-	OriginalTotal null.String `json:"originalTotal"`
+	OriginalTotal decimal.Decimal `json:"originalTotal"`
 	// The total price in shop and presentment currencies, without discounts applied. This value is based on the unit price of the variant x quantity.
 	OriginalTotalSet *MoneyBag `json:"originalTotalSet,omitempty"`
 	// The variant unit price without discounts applied, in shop currency.
-	OriginalUnitPrice null.String `json:"originalUnitPrice"`
+	OriginalUnitPrice decimal.Decimal `json:"originalUnitPrice"`
 	// The variant unit price without discounts applied, in shop and presentment currencies.
 	OriginalUnitPriceSet *MoneyBag `json:"originalUnitPriceSet,omitempty"`
 	// The Product object associated with this line item's variant.
@@ -12187,15 +12187,15 @@ type LineItem struct {
 	// The title of the product at time of order creation.
 	Title string `json:"title"`
 	// The total amount of the discount allocated to the line item in the shop currency.
-	TotalDiscount null.String `json:"totalDiscount"`
+	TotalDiscount decimal.Decimal `json:"totalDiscount"`
 	// The total amount of the discount that's allocated to the line item, in the shop and presentment currencies. This field must be explicitly set using draft orders, Shopify scripts, or the API.
 	TotalDiscountSet *MoneyBag `json:"totalDiscountSet,omitempty"`
 	// The total discounted value of unfulfilled units, in shop currency.
-	UnfulfilledDiscountedTotal null.String `json:"unfulfilledDiscountedTotal"`
+	UnfulfilledDiscountedTotal decimal.Decimal `json:"unfulfilledDiscountedTotal"`
 	// The total discounted value of unfulfilled units, in shop and presentment currencies.
 	UnfulfilledDiscountedTotalSet *MoneyBag `json:"unfulfilledDiscountedTotalSet,omitempty"`
 	// The total price, without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop currency.
-	UnfulfilledOriginalTotal null.String `json:"unfulfilledOriginalTotal"`
+	UnfulfilledOriginalTotal decimal.Decimal `json:"unfulfilledOriginalTotal"`
 	// The total price, without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop and presentment currencies.
 	UnfulfilledOriginalTotalSet *MoneyBag `json:"unfulfilledOriginalTotalSet,omitempty"`
 	// The number of units not yet fulfilled.
@@ -12240,11 +12240,11 @@ type LineItemMutable struct {
 	// The discounts that have been allocated onto the line item by discount applications.
 	DiscountAllocations []DiscountAllocation `json:"discountAllocations,omitempty"`
 	// The total line price after discounts are applied, in shop currency.
-	DiscountedTotal null.String `json:"discountedTotal"`
+	DiscountedTotal decimal.Decimal `json:"discountedTotal"`
 	// The total line price after discounts are applied, in shop and presentment currencies.
 	DiscountedTotalSet *MoneyBag `json:"discountedTotalSet,omitempty"`
 	// The approximate split price of a line item unit, in shop currency. This value doesn't include discounts applied to the entire order.
-	DiscountedUnitPrice null.String `json:"discountedUnitPrice"`
+	DiscountedUnitPrice decimal.Decimal `json:"discountedUnitPrice"`
 	// The approximate split price of a line item unit, in shop and presentment currencies. This value doesn't include discounts applied to the entire order.
 	DiscountedUnitPriceSet *MoneyBag `json:"discountedUnitPriceSet,omitempty"`
 	// The total number of units to fulfill.
@@ -12270,11 +12270,11 @@ type LineItemMutable struct {
 	NonFulfillableQuantity int `json:"nonFulfillableQuantity"`
 	// The total price without any discounts applied, in shop currency. ""This value is based on the unit price of the variant x quantity.
 	//
-	OriginalTotal null.String `json:"originalTotal"`
+	OriginalTotal decimal.Decimal `json:"originalTotal"`
 	// The total price in shop and presentment currencies, without discounts applied. This value is based on the unit price of the variant x quantity.
 	OriginalTotalSet *MoneyBag `json:"originalTotalSet,omitempty"`
 	// The variant unit price without discounts applied, in shop currency.
-	OriginalUnitPrice null.String `json:"originalUnitPrice"`
+	OriginalUnitPrice decimal.Decimal `json:"originalUnitPrice"`
 	// The variant unit price without discounts applied, in shop and presentment currencies.
 	OriginalUnitPriceSet *MoneyBag `json:"originalUnitPriceSet,omitempty"`
 	// The Product object associated with this line item's variant.
@@ -12298,15 +12298,15 @@ type LineItemMutable struct {
 	// The title of the product.
 	Title string `json:"title"`
 	// The total amount of the discount allocated to the line item in the shop currency. This field must be explicitly set using draft orders, Shopify scripts, or the API. Instead of using this field, Shopify recommends using `discountAllocations`, which provides the same information.
-	TotalDiscount null.String `json:"totalDiscount"`
+	TotalDiscount decimal.Decimal `json:"totalDiscount"`
 	// The total amount of the discount allocated to the line item in the presentment currency. This field must be explicitly set using draft orders, Shopify scripts, or the API. Instead of using this field, Shopify recommends using `discountAllocations`, which provides the same information.
 	TotalDiscountSet *MoneyBag `json:"totalDiscountSet,omitempty"`
 	// The total discounted value of unfulfilled units, in shop currency.
-	UnfulfilledDiscountedTotal null.String `json:"unfulfilledDiscountedTotal"`
+	UnfulfilledDiscountedTotal decimal.Decimal `json:"unfulfilledDiscountedTotal"`
 	// The total discounted value of unfulfilled units, in shop and presentment currencies.
 	UnfulfilledDiscountedTotalSet *MoneyBag `json:"unfulfilledDiscountedTotalSet,omitempty"`
 	// The total price without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop currency.
-	UnfulfilledOriginalTotal null.String `json:"unfulfilledOriginalTotal"`
+	UnfulfilledOriginalTotal decimal.Decimal `json:"unfulfilledOriginalTotal"`
 	// The total price without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop and presentment currencies.
 	UnfulfilledOriginalTotalSet *MoneyBag `json:"unfulfilledOriginalTotalSet,omitempty"`
 	// The number of units not yet fulfilled.
@@ -15538,7 +15538,7 @@ type MoneyBag struct {
 // The input fields for a monetary value with currency.
 type MoneyInput struct {
 	// Decimal money amount.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// Currency of the money.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 }
@@ -15546,7 +15546,7 @@ type MoneyInput struct {
 // A monetary value with currency.
 type MoneyV2 struct {
 	// Decimal money amount.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// Currency of the money.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 }
@@ -15754,7 +15754,7 @@ type Order struct {
 	//
 	Capturable bool `json:"capturable"`
 	// The total order-level discount amount, before returns, in shop currency.
-	CartDiscountAmount *null.String `json:"cartDiscountAmount,omitempty,omitempty"`
+	CartDiscountAmount *decimal.Decimal `json:"cartDiscountAmount,omitempty,omitempty"`
 	// The total order-level discount amount, before returns, in shop and presentment currencies.
 	CartDiscountAmountSet *MoneyBag `json:"cartDiscountAmountSet,omitempty,omitempty"`
 	// The channel that created the order.
@@ -15922,7 +15922,7 @@ type Order struct {
 	Name string `json:"name"`
 	// The net payment for the order, based on the total amount received minus the total amount refunded, in shop currency.
 	//
-	NetPayment null.String `json:"netPayment"`
+	NetPayment decimal.Decimal `json:"netPayment"`
 	// The net payment for the order, based on the total amount received minus the total amount refunded, in shop and presentment currencies.
 	NetPaymentSet *MoneyBag `json:"netPaymentSet,omitempty"`
 	// A list of line items that can't be fulfilled.
@@ -16022,7 +16022,7 @@ type Order struct {
 	// The sum of the prices for all line items after discounts and before returns, in shop currency.
 	// If `taxesIncluded` is `true`, then the subtotal also includes tax.
 	//
-	SubtotalPrice *null.String `json:"subtotalPrice,omitempty,omitempty"`
+	SubtotalPrice *decimal.Decimal `json:"subtotalPrice,omitempty,omitempty"`
 	// The sum of the prices for all line items after discounts and before returns, in shop and presentment currencies.
 	// If `taxesIncluded` is `true`, then the subtotal also includes tax.
 	//
@@ -16051,7 +16051,7 @@ type Order struct {
 	// The authorized amount that is uncaptured or undercaptured, in shop currency.
 	// This amount isn't adjusted for returns.
 	//
-	TotalCapturable null.String `json:"totalCapturable"`
+	TotalCapturable decimal.Decimal `json:"totalCapturable"`
 	// The authorized amount that is uncaptured or undercaptured, in shop and presentment currencies.
 	// This amount isn't adjusted for returns.
 	//
@@ -16059,7 +16059,7 @@ type Order struct {
 	// The total amount discounted on the order before returns, in shop currency.
 	// This includes both order and line level discounts.
 	//
-	TotalDiscounts *null.String `json:"totalDiscounts,omitempty,omitempty"`
+	TotalDiscounts *decimal.Decimal `json:"totalDiscounts,omitempty,omitempty"`
 	// The total amount discounted on the order before returns, in shop and presentment currencies.
 	// This includes both order and line level discounts.
 	//
@@ -16071,27 +16071,27 @@ type Order struct {
 	// The total price of the order, before returns, in shop currency.
 	// This includes taxes and discounts.
 	//
-	TotalPrice null.String `json:"totalPrice"`
+	TotalPrice decimal.Decimal `json:"totalPrice"`
 	// The total price of the order, before returns, in shop and presentment currencies.
 	// This includes taxes and discounts.
 	//
 	TotalPriceSet *MoneyBag `json:"totalPriceSet,omitempty"`
 	// The total amount received from the customer before returns, in shop currency.
-	TotalReceived null.String `json:"totalReceived"`
+	TotalReceived decimal.Decimal `json:"totalReceived"`
 	// The total amount received from the customer before returns, in shop and presentment currencies.
 	TotalReceivedSet *MoneyBag `json:"totalReceivedSet,omitempty"`
 	// The total amount that was refunded, in shop currency.
-	TotalRefunded null.String `json:"totalRefunded"`
+	TotalRefunded decimal.Decimal `json:"totalRefunded"`
 	// The total amount that was refunded, in shop and presentment currencies.
 	TotalRefundedSet *MoneyBag `json:"totalRefundedSet,omitempty"`
 	// The total amount of shipping that was refunded, in shop and presentment currencies.
 	TotalRefundedShippingSet *MoneyBag `json:"totalRefundedShippingSet,omitempty"`
 	// The total shipping amount before discounts and returns, in shop currency.
-	TotalShippingPrice null.String `json:"totalShippingPrice"`
+	TotalShippingPrice decimal.Decimal `json:"totalShippingPrice"`
 	// The total shipping amount before discounts and returns, in shop and presentment currencies.
 	TotalShippingPriceSet *MoneyBag `json:"totalShippingPriceSet,omitempty"`
 	// The total tax amount before returns, in shop currency.
-	TotalTax *null.String `json:"totalTax,omitempty,omitempty"`
+	TotalTax *decimal.Decimal `json:"totalTax,omitempty,omitempty"`
 	// The total tax amount before returns, in shop and presentment currencies.
 	TotalTaxSet *MoneyBag `json:"totalTaxSet,omitempty,omitempty"`
 	// The sum of all tip amounts for the order, in shop currency.
@@ -16218,7 +16218,7 @@ type OrderCaptureInput struct {
 	// The ID of the authorized transaction to capture.
 	ParentTransactionID string `json:"parentTransactionId"`
 	// The amount to capture. The capture amount can't be greater than the amount of the authorized transaction.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The currency (in ISO format) that is used to capture the order. This must be the presentment currency (the currency used by the customer) and is a required field for orders where the currency and presentment currency differ.
 	Currency *CurrencyCode `json:"currency,omitempty,omitempty"`
 }
@@ -16648,7 +16648,7 @@ type OrderTransaction struct {
 	// The masked account number associated with the payment method.
 	AccountNumber *string `json:"accountNumber,omitempty,omitempty"`
 	// The amount of money.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The amount and currency of the transaction in shop and presentment currencies.
 	AmountSet *MoneyBag `json:"amountSet,omitempty"`
 	// The amount and currency of the transaction.
@@ -16678,7 +16678,7 @@ type OrderTransaction struct {
 	// Specifies the available amount to refund on the gateway.
 	// This value is only available for transactions of type `SuggestedRefund`.
 	//
-	MaximumRefundable *null.String `json:"maximumRefundable,omitempty,omitempty"`
+	MaximumRefundable *decimal.Decimal `json:"maximumRefundable,omitempty,omitempty"`
 	// Specifies the available amount with currency to refund on the gateway.
 	// This value is only available for transactions of type `SuggestedRefund`.
 	//
@@ -16708,7 +16708,7 @@ type OrderTransaction struct {
 	// The settlement currency.
 	SettlementCurrency *CurrencyCode `json:"settlementCurrency,omitempty,omitempty"`
 	// The rate used when converting the transaction amount to settlement currency.
-	SettlementCurrencyRate *null.String `json:"settlementCurrencyRate,omitempty,omitempty"`
+	SettlementCurrencyRate *decimal.Decimal `json:"settlementCurrencyRate,omitempty,omitempty"`
 	// Contains all Shopify Payments information related to an order transaction. This field is available only to stores on a Shopify Plus plan.
 	//
 	ShopifyPaymentsSet *ShopifyPaymentsTransactionSet `json:"shopifyPaymentsSet,omitempty,omitempty"`
@@ -16719,7 +16719,7 @@ type OrderTransaction struct {
 	// Specifies the available amount to capture on the gateway.
 	// Only available when an amount is capturable or manually mark as paid.
 	//
-	TotalUnsettled *null.String `json:"totalUnsettled,omitempty,omitempty"`
+	TotalUnsettled *decimal.Decimal `json:"totalUnsettled,omitempty,omitempty"`
 	// Specifies the available amount with currency to capture on the gateway in shop and presentment currencies.
 	// Only available when an amount is capturable or manually mark as paid.
 	//
@@ -16758,7 +16758,7 @@ type OrderTransactionEdge struct {
 // The input fields for the information needed to create an order transaction.
 type OrderTransactionInput struct {
 	// The amount of money for this transaction.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The payment gateway to use for this transaction.
 	Gateway string `json:"gateway"`
 	// The kind of transaction.
@@ -17305,7 +17305,7 @@ type PriceInput struct {
 	//
 	Calculation *PriceCalculationType `json:"calculation,omitempty,omitempty"`
 	// The price of the parent product variant. This will be be used if calcualtion is set to 'FIXED'.
-	Price *null.String `json:"price,omitempty,omitempty"`
+	Price *decimal.Decimal `json:"price,omitempty,omitempty"`
 }
 
 // Represents a price list, including information about related prices and eligibility rules.
@@ -17909,7 +17909,7 @@ type PriceRuleEntitlementToPrerequisiteQuantityRatioInput struct {
 // The value of a fixed amount price rule.
 type PriceRuleFixedAmountValue struct {
 	// The monetary value of the price rule.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 }
 
 func (PriceRuleFixedAmountValue) IsPriceRuleValue() {}
@@ -17999,25 +17999,25 @@ type PriceRuleLineItemPrerequisites struct {
 // A money range within which the price rule is applicable.
 type PriceRuleMoneyRange struct {
 	// The lower bound of the money range.
-	GreaterThan *null.String `json:"greaterThan,omitempty,omitempty"`
+	GreaterThan *decimal.Decimal `json:"greaterThan,omitempty,omitempty"`
 	// The lower bound or equal of the money range.
-	GreaterThanOrEqualTo *null.String `json:"greaterThanOrEqualTo,omitempty,omitempty"`
+	GreaterThanOrEqualTo *decimal.Decimal `json:"greaterThanOrEqualTo,omitempty,omitempty"`
 	// The upper bound of the money range.
-	LessThan *null.String `json:"lessThan,omitempty,omitempty"`
+	LessThan *decimal.Decimal `json:"lessThan,omitempty,omitempty"`
 	// The upper bound or equal of the money range.
-	LessThanOrEqualTo *null.String `json:"lessThanOrEqualTo,omitempty,omitempty"`
+	LessThanOrEqualTo *decimal.Decimal `json:"lessThanOrEqualTo,omitempty,omitempty"`
 }
 
 // The input fields to update the money range within which the price rule is applicable.
 type PriceRuleMoneyRangeInput struct {
 	// The upper bound of the money range.
-	LessThan *null.String `json:"lessThan,omitempty,omitempty"`
+	LessThan *decimal.Decimal `json:"lessThan,omitempty,omitempty"`
 	// The upper or equal bound of the money range.
-	LessThanOrEqualTo *null.String `json:"lessThanOrEqualTo,omitempty,omitempty"`
+	LessThanOrEqualTo *decimal.Decimal `json:"lessThanOrEqualTo,omitempty,omitempty"`
 	// The lower bound of the money range.
-	GreaterThan *null.String `json:"greaterThan,omitempty,omitempty"`
+	GreaterThan *decimal.Decimal `json:"greaterThan,omitempty,omitempty"`
 	// The lower or equal bound of the money range.
-	GreaterThanOrEqualTo *null.String `json:"greaterThanOrEqualTo,omitempty,omitempty"`
+	GreaterThanOrEqualTo *decimal.Decimal `json:"greaterThanOrEqualTo,omitempty,omitempty"`
 }
 
 // The value of a percent price rule.
@@ -18160,7 +18160,7 @@ type PriceRuleValueInput struct {
 	// The percentage value of the price rule.
 	PercentageValue *float64 `json:"percentageValue,omitempty,omitempty"`
 	// The fixed amount value of the price rule.
-	FixedAmountValue *null.String `json:"fixedAmountValue,omitempty,omitempty"`
+	FixedAmountValue *decimal.Decimal `json:"fixedAmountValue,omitempty,omitempty"`
 }
 
 // One type of value given to a customer when a discount is applied to an order.
@@ -19310,7 +19310,7 @@ type ProductVariant struct {
 	// The value of the barcode associated with the product.
 	Barcode *string `json:"barcode,omitempty,omitempty"`
 	// The compare-at price of the variant in the default shop currency.
-	CompareAtPrice *null.String `json:"compareAtPrice,omitempty,omitempty"`
+	CompareAtPrice *decimal.Decimal `json:"compareAtPrice,omitempty,omitempty"`
 	// The pricing that applies for a customer in a given context.
 	ContextualPricing *ProductVariantContextualPricing `json:"contextualPricing,omitempty"`
 	// The date and time when the variant was created.
@@ -19364,7 +19364,7 @@ type ProductVariant struct {
 	// List of prices and compare-at prices in the presentment currencies for this shop.
 	PresentmentPrices *ProductVariantPricePairConnection `json:"presentmentPrices,omitempty"`
 	// The price of the product variant in the default shop currency.
-	Price null.String `json:"price"`
+	Price decimal.Decimal `json:"price"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
 	// List of private metafields that belong to the resource.
@@ -19613,7 +19613,7 @@ type ProductVariantInput struct {
 	// The value of the barcode associated with the product.
 	Barcode *string `json:"barcode,omitempty,omitempty"`
 	// The compare-at price of the variant.
-	CompareAtPrice *null.String `json:"compareAtPrice,omitempty,omitempty"`
+	CompareAtPrice *decimal.Decimal `json:"compareAtPrice,omitempty,omitempty"`
 	// The Harmonized System code (or HS Tariff code) for the variant.
 	HarmonizedSystemCode *string `json:"harmonizedSystemCode,omitempty,omitempty"`
 	// Specifies the product variant to update or create a new variant if absent.
@@ -19636,7 +19636,7 @@ type ProductVariantInput struct {
 	//
 	Position *int `json:"position,omitempty,omitempty"`
 	// The price of the variant.
-	Price *null.String `json:"price,omitempty,omitempty"`
+	Price *decimal.Decimal `json:"price,omitempty,omitempty"`
 	// The product to create the variant for. Used as input only to the `productVariantCreate` mutation.
 	ProductID *string `json:"productId,omitempty,omitempty"`
 	// Whether the variant requires shipping.
@@ -19843,7 +19843,7 @@ type ProductVariantsBulkInput struct {
 	// The value of the barcode associated with the product variant.
 	Barcode *string `json:"barcode,omitempty,omitempty"`
 	// The compare-at price of the variant.
-	CompareAtPrice *null.String `json:"compareAtPrice,omitempty,omitempty"`
+	CompareAtPrice *decimal.Decimal `json:"compareAtPrice,omitempty,omitempty"`
 	// The Harmonized System code (or HS Tariff code) for the variant.
 	HarmonizedSystemCode *string `json:"harmonizedSystemCode,omitempty,omitempty"`
 	// Specifies the product variant to update or delete.
@@ -19865,7 +19865,7 @@ type ProductVariantsBulkInput struct {
 	// The custom properties that a shop owner uses to define product variants.
 	Options []string `json:"options,omitempty,omitempty"`
 	// The price of the variant.
-	Price *null.String `json:"price,omitempty,omitempty"`
+	Price *decimal.Decimal `json:"price,omitempty,omitempty"`
 	// Whether the variant requires shipping.
 	RequiresShipping *bool `json:"requiresShipping,omitempty,omitempty"`
 	// The SKU for the variant.
@@ -20958,7 +20958,7 @@ type RefundLineItem struct {
 	// The inventory restock location.
 	Location *Location `json:"location,omitempty,omitempty"`
 	// The price of a refunded line item.
-	Price null.String `json:"price"`
+	Price decimal.Decimal `json:"price"`
 	// The price of a refunded line item in shop and presentment currencies.
 	PriceSet *MoneyBag `json:"priceSet,omitempty"`
 	// The quantity of a refunded line item.
@@ -20968,11 +20968,11 @@ type RefundLineItem struct {
 	// Whether the refunded line item was restocked. Not applicable in the context of a SuggestedRefund.
 	Restocked bool `json:"restocked"`
 	// The subtotal price of a refunded line item.
-	Subtotal null.String `json:"subtotal"`
+	Subtotal decimal.Decimal `json:"subtotal"`
 	// The subtotal price of a refunded line item in shop and presentment currencies.
 	SubtotalSet *MoneyBag `json:"subtotalSet,omitempty"`
 	// The total tax charged on a refunded line item.
-	TotalTax null.String `json:"totalTax"`
+	TotalTax decimal.Decimal `json:"totalTax"`
 	// The total tax charged on a refunded line item in shop and presentment currencies.
 	TotalTaxSet *MoneyBag `json:"totalTaxSet,omitempty"`
 }
@@ -22721,7 +22721,7 @@ type SellingPlanCheckoutChargeValueInput struct {
 	// The percentage value.
 	Percentage *float64 `json:"percentage,omitempty,omitempty"`
 	// The fixed value for an checkout charge.
-	FixedValue *null.String `json:"fixedValue,omitempty,omitempty"`
+	FixedValue *decimal.Decimal `json:"fixedValue,omitempty,omitempty"`
 }
 
 // An auto-generated type for paginating through multiple SellingPlans.
@@ -23103,7 +23103,7 @@ type SellingPlanPricingPolicyValueInput struct {
 	// The percentage value.
 	Percentage *float64 `json:"percentage,omitempty,omitempty"`
 	// The fixed value for an fixed amount off or a new policy price.
-	FixedValue *null.String `json:"fixedValue,omitempty,omitempty"`
+	FixedValue *decimal.Decimal `json:"fixedValue,omitempty,omitempty"`
 }
 
 // Represents a recurring selling plan billing policy.
@@ -23275,7 +23275,7 @@ type ShippingLine struct {
 	// The phone number at the shipping address.
 	Phone *string `json:"phone,omitempty,omitempty"`
 	// Returns the price of the shipping line.
-	Price null.String `json:"price"`
+	Price decimal.Decimal `json:"price"`
 	// The fulfillment service requested for the shipping method.
 	// Present if the shipping method requires processing by a third party fulfillment service.
 	//
@@ -23311,7 +23311,7 @@ type ShippingLineEdge struct {
 // The input fields for specifying the shipping details for the order.
 type ShippingLineInput struct {
 	// Price of the shipping rate.
-	Price *null.String `json:"price,omitempty,omitempty"`
+	Price *decimal.Decimal `json:"price,omitempty,omitempty"`
 	// A unique identifier for the shipping rate.
 	ShippingRateHandle *string `json:"shippingRateHandle,omitempty,omitempty"`
 	// Title of the shipping rate.
@@ -23427,15 +23427,15 @@ type ShippingRate struct {
 // Represents the shipping costs refunded on the Refund.
 type ShippingRefund struct {
 	// The monetary value of the shipping fees to be refunded.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The monetary value of the shipping fees to be refunded in shop and presentment currencies.
 	AmountSet *MoneyBag `json:"amountSet,omitempty"`
 	// The maximum amount of shipping fees currently refundable.
-	MaximumRefundable null.String `json:"maximumRefundable"`
+	MaximumRefundable decimal.Decimal `json:"maximumRefundable"`
 	// The maximum amount of shipping fees currently refundable in shop and presentment currencies.
 	MaximumRefundableSet *MoneyBag `json:"maximumRefundableSet,omitempty"`
 	// The monetary value of the tax allocated to shipping fees to be refunded.
-	Tax null.String `json:"tax"`
+	Tax decimal.Decimal `json:"tax"`
 	// The monetary value of the tax allocated to shipping fees to be refunded in shop and presentment currencies.
 	TaxSet *MoneyBag `json:"taxSet,omitempty"`
 }
@@ -23443,7 +23443,7 @@ type ShippingRefund struct {
 // The input fields that are required to reimburse shipping costs.
 type ShippingRefundInput struct {
 	// The monetary value of the shipping fees to be reimbursed.
-	Amount *null.String `json:"amount,omitempty,omitempty"`
+	Amount *decimal.Decimal `json:"amount,omitempty,omitempty"`
 	// Whether a full refund is provided.
 	FullRefund *bool `json:"fullRefund,omitempty,omitempty"`
 }
@@ -25540,7 +25540,7 @@ type SubscriptionContractProductChangeInput struct {
 	// The ID of the product variant the subscription line refers to.
 	ProductVariantID *string `json:"productVariantId,omitempty,omitempty"`
 	// The price of the product.
-	CurrentPrice *null.String `json:"currentPrice,omitempty,omitempty"`
+	CurrentPrice *decimal.Decimal `json:"currentPrice,omitempty,omitempty"`
 }
 
 // Return type for `subscriptionContractProductChange` mutation.
@@ -26001,7 +26001,7 @@ type SubscriptionDraftInput struct {
 	// The delivery policy for the subscription contract.
 	DeliveryPolicy *SubscriptionDeliveryPolicyInput `json:"deliveryPolicy,omitempty,omitempty"`
 	// The shipping price for each renewal the subscription contract.
-	DeliveryPrice *null.String `json:"deliveryPrice,omitempty,omitempty"`
+	DeliveryPrice *decimal.Decimal `json:"deliveryPrice,omitempty,omitempty"`
 	// The delivery method for the subscription contract.
 	DeliveryMethod *SubscriptionDeliveryMethodInput `json:"deliveryMethod,omitempty,omitempty"`
 	// The note field that will be applied to the generated orders.
@@ -26164,7 +26164,7 @@ type SubscriptionLineInput struct {
 	// The quantity of the product.
 	Quantity int `json:"quantity"`
 	// The price of the product.
-	CurrentPrice null.String `json:"currentPrice"`
+	CurrentPrice decimal.Decimal `json:"currentPrice"`
 	// The custom attributes for this subscription line.
 	CustomAttributes []AttributeInput `json:"customAttributes,omitempty,omitempty"`
 	// The selling plan for the subscription line.
@@ -26189,7 +26189,7 @@ type SubscriptionLineUpdateInput struct {
 	// The selling plan name for the subscription line.
 	SellingPlanName *string `json:"sellingPlanName,omitempty,omitempty"`
 	// The price of the product.
-	CurrentPrice *null.String `json:"currentPrice,omitempty,omitempty"`
+	CurrentPrice *decimal.Decimal `json:"currentPrice,omitempty,omitempty"`
 	// The custom attributes for this subscription line.
 	CustomAttributes []AttributeInput `json:"customAttributes,omitempty,omitempty"`
 	// Describes expected price changes of the subscription line over time.
@@ -26375,13 +26375,13 @@ type SubscriptionPricingPolicyCycleDiscountsInput struct {
 	// The price adjustment value.
 	AdjustmentValue *SellingPlanPricingPolicyValueInput `json:"adjustmentValue,omitempty"`
 	// The computed price after the adjustments are applied.
-	ComputedPrice null.String `json:"computedPrice"`
+	ComputedPrice decimal.Decimal `json:"computedPrice"`
 }
 
 // The input fields for expected price changes of the subscription line over time.
 type SubscriptionPricingPolicyInput struct {
 	// The base price per unit for the subscription line in the contract's currency.
-	BasePrice null.String `json:"basePrice"`
+	BasePrice decimal.Decimal `json:"basePrice"`
 	// An array containing all pricing changes for each billing cycle.
 	CycleDiscounts []SubscriptionPricingPolicyCycleDiscountsInput `json:"cycleDiscounts,omitempty"`
 }
@@ -26430,7 +26430,7 @@ type SuggestedOrderTransaction struct {
 	// The masked account number associated with the payment method.
 	AccountNumber *string `json:"accountNumber,omitempty,omitempty"`
 	// The amount of the transaction.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The amount and currency of the suggested order transaction in shop and presentment currencies.
 	AmountSet *MoneyBag `json:"amountSet,omitempty"`
 	// The human-readable payment gateway name suggested to process the transaction.
@@ -26440,7 +26440,7 @@ type SuggestedOrderTransaction struct {
 	// Specifies the kind of the suggested order transaction.
 	Kind SuggestedOrderTransactionKind `json:"kind"`
 	// Specifies the available amount to refund on the gateway. Only available within SuggestedRefund.
-	MaximumRefundable *null.String `json:"maximumRefundable,omitempty,omitempty"`
+	MaximumRefundable *decimal.Decimal `json:"maximumRefundable,omitempty,omitempty"`
 	// Specifies the available amount to refund on the gateway in shop and presentment currencies. Only available within SuggestedRefund.
 	MaximumRefundableSet *MoneyBag `json:"maximumRefundableSet,omitempty,omitempty"`
 	// The associated parent transaction, for example the authorization of a capture.
@@ -26450,13 +26450,13 @@ type SuggestedOrderTransaction struct {
 // Represents a refund suggested by Shopify based on the items being reimbursed. You can then use the suggested refund object to generate an actual refund.
 type SuggestedRefund struct {
 	// The total monetary value to be refunded.
-	Amount null.String `json:"amount"`
+	Amount decimal.Decimal `json:"amount"`
 	// The total monetary value to be refunded in shop and presentment currencies.
 	AmountSet *MoneyBag `json:"amountSet,omitempty"`
 	// The sum of all the discounted prices of the line items being refunded.
 	DiscountedSubtotalSet *MoneyBag `json:"discountedSubtotalSet,omitempty"`
 	// The total monetary value available to refund.
-	MaximumRefundable null.String `json:"maximumRefundable"`
+	MaximumRefundable decimal.Decimal `json:"maximumRefundable"`
 	// The total monetary value available to refund in shop and presentment currencies.
 	MaximumRefundableSet *MoneyBag `json:"maximumRefundableSet,omitempty"`
 	// A list of duties to be refunded from the order.
@@ -26466,7 +26466,7 @@ type SuggestedRefund struct {
 	// The shipping costs to be refunded from the order.
 	Shipping *ShippingRefund `json:"shipping,omitempty"`
 	// The sum of all the prices of the line items being refunded.
-	Subtotal null.String `json:"subtotal"`
+	Subtotal decimal.Decimal `json:"subtotal"`
 	// The sum of all the prices of the line items being refunded in shop and presentment currencies.
 	SubtotalSet *MoneyBag `json:"subtotalSet,omitempty"`
 	// A list of suggested order transactions.
@@ -26478,7 +26478,7 @@ type SuggestedRefund struct {
 	// The sum of the taxes being refunded from the order in shop and presentment currencies. The value must be positive.
 	TotalTaxSet *MoneyBag `json:"totalTaxSet,omitempty"`
 	// The sum of the taxes being refunded from the order. The value must be positive.
-	TotalTaxes null.String `json:"totalTaxes"`
+	TotalTaxes decimal.Decimal `json:"totalTaxes"`
 }
 
 // Represents a return refund suggested by Shopify based on the items being reimbursed. You can then use the suggested refund object to generate an actual refund for the return.
@@ -26616,7 +26616,7 @@ type TaxLine struct {
 	// Whether the channel that submitted the tax line is liable for remitting. A value of null indicates unknown liability for this tax line.
 	ChannelLiable *bool `json:"channelLiable,omitempty,omitempty"`
 	// The amount of tax, in shop currency, after discounts and before returns.
-	Price null.String `json:"price"`
+	Price decimal.Decimal `json:"price"`
 	// The amount of tax, in shop and presentment currencies, after discounts and before returns.
 	PriceSet *MoneyBag `json:"priceSet,omitempty"`
 	// The proportion of the line item price that the tax represents as a decimal.
@@ -26759,7 +26759,7 @@ type TransactionFee struct {
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// Percentage charge.
-	Rate null.String `json:"rate"`
+	Rate decimal.Decimal `json:"rate"`
 	// Name of the credit card rate.
 	RateName *string `json:"rateName,omitempty,omitempty"`
 	// Tax amount charged on the fee.

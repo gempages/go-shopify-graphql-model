@@ -3,29 +3,42 @@ package graphql
 import (
 	"fmt"
 	"io"
-	"log"
 
 	"github.com/99designs/gqlgen/graphql"
-	"gopkg.in/guregu/null.v4"
+	"github.com/shopspring/decimal"
+	"github.com/sirupsen/logrus"
 )
 
-func MarshalDecimal(v null.String) graphql.Marshaler {
+func MarshalDecimal(v decimal.Decimal) graphql.Marshaler {
 	return graphql.WriterFunc(func(w io.Writer) {
 		b, err := v.MarshalJSON()
 		if err != nil {
-			log.Fatalf("failed to marshal Decimal value: %v", err)
+			logrus.Debugf("marshal Decimal value: %v", err)
 		}
 		w.Write(b)
 	})
 }
 
-func UnmarshalDecimal(v interface{}) (null.String, error) {
+func UnmarshalDecimal(v interface{}) (decimal.Decimal, error) {
+	var (
+		d   decimal.Decimal
+		err error
+	)
+
 	switch v := v.(type) {
 	case string:
-		return null.StringFrom(v), nil
+		d, err = decimal.NewFromString(v)
 	case *string:
-		return null.StringFromPtr(v), nil
+		if v == nil {
+			return decimal.Decimal{}, nil
+		}
+		d, err = decimal.NewFromString(*v)
 	default:
-		return null.String{}, fmt.Errorf("%T is not a string or *string and cannot be unmarshalled into Decimal", v)
+		err = fmt.Errorf("%T is not a string or *string and cannot be unmarshalled into Decimal", v)
 	}
+
+	if err != nil {
+		return decimal.Decimal{}, err
+	}
+	return d, nil
 }
