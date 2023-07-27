@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	null "gopkg.in/guregu/null.v4"
 )
@@ -20,7 +21,7 @@ type AppPricingDetails interface {
 type AppPurchase interface {
 	IsAppPurchase()
 	// The date and time when the app purchase occurred.
-	GetCreatedAt() string
+	GetCreatedAt() time.Time
 	// The name of the app purchase.
 	GetName() string
 	// The amount to be charged to the store for the app purchase.
@@ -102,7 +103,7 @@ type CommentEventSubject interface {
 type CustomerMoment interface {
 	IsCustomerMoment()
 	// The date and time when the customer's session occurred.
-	GetOccurredAt() string
+	GetOccurredAt() time.Time
 }
 
 // All possible instruments for CustomerPaymentMethods.
@@ -210,7 +211,7 @@ type Event interface {
 	// Whether the event was caused by an admin user.
 	GetAttributeToUser() bool
 	// The date and time when the event was created.
-	GetCreatedAt() string
+	GetCreatedAt() time.Time
 	// Whether the event is critical.
 	GetCriticalAlert() bool
 	// A globally-unique ID.
@@ -226,7 +227,7 @@ type File interface {
 	GetAlt() *string
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
 	//
-	GetCreatedAt() string
+	GetCreatedAt() time.Time
 	// Any errors that have occurred on the file.
 	GetFileErrors() []FileError
 	// The status of the file.
@@ -236,7 +237,7 @@ type File interface {
 	// The preview image for the media.
 	GetPreview() *MediaPreviewImage
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-	GetUpdatedAt() string
+	GetUpdatedAt() time.Time
 }
 
 // Represents an object that has a list of events.
@@ -473,7 +474,7 @@ type SalesAgreement interface {
 	// The application that created the agreement.
 	GetApp() *App
 	// The date and time at which the agreement occured.
-	GetHappenedAt() string
+	GetHappenedAt() time.Time
 	// The unique ID for the agreement.
 	GetID() string
 	// The reason the agremeent was created.
@@ -589,7 +590,7 @@ type SubscriptionContractBase interface {
 	// A list of the subscription contract's orders.
 	GetOrders() *OrderConnection
 	// The date and time when the subscription contract was updated.
-	GetUpdatedAt() string
+	GetUpdatedAt() time.Time
 }
 
 // Describes the delivery method to use to get the physical goods to the customer.
@@ -669,7 +670,7 @@ type Abandonment struct {
 	// Permalink to the cart page.
 	CartURL *string `json:"cartUrl,omitempty,omitempty"`
 	// The date and time when the abandonment was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The customer who abandoned this event.
 	Customer *Customer `json:"customer,omitempty"`
 	// Whether the customer has completed an order since this checkout has been abandoned.
@@ -677,7 +678,7 @@ type Abandonment struct {
 	// The number of days since the last abandonment email was sent to the customer.
 	DaysSinceLastAbandonmentEmail int `json:"daysSinceLastAbandonmentEmail"`
 	// When the email was sent, if that is the case.
-	EmailSentAt *string `json:"emailSentAt,omitempty,omitempty"`
+	EmailSentAt *time.Time `json:"emailSentAt,omitempty,omitempty"`
 	// The email state (e.g., sent or not sent).
 	EmailState *AbandonmentEmailState `json:"emailState,omitempty,omitempty"`
 	// The number of hours since the customer has last abandoned a checkout.
@@ -695,11 +696,11 @@ type Abandonment struct {
 	// Whether the customer did not complete another most significant step since this abandonment.
 	IsMostSignificantAbandonment bool `json:"isMostSignificantAbandonment"`
 	// The date for the latest browse abandonment.
-	LastBrowseAbandonmentDate string `json:"lastBrowseAbandonmentDate"`
+	LastBrowseAbandonmentDate time.Time `json:"lastBrowseAbandonmentDate"`
 	// The date for the latest cart abandonment.
-	LastCartAbandonmentDate string `json:"lastCartAbandonmentDate"`
+	LastCartAbandonmentDate time.Time `json:"lastCartAbandonmentDate"`
 	// The date for the latest checkout abandonment.
-	LastCheckoutAbandonmentDate string `json:"lastCheckoutAbandonmentDate"`
+	LastCheckoutAbandonmentDate time.Time `json:"lastCheckoutAbandonmentDate"`
 	// The most recent step type.
 	MostRecentStep AbandonmentAbandonmentType `json:"mostRecentStep"`
 	// The products added to the cart during the customer abandoned visit.
@@ -707,7 +708,7 @@ type Abandonment struct {
 	// The products viewed during the customer abandoned visit.
 	ProductsViewed *CustomerVisitProductInfoConnection `json:"productsViewed,omitempty"`
 	// The date and time when the visit started.
-	VisitStartedAt *string `json:"visitStartedAt,omitempty,omitempty"`
+	VisitStartedAt *time.Time `json:"visitStartedAt,omitempty,omitempty"`
 }
 
 func (Abandonment) IsNode() {}
@@ -1143,7 +1144,7 @@ type AppCredit struct {
 	// The amount that can be used towards future app purchases in Shopify.
 	Amount *MoneyV2 `json:"amount,omitempty"`
 	// The date and time when the app credit was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The description of the app credit.
 	Description string `json:"description"`
 	// A globally-unique ID.
@@ -1312,7 +1313,7 @@ type AppPlanV2 struct {
 // Services and features purchased once by a store.
 type AppPurchaseOneTime struct {
 	// The date and time when the app purchase occurred.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The name of the app purchase.
@@ -1328,7 +1329,7 @@ type AppPurchaseOneTime struct {
 func (AppPurchaseOneTime) IsAppPurchase() {}
 
 // The date and time when the app purchase occurred.
-func (this AppPurchaseOneTime) GetCreatedAt() string { return this.CreatedAt }
+func (this AppPurchaseOneTime) GetCreatedAt() time.Time { return this.CreatedAt }
 
 // The name of the app purchase.
 func (this AppPurchaseOneTime) GetName() string { return this.Name }
@@ -1410,9 +1411,9 @@ type AppRevenueAttributionRecord struct {
 	// The financial amount captured in this attribution.
 	Amount *MoneyV2 `json:"amount,omitempty"`
 	// The timestamp when the financial amount was captured.
-	CapturedAt string `json:"capturedAt"`
+	CapturedAt time.Time `json:"capturedAt"`
 	// The timestamp at which this revenue attribution was issued.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The unique value submitted during the creation of the app revenue attribution record.
@@ -1527,7 +1528,7 @@ type AppRevenueAttributionRecordInput struct {
 	//
 	IdempotencyKey string `json:"idempotencyKey"`
 	// The timestamp when the financial amount was captured.
-	CapturedAt string `json:"capturedAt"`
+	CapturedAt time.Time `json:"capturedAt"`
 	// The financial amount captured in this attribution.
 	Amount *MoneyInput `json:"amount,omitempty"`
 	// The type of revenue attribution.
@@ -1539,9 +1540,9 @@ type AppRevenueAttributionRecordInput struct {
 // Provides users access to services and/or features for a duration of time.
 type AppSubscription struct {
 	// The date and time when the app subscription was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The date and time when the current app subscription period ends. Returns `null` if the subscription isn't active.
-	CurrentPeriodEnd *string `json:"currentPeriodEnd,omitempty,omitempty"`
+	CurrentPeriodEnd *time.Time `json:"currentPeriodEnd,omitempty,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The plans attached to the app subscription.
@@ -1740,7 +1741,7 @@ type AppUsagePricingInput struct {
 // Store usage for app subscriptions with usage pricing.
 type AppUsageRecord struct {
 	// The date and time when the usage record was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The description of the app usage record.
 	Description string `json:"description"`
 	// A globally-unique ID.
@@ -1861,7 +1862,7 @@ type BasicEvent struct {
 	// Whether the event was caused by an admin user.
 	AttributeToUser bool `json:"attributeToUser"`
 	// The date and time when the event was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Whether the event is critical.
 	CriticalAlert bool `json:"criticalAlert"`
 	// A globally-unique ID.
@@ -1882,7 +1883,7 @@ func (this BasicEvent) GetAttributeToApp() bool { return this.AttributeToApp }
 func (this BasicEvent) GetAttributeToUser() bool { return this.AttributeToUser }
 
 // The date and time when the event was created.
-func (this BasicEvent) GetCreatedAt() string { return this.CreatedAt }
+func (this BasicEvent) GetCreatedAt() time.Time { return this.CreatedAt }
 
 // Whether the event is critical.
 func (this BasicEvent) GetCriticalAlert() bool { return this.CriticalAlert }
@@ -1960,9 +1961,9 @@ func (this BulkMutationUserError) GetMessage() string { return this.Message }
 // Refer to the [bulk operations guide](https://shopify.dev/api/usage/bulk-operations/imports) for more details.
 type BulkOperation struct {
 	// When the bulk operation was successfully completed.
-	CompletedAt *string `json:"completedAt,omitempty,omitempty"`
+	CompletedAt *time.Time `json:"completedAt,omitempty,omitempty"`
 	// When the bulk operation was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Error code for failed operations.
 	ErrorCode *BulkOperationErrorCode `json:"errorCode,omitempty,omitempty"`
 	// File size in bytes of the file in the `url` field.
@@ -2967,9 +2968,9 @@ func (this ChannelInformation) GetID() string { return this.ID }
 // A checkout profile defines the branding settings and the UI extensions for a store's checkout. A checkout profile could be published or draft. A store might have at most one published checkout profile, which is used to render their live checkout. The store could also have multiple draft profiles that were created, previewed, and published using the admin checkout editor.
 type CheckoutProfile struct {
 	// The date and time when the checkout profile was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The date and time when the checkout profile was last edited.
-	EditedAt string `json:"editedAt"`
+	EditedAt time.Time `json:"editedAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// Whether the checkout profile is published or not.
@@ -2977,7 +2978,7 @@ type CheckoutProfile struct {
 	// The profile name.
 	Name string `json:"name"`
 	// The date and time when the checkout profile was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (CheckoutProfile) IsNode() {}
@@ -3092,7 +3093,7 @@ type Collection struct {
 	UnpublishedPublications *PublicationConnection `json:"unpublishedPublications,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the collection was last modified.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Collection) IsHasMetafieldDefinitions() {}
@@ -3310,7 +3311,7 @@ type CollectionPublication struct {
 	// The publication where the collection will be published.
 	Publication *Publication `json:"publication,omitempty"`
 	// The date that the publication was or is going to be published.
-	PublishDate string `json:"publishDate"`
+	PublishDate time.Time `json:"publishDate"`
 }
 
 // An auto-generated type for paginating through multiple CollectionPublications.
@@ -3507,7 +3508,7 @@ type CommentEvent struct {
 	// Whether the comment event can be edited. If true, then the comment event can be edited.
 	CanEdit bool `json:"canEdit"`
 	// The date and time when the event was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Whether the event is critical.
 	CriticalAlert bool `json:"criticalAlert"`
 	// Whether the comment event has been edited. If true, then the comment event has been edited.
@@ -3536,7 +3537,7 @@ func (this CommentEvent) GetAttributeToApp() bool { return this.AttributeToApp }
 func (this CommentEvent) GetAttributeToUser() bool { return this.AttributeToUser }
 
 // The date and time when the event was created.
-func (this CommentEvent) GetCreatedAt() string { return this.CreatedAt }
+func (this CommentEvent) GetCreatedAt() time.Time { return this.CreatedAt }
 
 // Whether the event is critical.
 func (this CommentEvent) GetCriticalAlert() bool { return this.CriticalAlert }
@@ -3584,9 +3585,9 @@ type Company struct {
 	// The list of contacts in the company.
 	Contacts *CompanyContactConnection `json:"contacts,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company was created in Shopify.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company became the customer.
-	CustomerSince string `json:"customerSince"`
+	CustomerSince time.Time `json:"customerSince"`
 	// A default cursor that returns the single next record, sorted ascending by ID.
 	//
 	DefaultCursor string `json:"defaultCursor"`
@@ -3631,7 +3632,7 @@ type Company struct {
 	// The total amount spent by this company, across all its locations.
 	TotalSpent *MoneyV2 `json:"totalSpent,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company was last modified.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Company) IsCommentEventSubject() {}
@@ -3695,7 +3696,7 @@ type CompanyAddress struct {
 	CountryCode CountryCode `json:"countryCode"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company address was created.
 	//
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The formatted version of the address.
 	FormattedAddress []string `json:"formattedAddress,omitempty"`
 	// A comma-separated list of the values for city, province, and country.
@@ -3712,7 +3713,7 @@ type CompanyAddress struct {
 	Recipient *string `json:"recipient,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company address was last updated.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The zip or postal code of the address.
 	Zip *string `json:"zip,omitempty,omitempty"`
 	// The two-letter code for the region.
@@ -3785,7 +3786,7 @@ type CompanyContact struct {
 	// The company to which the contact belongs.
 	Company *Company `json:"company,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company contact was created at Shopify.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The customer associated to this contact.
 	Customer *Customer `json:"customer,omitempty"`
 	// The list of draft orders for the company contact.
@@ -3805,7 +3806,7 @@ type CompanyContact struct {
 	// The company contact's job title.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company contact was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (CompanyContact) IsNode() {}
@@ -3937,13 +3938,13 @@ type CompanyContactRoleAssignment struct {
 	// The company location to which the role is assigned.
 	CompanyLocation *CompanyLocation `json:"companyLocation,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the assignment record was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The role that is assigned to the company contact.
 	Role *CompanyContactRole `json:"role,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the assignment record was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (CompanyContactRoleAssignment) IsNode() {}
@@ -4055,7 +4056,7 @@ type CompanyInput struct {
 	ExternalID *string `json:"externalId,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at
 	// which the company became the customer.
-	CustomerSince *string `json:"customerSince,omitempty,omitempty"`
+	CustomerSince *time.Time `json:"customerSince,omitempty,omitempty"`
 }
 
 // A location or branch of a [company that's a customer](https://shopify.dev/api/admin-graphql/latest/objects/company) of the shop. Configuration of B2B relationship, for example prices lists and checkout settings, may be done for a location.
@@ -4069,7 +4070,7 @@ type CompanyLocation struct {
 	// The company that the company location belongs to.
 	Company *Company `json:"company,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company location was created in Shopify.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The location's currency based on the shipping address. If the shipping address is empty, then the value is the shop's primary market.
 	Currency CurrencyCode `json:"currency"`
 	// A default cursor that returns the single next record, sorted ascending by ID.
@@ -4122,7 +4123,7 @@ type CompanyLocation struct {
 	// The total amount spent by the location.
 	TotalSpent *MoneyV2 `json:"totalSpent,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company location was last modified.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (CompanyLocation) IsCommentEventSubject() {}
@@ -4485,7 +4486,7 @@ type CurrencySetting struct {
 	// Whether the currency is enabled or not. An enabled currency setting is visible to buyers and allows orders to be generated with that currency as presentment.
 	Enabled bool `json:"enabled"`
 	// The date and time when the active exchange rate for the currency was last modified. It can be the automatic rate's creation date, or the manual rate's last updated at date if active.
-	RateUpdatedAt *string `json:"rateUpdatedAt,omitempty,omitempty"`
+	RateUpdatedAt *time.Time `json:"rateUpdatedAt,omitempty,omitempty"`
 }
 
 // An auto-generated type for paginating through multiple CurrencySettings.
@@ -4529,7 +4530,7 @@ type Customer struct {
 	AcceptsMarketing bool `json:"acceptsMarketing"`
 	// The date and time when the customer consented or objected to receiving marketing material by email.
 	//
-	AcceptsMarketingUpdatedAt string `json:"acceptsMarketingUpdatedAt"`
+	AcceptsMarketingUpdatedAt time.Time `json:"acceptsMarketingUpdatedAt"`
 	// A list of addresses associated with the customer.
 	Addresses []MailingAddress `json:"addresses,omitempty"`
 	// The total amount that the customer has spent on orders in their lifetime.
@@ -4547,7 +4548,7 @@ type Customer struct {
 	// A list of the customer's company contact profiles.
 	CompanyContactProfiles []CompanyContact `json:"companyContactProfiles,omitempty"`
 	// The date and time when the customer was added to the store.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The default address associated with the customer.
 	DefaultAddress *MailingAddress `json:"defaultAddress,omitempty,omitempty"`
 	// The full name of the customer, based on the values for first_name and last_name. If the first_name and
@@ -4637,7 +4638,7 @@ type Customer struct {
 	// The URL to unsubscribe the customer from the mailing list.
 	UnsubscribeURL string `json:"unsubscribeUrl"`
 	// The date and time when the customer was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// Whether the email address is formatted correctly.
 	//
 	// Returns `true` when the email is formatted correctly and
@@ -4832,7 +4833,7 @@ type CustomerEmailMarketingConsentInput struct {
 	MarketingState CustomerEmailMarketingState `json:"marketingState"`
 	// The latest date and time when the customer consented or objected to
 	// receiving marketing material by email.
-	ConsentUpdatedAt *string `json:"consentUpdatedAt,omitempty,omitempty"`
+	ConsentUpdatedAt *time.Time `json:"consentUpdatedAt,omitempty,omitempty"`
 }
 
 // The record of when a customer consented to receive marketing material by email.
@@ -4841,7 +4842,7 @@ type CustomerEmailMarketingConsentState struct {
 	// The customer's consent state reflects the consent record with the most recent `consent_updated_at` date.
 	// If no date is provided, then the date and time at which the consent information was sent is used.
 	//
-	ConsentUpdatedAt *string `json:"consentUpdatedAt,omitempty,omitempty"`
+	ConsentUpdatedAt *time.Time `json:"consentUpdatedAt,omitempty,omitempty"`
 	// The marketing subscription opt-in level, as described by the M3AAWG best practices guidelines,
 	// that the customer gave when they consented to receive marketing material by email.
 	//
@@ -5200,7 +5201,7 @@ type CustomerPaymentMethod struct {
 	// The instrument for this payment method.
 	Instrument CustomerPaymentInstrument `json:"instrument,omitempty"`
 	// The time that the payment method was revoked.
-	RevokedAt *string `json:"revokedAt,omitempty,omitempty"`
+	RevokedAt *time.Time `json:"revokedAt,omitempty,omitempty"`
 	// The revocation reason for this payment method.
 	RevokedReason *CustomerPaymentMethodRevocationReason `json:"revokedReason,omitempty,omitempty"`
 	// List Subscription Contracts.
@@ -5710,7 +5711,7 @@ type CustomerSmsMarketingConsentInput struct {
 	// The date and time when the customer consented to receive marketing material by SMS.
 	// If no date is provided, then the date and time when the consent information was sent is used.
 	//
-	ConsentUpdatedAt *string `json:"consentUpdatedAt,omitempty,omitempty"`
+	ConsentUpdatedAt *time.Time `json:"consentUpdatedAt,omitempty,omitempty"`
 }
 
 // The record of when a customer consented to receive marketing material by SMS.
@@ -5722,7 +5723,7 @@ type CustomerSmsMarketingConsentState struct {
 	// The date and time when the customer consented to receive marketing material by SMS.
 	// If no date is provided, then the date and time when the consent information was sent is used.
 	//
-	ConsentUpdatedAt *string `json:"consentUpdatedAt,omitempty,omitempty"`
+	ConsentUpdatedAt *time.Time `json:"consentUpdatedAt,omitempty,omitempty"`
 	// The marketing subscription opt-in level that was set when the customer consented to receive marketing information.
 	//
 	MarketingOptInLevel CustomerMarketingOptInLevel `json:"marketingOptInLevel"`
@@ -5782,7 +5783,7 @@ type CustomerVisit struct {
 	//
 	MarketingEvent *MarketingEvent `json:"marketingEvent,omitempty,omitempty"`
 	// The date and time when the customer's session occurred.
-	OccurredAt string `json:"occurredAt"`
+	OccurredAt time.Time `json:"occurredAt"`
 	// Marketing referral code from the link that the customer clicked to visit the store.
 	// Supports the following URL attributes: _ref_, _source_, or _r_.
 	// For example, if the URL is myshopifystore.com/products/slide?ref=j2tj1tn2, then this value is j2tj1tn2.
@@ -5809,7 +5810,7 @@ type CustomerVisit struct {
 func (CustomerVisit) IsCustomerMoment() {}
 
 // The date and time when the customer's session occurred.
-func (this CustomerVisit) GetOccurredAt() string { return this.OccurredAt }
+func (this CustomerVisit) GetOccurredAt() time.Time { return this.OccurredAt }
 
 func (CustomerVisit) IsNode() {}
 
@@ -5855,7 +5856,7 @@ type DelegateAccessToken struct {
 	// The issued delegate access token.
 	AccessToken string `json:"accessToken"`
 	// The date and time when the delegate access token was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 // Return type for `delegateAccessTokenCreate` mutation.
@@ -5945,7 +5946,7 @@ type DelegateAccessTokenInput struct {
 // as the resource itself has been removed and can no longer be accessed.
 type DeletionEvent struct {
 	// The date and time when the deletion event for the related resource was generated.
-	OccurredAt string `json:"occurredAt"`
+	OccurredAt time.Time `json:"occurredAt"`
 	// The ID of the resource that was deleted.
 	SubjectID string `json:"subjectId"`
 	// The type of resource that was deleted.
@@ -6354,11 +6355,11 @@ type DeliveryMethod struct {
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The latest delivery date and time when the fulfillment is expected to arrive at the buyer's location.
-	MaxDeliveryDateTime *string `json:"maxDeliveryDateTime,omitempty,omitempty"`
+	MaxDeliveryDateTime *time.Time `json:"maxDeliveryDateTime,omitempty,omitempty"`
 	// The type of the delivery method.
 	MethodType DeliveryMethodType `json:"methodType"`
 	// The earliest delivery date and time when the fulfillment is expected to arrive at the buyer's location.
-	MinDeliveryDateTime *string `json:"minDeliveryDateTime,omitempty,omitempty"`
+	MinDeliveryDateTime *time.Time `json:"minDeliveryDateTime,omitempty,omitempty"`
 }
 
 func (DeliveryMethod) IsNode() {}
@@ -6850,23 +6851,23 @@ type DiscountAutomaticApp struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The class of the discount for combining purposes.
 	DiscountClass DiscountClass `json:"discountClass"`
 	// The ID for the discount.
 	DiscountID string `json:"discountId"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The error history on the most recent version of the app discount.
 	ErrorHistory *FunctionsErrorHistory `json:"errorHistory,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// The title of the discount.
 	Title string `json:"title"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (DiscountAutomaticApp) IsDiscount() {}
@@ -6890,9 +6891,9 @@ type DiscountAutomaticAppInput struct {
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// Additional metafields to associate to the discount.
 	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
 }
@@ -6912,19 +6913,19 @@ type DiscountAutomaticBasic struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The qualifying items in an order, the quantity of each one, and the total value of the discount.
 	CustomerGets *DiscountCustomerGets `json:"customerGets,omitempty"`
 	// The class of the discount for combining purposes.
 	DiscountClass MerchandiseDiscountClass `json:"discountClass"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The minimum subtotal or quantity that's required for the discount to be applied.
 	MinimumRequirement DiscountMinimumRequirement `json:"minimumRequirement"`
 	// A short summary of the discount.
 	ShortSummary string `json:"shortSummary"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// A detailed summary of the discount.
@@ -6932,7 +6933,7 @@ type DiscountAutomaticBasic struct {
 	// The title of the discount.
 	Title string `json:"title"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The number of times that the discount has been used.
 	UsageCount int `json:"usageCount"`
 }
@@ -6956,9 +6957,9 @@ type DiscountAutomaticBasicInput struct {
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The minimum subtotal or quantity that's required for the discount to be applied.
 	MinimumRequirement *DiscountMinimumRequirementInput `json:"minimumRequirement,omitempty,omitempty"`
 	// Information about the qualifying items and their discount.
@@ -6988,7 +6989,7 @@ type DiscountAutomaticBxgy struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The qualifying items and the quantity of each one that the customer has to buy to be eligible for the discount.
 	CustomerBuys *DiscountCustomerBuys `json:"customerBuys,omitempty"`
 	// The qualifying items in an order, the quantity of each one, and the total value of the discount.
@@ -6996,13 +6997,13 @@ type DiscountAutomaticBxgy struct {
 	// The class of the discount for combining purposes.
 	DiscountClass MerchandiseDiscountClass `json:"discountClass"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The paginated list of events associated with the host subject.
 	Events *EventConnection `json:"events,omitempty"`
 	// A legacy unique ID for the discount.
 	ID string `json:"id"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// A detailed summary of the discount.
@@ -7010,7 +7011,7 @@ type DiscountAutomaticBxgy struct {
 	// The title of the discount.
 	Title string `json:"title"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The number of times that the discount has been used.
 	UsageCount int `json:"usageCount"`
 	// The maximum number of times that the discount can be applied to an order.
@@ -7044,9 +7045,9 @@ type DiscountAutomaticBxgyInput struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWithInput `json:"combinesWith,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The maximum number of times that the discount can be applied to an order.
@@ -7197,7 +7198,7 @@ type DiscountCodeApp struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The customers that can use the discount.
 	CustomerSelection DiscountCustomerSelection `json:"customerSelection"`
 	// The class of the discount for combining purposes.
@@ -7205,7 +7206,7 @@ type DiscountCodeApp struct {
 	// The ID for the discount.
 	DiscountID string `json:"discountId"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The error history on the most recent version of the discount.
 	ErrorHistory *FunctionsErrorHistory `json:"errorHistory,omitempty,omitempty"`
 	// Indicates whether there are any timeline comments on the discount.
@@ -7215,7 +7216,7 @@ type DiscountCodeApp struct {
 	// URLs that can be used to share the discount.
 	ShareableUrls []DiscountShareableURL `json:"shareableUrls,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// The title of the discount.
@@ -7223,7 +7224,7 @@ type DiscountCodeApp struct {
 	// The total sales from orders where the discount was used.
 	TotalSales *MoneyV2 `json:"totalSales,omitempty,omitempty"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The maximum number of times that the discount can be used.
 	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
 }
@@ -7249,9 +7250,9 @@ type DiscountCodeAppInput struct {
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The maximum number of times that the discount can be used. For open-ended discounts, use `null`.
 	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
 	// Whether the discount can be applied only once per customer.
@@ -7330,7 +7331,7 @@ type DiscountCodeBasic struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The qualifying items in an order, the quantity of each one, and the total value of the discount.
 	CustomerGets *DiscountCustomerGets `json:"customerGets,omitempty"`
 	// The customers that can use the discount.
@@ -7338,7 +7339,7 @@ type DiscountCodeBasic struct {
 	// The class of the discount for combining purposes.
 	DiscountClass MerchandiseDiscountClass `json:"discountClass"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// Indicates whether there are any timeline comments on the discount.
 	HasTimelineComment bool `json:"hasTimelineComment"`
 	// The minimum subtotal or quantity that's required for the discount to be applied.
@@ -7350,7 +7351,7 @@ type DiscountCodeBasic struct {
 	// A short summary of the discount.
 	ShortSummary string `json:"shortSummary"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// A detailed summary of the discount.
@@ -7360,7 +7361,7 @@ type DiscountCodeBasic struct {
 	// The total sales from orders where the discount was used.
 	TotalSales *MoneyV2 `json:"totalSales,omitempty,omitempty"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The maximum number of times that the discount can be used.
 	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
 }
@@ -7384,9 +7385,9 @@ type DiscountCodeBasicInput struct {
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The maximum number of times that the discount can be used. For open-ended discounts, use `null`.
 	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
 	// Whether the discount can be applied only once per customer.
@@ -7448,7 +7449,7 @@ type DiscountCodeBxgy struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The qualifying items and the quantity of each one that the customer has to buy to be eligible for the discount.
 	CustomerBuys *DiscountCustomerBuys `json:"customerBuys,omitempty"`
 	// The qualifying items in an order, the quantity of each one, and the total value of the discount.
@@ -7458,13 +7459,13 @@ type DiscountCodeBxgy struct {
 	// The class of the discount for combining purposes.
 	DiscountClass MerchandiseDiscountClass `json:"discountClass"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// Indicates whether there are any timeline comments on the discount.
 	HasTimelineComment bool `json:"hasTimelineComment"`
 	// URLs that can be used to share the discount.
 	ShareableUrls []DiscountShareableURL `json:"shareableUrls,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// A detailed summary of the discount.
@@ -7474,7 +7475,7 @@ type DiscountCodeBxgy struct {
 	// The total sales from orders where the discount was used.
 	TotalSales *MoneyV2 `json:"totalSales,omitempty,omitempty"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The maximum number of times that the discount can be used.
 	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
 	// The maximum number of times that the discount can be applied to an order.
@@ -7500,9 +7501,9 @@ type DiscountCodeBxgyInput struct {
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The qualifying items and the quantity of each one that the customer has to buy to be eligible for the discount.
 	CustomerBuys *DiscountCustomerBuysInput `json:"customerBuys,omitempty,omitempty"`
 	// The qualifying items that will be discounted, the quantity of each one, and the total value of the discount.
@@ -7560,7 +7561,7 @@ type DiscountCodeFreeShipping struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the discount was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The customers that can use the discount.
 	CustomerSelection DiscountCustomerSelection `json:"customerSelection"`
 	// A shipping destination that qualifies for the discount.
@@ -7568,7 +7569,7 @@ type DiscountCodeFreeShipping struct {
 	// The class of the discount for combining purposes.
 	DiscountClass ShippingDiscountClass `json:"discountClass"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// Indicates whether there are any timeline comments on the discount.
 	HasTimelineComment bool `json:"hasTimelineComment"`
 	// The maximum shipping price amount accepted to qualify for the discount.
@@ -7582,7 +7583,7 @@ type DiscountCodeFreeShipping struct {
 	// A short summary of the discount.
 	ShortSummary string `json:"shortSummary"`
 	// The date and time when the discount starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
 	Status DiscountStatus `json:"status"`
 	// A detailed summary of the discount.
@@ -7592,7 +7593,7 @@ type DiscountCodeFreeShipping struct {
 	// The total sales from orders where the discount was used.
 	TotalSales *MoneyV2 `json:"totalSales,omitempty,omitempty"`
 	// The date and time when the discount was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The maximum number of times that the discount can be used.
 	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
 }
@@ -7616,9 +7617,9 @@ type DiscountCodeFreeShippingInput struct {
 	// The title of the discount.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The date and time when the discount starts.
-	StartsAt *string `json:"startsAt,omitempty,omitempty"`
+	StartsAt *time.Time `json:"startsAt,omitempty,omitempty"`
 	// The date and time when the discount ends. For open-ended discounts, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The code to use the discount.
 	Code *string `json:"code,omitempty,omitempty"`
 	// The maximum number of times that the discount can be used. For open-ended discounts, use `null`.
@@ -8120,7 +8121,7 @@ type DiscountRedeemCodeBulkCreation struct {
 	// The number of codes to create.
 	CodesCount int `json:"codesCount"`
 	// The date and time when the bulk creation was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The code discount associated with the created codes.
 	DiscountCode *DiscountCodeNode `json:"discountCode,omitempty,omitempty"`
 	// Whether the bulk creation is still queued (`false`) or has been run (`true`).
@@ -8332,9 +8333,9 @@ type DraftOrder struct {
 	// The date and time when the draft order converted to a new order,
 	// and the draft order's status changed to **Completed**.
 	//
-	CompletedAt *string `json:"completedAt,omitempty,omitempty"`
+	CompletedAt *time.Time `json:"completedAt,omitempty,omitempty"`
 	// The date and time when the draft order was created in Shopify.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The three letter code for the currency of the store at the time of the most recent update to the draft order.
 	//
 	CurrencyCode CurrencyCode `json:"currencyCode"`
@@ -8357,7 +8358,7 @@ type DraftOrder struct {
 	// The subject defined for the draft invoice email template.
 	InvoiceEmailTemplateSubject string `json:"invoiceEmailTemplateSubject"`
 	// The date and time when the invoice was last emailed to the customer.
-	InvoiceSentAt *string `json:"invoiceSentAt,omitempty,omitempty"`
+	InvoiceSentAt *time.Time `json:"invoiceSentAt,omitempty,omitempty"`
 	// The link to the checkout, which is sent to the customer in the invoice email.
 	InvoiceURL *string `json:"invoiceUrl,omitempty,omitempty"`
 	// The ID of the corresponding resource in the REST Admin API.
@@ -8401,7 +8402,7 @@ type DraftOrder struct {
 	// might have asynchronous operations that can take time to finish.
 	Ready bool `json:"ready"`
 	// The time after which inventory will automatically be restocked.
-	ReserveInventoryUntil *string `json:"reserveInventoryUntil,omitempty,omitempty"`
+	ReserveInventoryUntil *time.Time `json:"reserveInventoryUntil,omitempty,omitempty"`
 	// The shipping address of the customer.
 	ShippingAddress *MailingAddress `json:"shippingAddress,omitempty,omitempty"`
 	// The line item that contains the shipping costs.
@@ -8446,7 +8447,7 @@ type DraftOrder struct {
 	// The date and time when the draft order was last changed.
 	// The format is YYYY-MM-DD HH:mm:ss. For example, 2016-02-05 17:04:01.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// Whether the draft order will be visible to the customer on the self-serve portal.
 	VisibleToCustomer bool `json:"visibleToCustomer"`
 }
@@ -8700,7 +8701,7 @@ type DraftOrderInput struct {
 	// Whether the draft order will be visible to the customer on the self-serve portal.
 	VisibleToCustomer *bool `json:"visibleToCustomer,omitempty,omitempty"`
 	// Time after which inventory will automatically be restocked.
-	ReserveInventoryUntil *string `json:"reserveInventoryUntil,omitempty,omitempty"`
+	ReserveInventoryUntil *time.Time `json:"reserveInventoryUntil,omitempty,omitempty"`
 	// The payment currency of the customer for this draft order.
 	PresentmentCurrencyCode *CurrencyCode `json:"presentmentCurrencyCode,omitempty,omitempty"`
 	// The selected market region country code for the draft order.
@@ -9133,9 +9134,9 @@ type ExchangeV2 struct {
 	// The details of the new items in the exchange.
 	Additions *ExchangeV2Additions `json:"additions,omitempty"`
 	// The date and time when the exchange was completed.
-	CompletedAt *string `json:"completedAt,omitempty,omitempty"`
+	CompletedAt *time.Time `json:"completedAt,omitempty,omitempty"`
 	// The date and time when the exchange was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The location where the exchange happened.
@@ -9491,13 +9492,13 @@ type FlowTriggerReceivePayload struct {
 // There can be more than one fulfillment for an order.
 type Fulfillment struct {
 	// The date and time when the fulfillment was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The date that this fulfillment was delivered.
-	DeliveredAt *string `json:"deliveredAt,omitempty,omitempty"`
+	DeliveredAt *time.Time `json:"deliveredAt,omitempty,omitempty"`
 	// Human readable display status for this fulfillment.
 	DisplayStatus *FulfillmentDisplayStatus `json:"displayStatus,omitempty,omitempty"`
 	// The estimated date that this fulfillment will arrive.
-	EstimatedDeliveryAt *string `json:"estimatedDeliveryAt,omitempty,omitempty"`
+	EstimatedDeliveryAt *time.Time `json:"estimatedDeliveryAt,omitempty,omitempty"`
 	// The history of events associated with this fulfillment.
 	Events *FulfillmentEventConnection `json:"events,omitempty"`
 	// List of the fulfillment's line items.
@@ -9507,7 +9508,7 @@ type Fulfillment struct {
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The date and time when the fulfillment went into transit.
-	InTransitAt *string `json:"inTransitAt,omitempty,omitempty"`
+	InTransitAt *time.Time `json:"inTransitAt,omitempty,omitempty"`
 	// The ID of the corresponding resource in the REST Admin API.
 	LegacyResourceID string `json:"legacyResourceId"`
 	// The location that the fulfillment was processed at.
@@ -9532,7 +9533,7 @@ type Fulfillment struct {
 	TrackingInfo []FulfillmentTrackingInfo `json:"trackingInfo,omitempty"`
 	// The date and time when the fulfillment was last modified.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Fulfillment) IsLegacyInteroperability() {}
@@ -9588,9 +9589,9 @@ type FulfillmentEvent struct {
 	// The country where this fulfillment event occurred.
 	Country *string `json:"country,omitempty,omitempty"`
 	// The estimated delivery date and time of the fulfillment.
-	EstimatedDeliveryAt *string `json:"estimatedDeliveryAt,omitempty,omitempty"`
+	EstimatedDeliveryAt *time.Time `json:"estimatedDeliveryAt,omitempty,omitempty"`
 	// The time at which this fulfillment event happened.
-	HappenedAt string `json:"happenedAt"`
+	HappenedAt time.Time `json:"happenedAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The latitude where this fulfillment event occurred.
@@ -9647,9 +9648,9 @@ type FulfillmentEventInput struct {
 	// The country where this fulfillment event occurred.
 	Country *string `json:"country,omitempty,omitempty"`
 	// The estimated delivery date and time of the fulfillment.
-	EstimatedDeliveryAt *string `json:"estimatedDeliveryAt,omitempty,omitempty"`
+	EstimatedDeliveryAt *time.Time `json:"estimatedDeliveryAt,omitempty,omitempty"`
 	// The time at which this fulfillment event happened.
-	HappenedAt *string `json:"happenedAt,omitempty,omitempty"`
+	HappenedAt *time.Time `json:"happenedAt,omitempty,omitempty"`
 	// The ID for the fulfillment that is associated with this fulfillment event.
 	FulfillmentID string `json:"fulfillmentId"`
 	// The latitude where this fulfillment event occurred.
@@ -9896,15 +9897,15 @@ type FulfillmentOrder struct {
 	//
 	AssignedLocation *FulfillmentOrderAssignedLocation `json:"assignedLocation,omitempty"`
 	// Date and time when the fulfillment order was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Delivery method of this fulfillment order.
 	DeliveryMethod *DeliveryMethod `json:"deliveryMethod,omitempty,omitempty"`
 	// The destination where the items should be sent.
 	Destination *FulfillmentOrderDestination `json:"destination,omitempty,omitempty"`
 	// The date and time at which the fulfillment order will be fulfillable. When this date and time is reached, the scheduled fulfillment order is automatically transitioned to open. For example, the `fulfill_at` date for a subscription order might be the 1st of each month, a pre-order `fulfill_at` date would be `nil`, and a standard order `fulfill_at` date would be the order creation date.
-	FulfillAt *string `json:"fulfillAt,omitempty,omitempty"`
+	FulfillAt *time.Time `json:"fulfillAt,omitempty,omitempty"`
 	// The latest date and time by which all items in the fulfillment order need to be fulfilled.
-	FulfillBy *string `json:"fulfillBy,omitempty,omitempty"`
+	FulfillBy *time.Time `json:"fulfillBy,omitempty,omitempty"`
 	// The fulfillment holds applied on the fulfillment order.
 	FulfillmentHolds []FulfillmentHold `json:"fulfillmentHolds,omitempty"`
 	// A list of fulfillments for the fulfillment order.
@@ -9928,7 +9929,7 @@ type FulfillmentOrder struct {
 	// The actions that can be performed on this fulfillment order.
 	SupportedActions []FulfillmentOrderSupportedAction `json:"supportedActions,omitempty"`
 	// The date and time when the fulfillment order was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (FulfillmentOrder) IsNode() {}
@@ -10317,7 +10318,7 @@ type FulfillmentOrderMerchantRequest struct {
 	// The response from the fulfillment service.
 	ResponseData *string `json:"responseData,omitempty,omitempty"`
 	// The timestamp when the request was made.
-	SentAt string `json:"sentAt"`
+	SentAt time.Time `json:"sentAt"`
 }
 
 func (FulfillmentOrderMerchantRequest) IsNode() {}
@@ -11162,9 +11163,9 @@ type FunctionsAppBridge struct {
 // The error history from running a Shopify Function.
 type FunctionsErrorHistory struct {
 	// The date and time that the first error occurred.
-	ErrorsFirstOccurredAt string `json:"errorsFirstOccurredAt"`
+	ErrorsFirstOccurredAt time.Time `json:"errorsFirstOccurredAt"`
 	// The date and time that the first error occurred.
-	FirstOccurredAt string `json:"firstOccurredAt"`
+	FirstOccurredAt time.Time `json:"firstOccurredAt"`
 	// Whether the merchant has shared all the recent errors with the developer.
 	HasBeenSharedSinceLastError bool `json:"hasBeenSharedSinceLastError"`
 	// Whether the merchant has shared all the recent errors with the developer.
@@ -11177,7 +11178,7 @@ type GenericFile struct {
 	Alt *string `json:"alt,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
 	//
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Any errors that have occurred on the file.
 	FileErrors []FileError `json:"fileErrors,omitempty"`
 	// The status of the file.
@@ -11191,7 +11192,7 @@ type GenericFile struct {
 	// The preview image for the media.
 	Preview *MediaPreviewImage `json:"preview,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The generic file's URL.
 	URL *string `json:"url,omitempty,omitempty"`
 }
@@ -11202,7 +11203,7 @@ func (GenericFile) IsFile() {}
 func (this GenericFile) GetAlt() *string { return this.Alt }
 
 // The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
-func (this GenericFile) GetCreatedAt() string { return this.CreatedAt }
+func (this GenericFile) GetCreatedAt() time.Time { return this.CreatedAt }
 
 // Any errors that have occurred on the file.
 func (this GenericFile) GetFileErrors() []FileError {
@@ -11226,7 +11227,7 @@ func (this GenericFile) GetID() string { return this.ID }
 func (this GenericFile) GetPreview() *MediaPreviewImage { return this.Preview }
 
 // The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-func (this GenericFile) GetUpdatedAt() string { return this.UpdatedAt }
+func (this GenericFile) GetUpdatedAt() time.Time { return this.UpdatedAt }
 
 func (GenericFile) IsNode() {}
 
@@ -11239,11 +11240,11 @@ type GiftCard struct {
 	// The gift card's remaining balance.
 	Balance *MoneyV2 `json:"balance,omitempty"`
 	// The date and time at which the gift card was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The customer who will receive the gift card.
 	Customer *Customer `json:"customer,omitempty,omitempty"`
 	// The date and time at which the gift card was disabled.
-	DisabledAt *string `json:"disabledAt,omitempty,omitempty"`
+	DisabledAt *time.Time `json:"disabledAt,omitempty,omitempty"`
 	// Whether the gift card is enabled.
 	Enabled bool `json:"enabled"`
 	// The date at which the gift card will expire.
@@ -11662,7 +11663,7 @@ type InventoryAdjustmentGroup struct {
 	// The set of inventory quantity changes that occurred in the inventory event.
 	Changes []InventoryChange `json:"changes,omitempty"`
 	// The date and time the inventory adjustment group was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The reason for the group of adjustments.
@@ -11773,7 +11774,7 @@ type InventoryItem struct {
 	// A list of country specific harmonized system codes.
 	CountryHarmonizedSystemCodes *CountryHarmonizedSystemCodeConnection `json:"countryHarmonizedSystemCodes,omitempty"`
 	// The date and time when the inventory item was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The number of inventory items that share the same SKU with this item.
 	DuplicateSkuCount int `json:"duplicateSkuCount"`
 	// The harmonized system code of the item.
@@ -11803,7 +11804,7 @@ type InventoryItem struct {
 	// Unit cost associated with the inventory item. Note: the user must have "View product costs" permission granted in order to access this field once product granular permissions are enabled.
 	UnitCost *MoneyV2 `json:"unitCost,omitempty,omitempty"`
 	// The date and time when the inventory item was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The variant that owns this inventory item.
 	Variant *ProductVariant `json:"variant,omitempty"`
 }
@@ -11875,7 +11876,7 @@ type InventoryLevel struct {
 	// Whether the inventory items associated with the inventory level can be deactivated.
 	CanDeactivate bool `json:"canDeactivate"`
 	// The date and time when the inventory level was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Describes either the impact of deactivating the inventory level, or why the inventory level can't be deactivated.
 	DeactivationAlert *string `json:"deactivationAlert,omitempty,omitempty"`
 	// Describes, in HTML with embedded URLs, either the impact of deactivating the inventory level or why the inventory level can't be deactivated.
@@ -11891,7 +11892,7 @@ type InventoryLevel struct {
 	// Quantities for the requested names.
 	Quantities []InventoryQuantity `json:"quantities,omitempty"`
 	// The date and time when the inventory level was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (InventoryLevel) IsNode() {}
@@ -12007,7 +12008,7 @@ type InventoryQuantity struct {
 	// The quantity for the quantity name.
 	Quantity int `json:"quantity"`
 	// When the quantity was last updated.
-	UpdatedAt *string `json:"updatedAt,omitempty,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty,omitempty"`
 }
 
 // Details about an individual quantity name.
@@ -13315,7 +13316,7 @@ type MarketLocalization struct {
 	// Whether the original content has changed since this market localization was updated.
 	Outdated bool `json:"outdated"`
 	// The date and time when the market localization was updated.
-	UpdatedAt *string `json:"updatedAt,omitempty,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty,omitempty"`
 	// The value of the market localization.
 	Value *string `json:"value,omitempty,omitempty"`
 }
@@ -13592,7 +13593,7 @@ type MarketingActivity struct {
 	// The allocated budget for the marketing activity.
 	Budget *MarketingBudget `json:"budget,omitempty,omitempty"`
 	// The date and time when the marketing activity was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The completed content in the marketing activity creation form.
 	FormData *string `json:"formData,omitempty,omitempty"`
 	// A globally-unique ID.
@@ -13617,7 +13618,7 @@ type MarketingActivity struct {
 	// The [date and time](
 	// https://help.shopify.com/https://en.wikipedia.org/wiki/ISO_8601
 	// ) when the activity's status last changed.
-	StatusTransitionedAt *string `json:"statusTransitionedAt,omitempty,omitempty"`
+	StatusTransitionedAt *time.Time `json:"statusTransitionedAt,omitempty,omitempty"`
 	// The method of marketing used for this marketing activity.
 	Tactic MarketingTactic `json:"tactic"`
 	// The status to which the marketing activity is currently transitioning.
@@ -13625,7 +13626,7 @@ type MarketingActivity struct {
 	// The marketing activity's title, which is rendered on the marketing listing page.
 	Title string `json:"title"`
 	// The date and time when the marketing activity was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The set of [Urchin Tracking Module](
 	// https://help.shopify.com/https://en.wikipedia.org/wiki/UTM_parameters
 	// ) used in the URL for tracking this marketing activity.
@@ -13685,13 +13686,13 @@ type MarketingActivityCreateExternalInput struct {
 	// The referring domain.
 	ReferringDomain *string `json:"referringDomain,omitempty,omitempty"`
 	// When the activity is scheduled to start.
-	ScheduledStart *string `json:"scheduledStart,omitempty,omitempty"`
+	ScheduledStart *time.Time `json:"scheduledStart,omitempty,omitempty"`
 	// When the activity is scheduled to end.
-	ScheduledEnd *string `json:"scheduledEnd,omitempty,omitempty"`
+	ScheduledEnd *time.Time `json:"scheduledEnd,omitempty,omitempty"`
 	// When the activity started.
-	Start *string `json:"start,omitempty,omitempty"`
+	Start *time.Time `json:"start,omitempty,omitempty"`
 	// When the activity ended.
-	End *string `json:"end,omitempty,omitempty"`
+	End *time.Time `json:"end,omitempty,omitempty"`
 }
 
 // Return type for `marketingActivityCreateExternal` mutation.
@@ -13778,13 +13779,13 @@ type MarketingActivityUpdateExternalInput struct {
 	// The referring domain.
 	ReferringDomain *string `json:"referringDomain,omitempty,omitempty"`
 	// The date and time when the activity is scheduled to start.
-	ScheduledStart *string `json:"scheduledStart,omitempty,omitempty"`
+	ScheduledStart *time.Time `json:"scheduledStart,omitempty,omitempty"`
 	// The date and time when the activity is scheduled to end.
-	ScheduledEnd *string `json:"scheduledEnd,omitempty,omitempty"`
+	ScheduledEnd *time.Time `json:"scheduledEnd,omitempty,omitempty"`
 	// The date and time when the activity started.
-	Start *string `json:"start,omitempty,omitempty"`
+	Start *time.Time `json:"start,omitempty,omitempty"`
 	// The date and time when the activity ended.
-	End *string `json:"end,omitempty,omitempty"`
+	End *time.Time `json:"end,omitempty,omitempty"`
 }
 
 // Return type for `marketingActivityUpdateExternal` mutation.
@@ -13892,7 +13893,7 @@ type MarketingEngagement struct {
 	// The total number of favorites, likes, saves, or bookmarks for the day.
 	FavoritesCount *int `json:"favoritesCount,omitempty,omitempty"`
 	// The date time at which the data was fetched.
-	FetchedAt *string `json:"fetchedAt,omitempty,omitempty"`
+	FetchedAt *time.Time `json:"fetchedAt,omitempty,omitempty"`
 	// The total number of impressions for the day.
 	ImpressionsCount *int `json:"impressionsCount,omitempty,omitempty"`
 	// Whether the engagements are reported as lifetime values rather than daily totals.
@@ -13960,7 +13961,7 @@ type MarketingEngagementInput struct {
 	// The UTC Offset that the app is using to determine which date to allocate spend to.
 	UtcOffset *string `json:"utcOffset,omitempty,omitempty"`
 	// The date time at which the data was fetched.
-	FetchedAt *string `json:"fetchedAt,omitempty,omitempty"`
+	FetchedAt *time.Time `json:"fetchedAt,omitempty,omitempty"`
 }
 
 // Represents actions that market a merchant's store or products.
@@ -13972,7 +13973,7 @@ type MarketingEvent struct {
 	// A human-readable description of the marketing event.
 	Description *string `json:"description,omitempty,omitempty"`
 	// The date and time when the marketing event ended.
-	EndedAt *string `json:"endedAt,omitempty,omitempty"`
+	EndedAt *time.Time `json:"endedAt,omitempty,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The ID of the corresponding resource in the REST Admin API.
@@ -13984,7 +13985,7 @@ type MarketingEvent struct {
 	// An optional ID that helps Shopify validate engagement data.
 	RemoteID *string `json:"remoteId,omitempty,omitempty"`
 	// The date and time when the marketing event is scheduled to end.
-	ScheduledToEndAt *string `json:"scheduledToEndAt,omitempty,omitempty"`
+	ScheduledToEndAt *time.Time `json:"scheduledToEndAt,omitempty,omitempty"`
 	// Where the `MarketingEvent` occurred and what kind of content was used.
 	// Because `utmSource` and `utmMedium` are often used interchangeably, this is
 	// based on a combination of `marketingChannel`, `referringDomain`, and `type` to
@@ -13993,7 +13994,7 @@ type MarketingEvent struct {
 	//
 	SourceAndMedium string `json:"sourceAndMedium"`
 	// The date and time when the marketing event started.
-	StartedAt string `json:"startedAt"`
+	StartedAt time.Time `json:"startedAt"`
 	// The display text for the marketing event type.
 	TargetTypeDisplayText string `json:"targetTypeDisplayText"`
 	// The marketing event type.
@@ -14069,7 +14070,7 @@ type MediaImage struct {
 	Alt *string `json:"alt,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
 	//
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Any errors that have occurred on the file.
 	FileErrors []FileError `json:"fileErrors,omitempty"`
 	// The status of the file.
@@ -14101,7 +14102,7 @@ type MediaImage struct {
 	// Current status of the media.
 	Status MediaStatus `json:"status"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (MediaImage) IsFile() {}
@@ -14110,7 +14111,7 @@ func (MediaImage) IsFile() {}
 func (this MediaImage) GetAlt() *string { return this.Alt }
 
 // The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
-func (this MediaImage) GetCreatedAt() string { return this.CreatedAt }
+func (this MediaImage) GetCreatedAt() time.Time { return this.CreatedAt }
 
 // Any errors that have occurred on the file.
 func (this MediaImage) GetFileErrors() []FileError {
@@ -14134,7 +14135,7 @@ func (this MediaImage) GetID() string { return this.ID }
 func (this MediaImage) GetPreview() *MediaPreviewImage { return this.Preview }
 
 // The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-func (this MediaImage) GetUpdatedAt() string { return this.UpdatedAt }
+func (this MediaImage) GetUpdatedAt() time.Time { return this.UpdatedAt }
 
 func (MediaImage) IsHasMetafields() {}
 
@@ -14262,7 +14263,7 @@ type MerchantApprovalSignals struct {
 // Metafields are identified by an owner resource, namespace, and key. and store a value along with type information for that value.
 type Metafield struct {
 	// The date and time when the metafield was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The metafield definition that the metafield belongs to, if any.
 	Definition *MetafieldDefinition `json:"definition,omitempty,omitempty"`
 	// The description of the metafield.
@@ -14290,7 +14291,7 @@ type Metafield struct {
 	//
 	Type string `json:"type"`
 	// The date and time when the metafield was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The data stored in the metafield. Always stored as a string, regardless of the metafield's type.
 	//
 	Value string `json:"value"`
@@ -14822,7 +14823,7 @@ type MetafieldRelationEdge struct {
 // for more details.
 type MetafieldStorefrontVisibility struct {
 	// The date and time when the metafield was set to visible in the Storefront API.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The key of a metafield to make visible in the Storefront API.
@@ -14835,7 +14836,7 @@ type MetafieldStorefrontVisibility struct {
 	OwnerType MetafieldOwnerType `json:"ownerType"`
 	// The date and time when the `MetafieldStorefrontVisilibty` record was updated.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (MetafieldStorefrontVisibility) IsLegacyInteroperability() {}
@@ -14982,7 +14983,7 @@ type Metaobject struct {
 	// The type of the metaobject.
 	Type string `json:"type"`
 	// When the object was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Metaobject) IsMetafieldReference() {}
@@ -15748,7 +15749,7 @@ type Order struct {
 	// The date and time when the order was canceled.
 	// Returns `null` if the order wasn't canceled.
 	//
-	CancelledAt *string `json:"cancelledAt,omitempty,omitempty"`
+	CancelledAt *time.Time `json:"cancelledAt,omitempty,omitempty"`
 	// Whether payment for the order can be captured.
 	//
 	Capturable bool `json:"capturable"`
@@ -15767,7 +15768,7 @@ type Order struct {
 	// The date and time when the order was closed.
 	// Returns `null` if the order is not closed.
 	//
-	ClosedAt *string `json:"closedAt,omitempty,omitempty"`
+	ClosedAt *time.Time `json:"closedAt,omitempty,omitempty"`
 	// A randomly generated alpha-numeric identifier for the order that may be shown to the customer
 	// instead of the sequential order name. For example, "XPAV284CT", "R50KELTJP" or "35PKUN0UJ".
 	// This value isn't guaranteed to be unique.
@@ -15776,7 +15777,7 @@ type Order struct {
 	// Whether inventory has been reserved for the order.
 	Confirmed bool `json:"confirmed"`
 	// Date and time when the order was created in Shopify.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The shop currency when the order was placed.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 	// The current order-level discount amount after all order updates, in shop and presentment currencies.
@@ -15967,7 +15968,7 @@ type Order struct {
 	// The date and time when the order was processed.
 	// This date and time might not match the date and time when the order was created.
 	//
-	ProcessedAt string `json:"processedAt"`
+	ProcessedAt time.Time `json:"processedAt"`
 	// The publication that the order was created from.
 	Publication *Publication `json:"publication,omitempty,omitempty"`
 	// The purchasing entity for the order.
@@ -16105,7 +16106,7 @@ type Order struct {
 	//
 	Unpaid bool `json:"unpaid"`
 	// The date and time when the order was modified last.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Order) IsCommentEventEmbed() {}
@@ -16167,7 +16168,7 @@ type OrderAgreement struct {
 	// The application that created the agreement.
 	App *App `json:"app,omitempty,omitempty"`
 	// The date and time at which the agreement occured.
-	HappenedAt string `json:"happenedAt"`
+	HappenedAt time.Time `json:"happenedAt"`
 	// The unique ID for the agreement.
 	ID string `json:"id"`
 	// The order associated with the agreement.
@@ -16186,7 +16187,7 @@ func (OrderAgreement) IsSalesAgreement() {}
 func (this OrderAgreement) GetApp() *App { return this.App }
 
 // The date and time at which the agreement occured.
-func (this OrderAgreement) GetHappenedAt() string { return this.HappenedAt }
+func (this OrderAgreement) GetHappenedAt() time.Time { return this.HappenedAt }
 
 // The unique ID for the agreement.
 func (this OrderAgreement) GetID() string { return this.ID }
@@ -16355,7 +16356,7 @@ type OrderEditAgreement struct {
 	// The application that created the agreement.
 	App *App `json:"app,omitempty,omitempty"`
 	// The date and time at which the agreement occured.
-	HappenedAt string `json:"happenedAt"`
+	HappenedAt time.Time `json:"happenedAt"`
 	// The unique ID for the agreement.
 	ID string `json:"id"`
 	// The reason the agremeent was created.
@@ -16372,7 +16373,7 @@ func (OrderEditAgreement) IsSalesAgreement() {}
 func (this OrderEditAgreement) GetApp() *App { return this.App }
 
 // The date and time at which the agreement occured.
-func (this OrderEditAgreement) GetHappenedAt() string { return this.HappenedAt }
+func (this OrderEditAgreement) GetHappenedAt() time.Time { return this.HappenedAt }
 
 // The unique ID for the agreement.
 func (this OrderEditAgreement) GetID() string { return this.ID }
@@ -16656,9 +16657,9 @@ type OrderTransaction struct {
 	AuthorizationCode *string `json:"authorizationCode,omitempty,omitempty"`
 	// The time when the authorization expires. This field is available only to stores on a Shopify Plus plan and is populated only for Shopify Payments authorizations.
 	//
-	AuthorizationExpiresAt *string `json:"authorizationExpiresAt,omitempty,omitempty"`
+	AuthorizationExpiresAt *time.Time `json:"authorizationExpiresAt,omitempty,omitempty"`
 	// Date and time when the transaction was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A standardized error code, independent of the payment provider.
 	ErrorCode *OrderTransactionErrorCode `json:"errorCode,omitempty,omitempty"`
 	// The transaction fees charged on the order transaction. Only present for Shopify Payments transactions.
@@ -16695,7 +16696,7 @@ type OrderTransaction struct {
 	// The payment method used for the transaction. This value is `null` if the payment method is unknown.
 	PaymentMethod *PaymentMethods `json:"paymentMethod,omitempty,omitempty"`
 	// Date and time when the transaction was processed.
-	ProcessedAt *string `json:"processedAt,omitempty,omitempty"`
+	ProcessedAt *time.Time `json:"processedAt,omitempty,omitempty"`
 	// The transaction receipt that the payment gateway attaches to the transaction.
 	// The value of this field depends on which payment gateway processed the transaction.
 	//
@@ -17009,13 +17010,13 @@ type PaymentSchedule struct {
 	// Amount owed for this payment schedule.
 	Amount *MoneyV2 `json:"amount,omitempty"`
 	// Date and time when the payment schedule is paid or fulfilled.
-	CompletedAt *string `json:"completedAt,omitempty,omitempty"`
+	CompletedAt *time.Time `json:"completedAt,omitempty,omitempty"`
 	// Date and time when the payment schedule is due.
-	DueAt *string `json:"dueAt,omitempty,omitempty"`
+	DueAt *time.Time `json:"dueAt,omitempty,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// Date and time when the invoice is sent.
-	IssuedAt *string `json:"issuedAt,omitempty,omitempty"`
+	IssuedAt *time.Time `json:"issuedAt,omitempty,omitempty"`
 	// The payment terms the payment schedule belongs to.
 	PaymentTerms *PaymentTerms `json:"paymentTerms,omitempty"`
 }
@@ -17046,9 +17047,9 @@ type PaymentScheduleEdge struct {
 // The input fields used to create a payment schedule for payment terms.
 type PaymentScheduleInput struct {
 	// Specifies the date and time that the payment schedule was issued. This field must be provided for net type payment terms.
-	IssuedAt *string `json:"issuedAt,omitempty,omitempty"`
+	IssuedAt *time.Time `json:"issuedAt,omitempty,omitempty"`
 	// Specifies the date and time when the payment schedule is due. This field must be provided for fixed type payment terms.
-	DueAt *string `json:"dueAt,omitempty,omitempty"`
+	DueAt *time.Time `json:"dueAt,omitempty,omitempty"`
 }
 
 // Settings related to payments.
@@ -17651,7 +17652,7 @@ type PriceRule struct {
 	// Determines which discount classes the discount can combine with.
 	CombinesWith *DiscountCombinesWith `json:"combinesWith,omitempty"`
 	// The date and time when the price rule was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The customers that can use this price rule.
 	CustomerSelection *PriceRuleCustomerSelection `json:"customerSelection,omitempty"`
 	// The class of the discount for combining purposes.
@@ -17661,7 +17662,7 @@ type PriceRule struct {
 	// How many discount codes associated with the price rule.
 	DiscountCodesCount int `json:"discountCodesCount"`
 	// The date and time when the price rule ends. For open-ended price rules, use `null`.
-	EndsAt *string `json:"endsAt,omitempty,omitempty"`
+	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// Quantity of prerequisite items required for the price rule to be applicable,  compared to quantity of entitled items.
 	EntitlementToPrerequisiteQuantityRatio *PriceRuleEntitlementToPrerequisiteQuantityRatio `json:"entitlementToPrerequisiteQuantityRatio,omitempty,omitempty"`
 	// The paginated list of events associated with the price rule.
@@ -17693,7 +17694,7 @@ type PriceRule struct {
 	// The shipping lines to which the price rule applies.
 	ShippingEntitlements *PriceRuleShippingLineEntitlements `json:"shippingEntitlements,omitempty"`
 	// The date and time when the price rule starts.
-	StartsAt string `json:"startsAt"`
+	StartsAt time.Time `json:"startsAt"`
 	// The status of the price rule.
 	Status PriceRuleStatus `json:"status"`
 	// A detailed summary of the price rule.
@@ -18141,17 +18142,17 @@ func (this PriceRuleUserError) GetMessage() string { return this.Message }
 // A time period during which a price rule is applicable.
 type PriceRuleValidityPeriod struct {
 	// The time after which the price rule becomes invalid.
-	End *string `json:"end,omitempty,omitempty"`
+	End *time.Time `json:"end,omitempty,omitempty"`
 	// The time after which the price rule is valid.
-	Start string `json:"start"`
+	Start time.Time `json:"start"`
 }
 
 // The input fields to update the validity period of a price rule.
 type PriceRuleValidityPeriodInput struct {
 	// The time after which the price rule is valid.
-	Start string `json:"start"`
+	Start time.Time `json:"start"`
 	// The time after which the price rule becomes invalid.
-	End *string `json:"end,omitempty,omitempty"`
+	End *time.Time `json:"end,omitempty,omitempty"`
 }
 
 // The input fields to update a price rule.
@@ -18178,7 +18179,7 @@ func (PricingPercentageValue) IsPricingValue() {}
 // An application can create a maximum of 10 private metafields per shop resource.
 type PrivateMetafield struct {
 	// The date and time when the private metafield was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The ID of the private metafield.
 	ID string `json:"id"`
 	// The key name of the private metafield.
@@ -18186,7 +18187,7 @@ type PrivateMetafield struct {
 	// The namespace of the private metafield.
 	Namespace string `json:"namespace"`
 	// The date and time when the private metafield was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The value of a private metafield.
 	Value string `json:"value"`
 	// Represents the private metafield value type.
@@ -18274,7 +18275,7 @@ type Product struct {
 	ContextualPricing *ProductContextualPricing `json:"contextualPricing,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the product was created.
 	//
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The custom product type specified by the merchant.
 	CustomProductType *string `json:"customProductType,omitempty,omitempty"`
 	// A default cursor that returns the single next record, sorted ascending by ID.
@@ -18350,7 +18351,7 @@ type Product struct {
 	Publications *ProductPublicationConnection `json:"publications,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the product was published to the Online Store.
 	//
-	PublishedAt *string `json:"publishedAt,omitempty,omitempty"`
+	PublishedAt *time.Time `json:"publishedAt,omitempty,omitempty"`
 	// Whether or not the product is published for a customer in the given context.
 	PublishedInContext bool `json:"publishedInContext"`
 	// Check to see whether the resource is published to a given channel.
@@ -18411,7 +18412,7 @@ type Product struct {
 	// is placed for a product that has inventory tracking set up, then the inventory adjustment
 	// is counted as an update.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// A list of variants associated with the product.
 	Variants *ProductVariantConnection `json:"variants,omitempty"`
 	// The name of the product's vendor.
@@ -19076,7 +19077,7 @@ type ProductPublication struct {
 	// The product that was or is going to be published on the channel.
 	Product *Product `json:"product,omitempty"`
 	// The date that the product was or is going to be published on the channel.
-	PublishDate *string `json:"publishDate,omitempty,omitempty"`
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
 }
 
 // An auto-generated type for paginating through multiple ProductPublications.
@@ -19102,7 +19103,7 @@ type ProductPublicationInput struct {
 	// ID of the publication.
 	PublicationID *string `json:"publicationId,omitempty,omitempty"`
 	// The date and time that the product was (or will be) published.
-	PublishDate *string `json:"publishDate,omitempty,omitempty"`
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
 }
 
 // The input fields for specifying a product to publish and the channels to publish it to.
@@ -19150,13 +19151,13 @@ type ProductResourceFeedback struct {
 	// The time when the feedback was generated. Used to help determine whether
 	// incoming feedback is outdated compared to existing feedback.
 	//
-	FeedbackGeneratedAt string `json:"feedbackGeneratedAt"`
+	FeedbackGeneratedAt time.Time `json:"feedbackGeneratedAt"`
 	// The feedback messages presented to the merchant.
 	Messages []string `json:"messages,omitempty"`
 	// The ID of the product associated with the feedback.
 	ProductID string `json:"productId"`
 	// The timestamp of the product associated with the feedback.
-	ProductUpdatedAt string `json:"productUpdatedAt"`
+	ProductUpdatedAt time.Time `json:"productUpdatedAt"`
 	// Conveys the state of the feedback and whether it requires merchant action or not.
 	State ResourceFeedbackState `json:"state"`
 }
@@ -19170,9 +19171,9 @@ type ProductResourceFeedbackInput struct {
 	// The date and time when the payload is constructed.
 	// Used to help determine whether incoming feedback is outdated compared to feedback already received, and if it should be ignored upon arrival.
 	//
-	FeedbackGeneratedAt string `json:"feedbackGeneratedAt"`
+	FeedbackGeneratedAt time.Time `json:"feedbackGeneratedAt"`
 	// The timestamp of the product associated with the feedback.
-	ProductUpdatedAt string `json:"productUpdatedAt"`
+	ProductUpdatedAt time.Time `json:"productUpdatedAt"`
 	// A concise set of copy strings to be displayed to merchants. Used to guide merchants in resolving problems that your app encounters when trying to make use of their products.
 	// You can specify up to four messages. Each message is limited to 100 characters.
 	//
@@ -19313,7 +19314,7 @@ type ProductVariant struct {
 	// The pricing that applies for a customer in a given context.
 	ContextualPricing *ProductVariantContextualPricing `json:"contextualPricing,omitempty"`
 	// The date and time when the variant was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A default cursor that returns the single next record, sorted ascending by ID.
 	//
 	DefaultCursor string `json:"defaultCursor"`
@@ -19410,7 +19411,7 @@ type ProductVariant struct {
 	Translations []Translation `json:"translations,omitempty"`
 	// The date and time (ISO 8601 format) when the product variant was last modified.
 	//
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 	// The weight of the product variant in the unit system specified with weight_unit.
 	Weight *float64 `json:"weight,omitempty,omitempty"`
 	// The unit of measurement that applies to the product variant's weight. If you don't specify a value for weight_unit, then the shop's default unit of measurement is applied. Valid values: `g`, `kg`, `oz`, `lb`.
@@ -20126,7 +20127,7 @@ type PublicationInput struct {
 	PublicationID *string `json:"publicationId,omitempty,omitempty"`
 	// The date and time that the resource was published. Setting this to a date in the future will schedule the resource to be published. Only online store channels support future publishing. This field has no effect if you include it in the `publishableUnpublish` mutation.
 	//
-	PublishDate *string `json:"publishDate,omitempty,omitempty"`
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
 }
 
 // A bulk update operation on a publication.
@@ -20811,7 +20812,7 @@ type QueryRoot struct {
 // The record of the line items and transactions that were refunded to a customer, along with restocking instructions for refunded line items.
 type Refund struct {
 	// The date and time when the refund was created.
-	CreatedAt *string `json:"createdAt,omitempty,omitempty"`
+	CreatedAt *time.Time `json:"createdAt,omitempty,omitempty"`
 	// A list of the refunded duties as part of this refund.
 	Duties []RefundDuty `json:"duties,omitempty,omitempty"`
 	// A globally-unique ID.
@@ -20835,7 +20836,7 @@ type Refund struct {
 	// The transactions associated with the refund.
 	Transactions *OrderTransactionConnection `json:"transactions,omitempty"`
 	// The date and time when the refund was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Refund) IsLegacyInteroperability() {}
@@ -20853,7 +20854,7 @@ type RefundAgreement struct {
 	// The application that created the agreement.
 	App *App `json:"app,omitempty,omitempty"`
 	// The date and time at which the agreement occured.
-	HappenedAt string `json:"happenedAt"`
+	HappenedAt time.Time `json:"happenedAt"`
 	// The unique ID for the agreement.
 	ID string `json:"id"`
 	// The reason the agremeent was created.
@@ -20872,7 +20873,7 @@ func (RefundAgreement) IsSalesAgreement() {}
 func (this RefundAgreement) GetApp() *App { return this.App }
 
 // The date and time at which the agreement occured.
-func (this RefundAgreement) GetHappenedAt() string { return this.HappenedAt }
+func (this RefundAgreement) GetHappenedAt() time.Time { return this.HappenedAt }
 
 // The unique ID for the agreement.
 func (this RefundAgreement) GetID() string { return this.ID }
@@ -21095,7 +21096,7 @@ type ResourceFeedbackCreateInput struct {
 	// The date and time when the feedback was generated. Used to help determine whether
 	// incoming feedback is outdated compared to existing feedback.
 	//
-	FeedbackGeneratedAt string `json:"feedbackGeneratedAt"`
+	FeedbackGeneratedAt time.Time `json:"feedbackGeneratedAt"`
 	// If the feedback state is `requires_action`, then you can send a string message that communicates the action to be taken by the merchant.
 	// The string must be a single message up to 100 characters long and must end with a period.
 	// You need to adhere to the message formatting rules or your requests will fail:
@@ -21139,7 +21140,7 @@ type ResourcePublication struct {
 	// The date that the resource publication was or is going to be published to the publication.
 	// If the product isn't published, then this field returns an epoch timestamp.
 	//
-	PublishDate string `json:"publishDate"`
+	PublishDate time.Time `json:"publishDate"`
 	// The resource published to the publication.
 	Publishable Publishable `json:"publishable"`
 }
@@ -21174,7 +21175,7 @@ type ResourcePublicationV2 struct {
 	// The publication the resource publication is published to.
 	Publication *Publication `json:"publication,omitempty"`
 	// The date that the resource publication was or is going to be published to the publication.
-	PublishDate *string `json:"publishDate,omitempty,omitempty"`
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
 	// The resource published to the publication.
 	Publishable Publishable `json:"publishable"`
 }
@@ -21317,7 +21318,7 @@ type ReturnInput struct {
 	// When `true` the customer will receive a notification if there is an `Order.email` present.
 	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
 	// The UTC date and time when the return was first solicited by the customer.
-	RequestedAt *string `json:"requestedAt,omitempty,omitempty"`
+	RequestedAt *time.Time `json:"requestedAt,omitempty,omitempty"`
 }
 
 // A return line item.
@@ -21628,11 +21629,11 @@ type ReverseDeliveryLabelInput struct {
 // The return label file information for a reverse delivery.
 type ReverseDeliveryLabelV2 struct {
 	// The date and time when the reverse delivery label was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A public link that can be used to download the label image.
 	PublicFileURL *string `json:"publicFileUrl,omitempty,omitempty"`
 	// The date and time when the reverse delivery label was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // The details about a reverse delivery line item.
@@ -22080,7 +22081,7 @@ type ScriptTag struct {
 	//
 	Cache bool `json:"cache"`
 	// The date and time when the script tag was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The page or pages on the online store that the script should be included.
 	DisplayScope ScriptTagDisplayScope `json:"displayScope"`
 	// A globally-unique ID.
@@ -22090,7 +22091,7 @@ type ScriptTag struct {
 	// The URL to the remote script.
 	Src string `json:"src"`
 	// The date and time when the script tag was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (ScriptTag) IsLegacyInteroperability() {}
@@ -22210,11 +22211,11 @@ type SearchResultEdge struct {
 // A dynamic collection of customers based on specific criteria.
 type Segment struct {
 	// The date and time when the segment was added to the store.
-	CreationDate string `json:"creationDate"`
+	CreationDate time.Time `json:"creationDate"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The date and time when the segment was last updated.
-	LastEditDate string `json:"lastEditDate"`
+	LastEditDate time.Time `json:"lastEditDate"`
 	// The name of the segment.
 	Name string `json:"name"`
 	// A precise definition of the segment. The definition is composed of a combination of conditions on facts about customers.
@@ -22580,7 +22581,7 @@ type SellingPlan struct {
 	// The category used to classify the selling plan for reporting purposes.
 	Category *SellingPlanCategory `json:"category,omitempty,omitempty"`
 	// The date and time when the selling plan was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A selling plan policy which describes the delivery details.
 	DeliveryPolicy SellingPlanDeliveryPolicy `json:"deliveryPolicy"`
 	// Buyer facing string which describes the selling plan commitment.
@@ -22754,7 +22755,7 @@ type SellingPlanFixedBillingPolicy struct {
 	// The checkout charge when the full amount isn't charged at checkout.
 	CheckoutCharge *SellingPlanCheckoutCharge `json:"checkoutCharge,omitempty"`
 	// The exact time when to capture the full payment.
-	RemainingBalanceChargeExactTime *string `json:"remainingBalanceChargeExactTime,omitempty,omitempty"`
+	RemainingBalanceChargeExactTime *time.Time `json:"remainingBalanceChargeExactTime,omitempty,omitempty"`
 	// The period after remaining_balance_charge_trigger, before capturing the full payment. Expressed as an ISO8601 duration.
 	//
 	RemainingBalanceChargeTimeAfterCheckout *string `json:"remainingBalanceChargeTimeAfterCheckout,omitempty,omitempty"`
@@ -22769,7 +22770,7 @@ type SellingPlanFixedBillingPolicyInput struct {
 	// When to capture the payment for the amount due.
 	RemainingBalanceChargeTrigger *SellingPlanRemainingBalanceChargeTrigger `json:"remainingBalanceChargeTrigger,omitempty,omitempty"`
 	// The date and time to capture the full payment.
-	RemainingBalanceChargeExactTime *string `json:"remainingBalanceChargeExactTime,omitempty,omitempty"`
+	RemainingBalanceChargeExactTime *time.Time `json:"remainingBalanceChargeExactTime,omitempty,omitempty"`
 	// The period after capturing the payment for the amount due (`remainingBalanceChargeTrigger`), and before capturing the full payment. Expressed as an ISO8601 duration.
 	RemainingBalanceChargeTimeAfterCheckout *string `json:"remainingBalanceChargeTimeAfterCheckout,omitempty,omitempty"`
 	// The checkout charge policy for the selling plan.
@@ -22783,7 +22784,7 @@ type SellingPlanFixedDeliveryPolicy struct {
 	// A buffer period for orders to be included in next fulfillment anchor.
 	Cutoff *int `json:"cutoff,omitempty,omitempty"`
 	// The date and time when the fulfillment should trigger.
-	FulfillmentExactTime *string `json:"fulfillmentExactTime,omitempty,omitempty"`
+	FulfillmentExactTime *time.Time `json:"fulfillmentExactTime,omitempty,omitempty"`
 	// What triggers the fulfillment. The value must be one of ANCHOR, ASAP, EXACT_TIME, or UNKNOWN.
 	FulfillmentTrigger SellingPlanFulfillmentTrigger `json:"fulfillmentTrigger"`
 	// Whether the delivery policy is merchant or buyer-centric.
@@ -22805,7 +22806,7 @@ type SellingPlanFixedDeliveryPolicyInput struct {
 	// What triggers the fulfillment.
 	FulfillmentTrigger *SellingPlanFulfillmentTrigger `json:"fulfillmentTrigger,omitempty,omitempty"`
 	// The date and time when the fulfillment should trigger.
-	FulfillmentExactTime *string `json:"fulfillmentExactTime,omitempty,omitempty"`
+	FulfillmentExactTime *time.Time `json:"fulfillmentExactTime,omitempty,omitempty"`
 	// A buffer period for orders to be included in a cycle.
 	Cutoff *int `json:"cutoff,omitempty,omitempty"`
 	// Whether the delivery policy is merchant or buyer-centric.
@@ -22821,7 +22822,7 @@ type SellingPlanFixedPricingPolicy struct {
 	// The price adjustment value.
 	AdjustmentValue SellingPlanPricingPolicyAdjustmentValue `json:"adjustmentValue"`
 	// The date and time when the fixed selling plan pricing policy was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (SellingPlanFixedPricingPolicy) IsSellingPlanPricingPolicyBase() {}
@@ -22862,7 +22863,7 @@ type SellingPlanGroup struct {
 	//
 	AppliesToProductVariants bool `json:"appliesToProductVariants"`
 	// The date and time when the selling plan group was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The merchant-facing description of the selling plan group.
 	Description *string `json:"description,omitempty,omitempty"`
 	// A globally-unique ID.
@@ -23110,7 +23111,7 @@ type SellingPlanRecurringBillingPolicy struct {
 	// Specific anchor dates upon which the billing interval calculations should be made.
 	Anchors []SellingPlanAnchor `json:"anchors,omitempty"`
 	// The date and time when the selling plan billing policy was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The billing frequency, it can be either: day, week, month or year.
 	Interval SellingPlanInterval `json:"interval"`
 	// The number of intervals between billings.
@@ -23142,7 +23143,7 @@ type SellingPlanRecurringDeliveryPolicy struct {
 	// The specific anchor dates upon which the delivery interval calculations should be made.
 	Anchors []SellingPlanAnchor `json:"anchors,omitempty"`
 	// The date and time when the selling plan delivery policy was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Number of days which represent a buffer period for orders to be included in a cycle.
 	Cutoff *int `json:"cutoff,omitempty,omitempty"`
 	// Whether the delivery policy is merchant or buyer-centric.
@@ -23186,7 +23187,7 @@ type SellingPlanRecurringPricingPolicy struct {
 	// Cycle after which this pricing policy applies.
 	AfterCycle *int `json:"afterCycle,omitempty,omitempty"`
 	// The date and time when the recurring selling plan pricing policy was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func (SellingPlanRecurringPricingPolicy) IsSellingPlanPricingPolicy() {}
@@ -24127,7 +24128,7 @@ type ShopifyPaymentsBankAccount struct {
 	//
 	Country CountryCode `json:"country"`
 	// The date that the bank account was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The currency of the bank account.
 	//
 	Currency CurrencyCode `json:"currency"`
@@ -24194,7 +24195,7 @@ type ShopifyPaymentsDispute struct {
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The date when this dispute was initiated.
-	InitiatedAt string `json:"initiatedAt"`
+	InitiatedAt time.Time `json:"initiatedAt"`
 	// The ID of the corresponding resource in the REST Admin API.
 	LegacyResourceID string `json:"legacyResourceId"`
 	// The order that contains the charge that is under dispute.
@@ -24388,10 +24389,10 @@ type ShopifyPaymentsDisputeReasonDetails struct {
 type ShopifyPaymentsExtendedAuthorization struct {
 	// The time after which the extended authorization expires. After the expiry, the merchant is unable to capture the payment.
 	//
-	ExtendedAuthorizationExpiresAt string `json:"extendedAuthorizationExpiresAt"`
+	ExtendedAuthorizationExpiresAt time.Time `json:"extendedAuthorizationExpiresAt"`
 	// The time after which capture will incur an additional fee.
 	//
-	StandardAuthorizationExpiresAt string `json:"standardAuthorizationExpiresAt"`
+	StandardAuthorizationExpiresAt time.Time `json:"standardAuthorizationExpiresAt"`
 }
 
 // The fraud settings of a payments account.
@@ -24440,7 +24441,7 @@ type ShopifyPaymentsPayout struct {
 	// The exact time when the payout was issued. The payout only contains
 	// balance transactions that were available at this time.
 	//
-	IssuedAt string `json:"issuedAt"`
+	IssuedAt time.Time `json:"issuedAt"`
 	// The ID of the corresponding resource in the REST Admin API.
 	LegacyResourceID string `json:"legacyResourceId"`
 	// The total amount and currency of the payout.
@@ -24635,7 +24636,7 @@ type StaffMemberPrivateData struct {
 	// The URL to the staff member's account settings page.
 	AccountSettingsURL string `json:"accountSettingsUrl"`
 	// The date and time when the staff member was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// Access permissions for the staff member.
 	Permissions []StaffMemberPermission `json:"permissions,omitempty"`
 }
@@ -24882,13 +24883,13 @@ type StorefrontAccessToken struct {
 	// The issued public access token.
 	AccessToken string `json:"accessToken"`
 	// The date and time when the public access token was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// An arbitrary title for each token determined by the developer, used for reference         purposes.
 	Title string `json:"title"`
 	// The date and time when the storefront access token was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (StorefrontAccessToken) IsNode() {}
@@ -24995,9 +24996,9 @@ type SubscriptionAtomicManualDiscountInput struct {
 // will create an order.
 type SubscriptionBillingAttempt struct {
 	// The date and time when the billing attempt was completed.
-	CompletedAt *string `json:"completedAt,omitempty,omitempty"`
+	CompletedAt *time.Time `json:"completedAt,omitempty,omitempty"`
 	// The date and time when the billing attempt was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// A code corresponding to a payment error during processing.
 	ErrorCode *SubscriptionBillingAttemptErrorCode `json:"errorCode,omitempty,omitempty"`
 	// A message describing a payment error during processing.
@@ -25015,7 +25016,7 @@ type SubscriptionBillingAttempt struct {
 	// successfully completed after the current anchor date. To prevent fulfillment from being
 	// pushed to the next anchor date, this field can override the billing attempt date.
 	//
-	OriginTime *string `json:"originTime,omitempty,omitempty"`
+	OriginTime *time.Time `json:"originTime,omitempty,omitempty"`
 	// Whether the billing attempt is still processing.
 	Ready bool `json:"ready"`
 	// The subscription contract.
@@ -25061,7 +25062,7 @@ type SubscriptionBillingAttemptInput struct {
 	// successfully completed after the current anchor date. To prevent fulfillment from being
 	// pushed to the next anchor date, this field can override the billing attempt date.
 	//
-	OriginTime *string `json:"originTime,omitempty,omitempty"`
+	OriginTime *time.Time `json:"originTime,omitempty,omitempty"`
 	// Select the specific billing cycle to be billed.
 	// Default to bill the current billing cycle if not specified.
 	//
@@ -25071,15 +25072,15 @@ type SubscriptionBillingAttemptInput struct {
 // A subscription billing cycle.
 type SubscriptionBillingCycle struct {
 	// The date on which the billing attempt is expected to be made.
-	BillingAttemptExpectedDate string `json:"billingAttemptExpectedDate"`
+	BillingAttemptExpectedDate time.Time `json:"billingAttemptExpectedDate"`
 	// The list of billing attempts associated with the billing cycle.
 	BillingAttempts *SubscriptionBillingAttemptConnection `json:"billingAttempts,omitempty"`
 	// The end date of the billing cycle.
-	CycleEndAt string `json:"cycleEndAt"`
+	CycleEndAt time.Time `json:"cycleEndAt"`
 	// The index of the billing cycle.
 	CycleIndex int `json:"cycleIndex"`
 	// The start date of the billing cycle.
-	CycleStartAt string `json:"cycleStartAt"`
+	CycleStartAt time.Time `json:"cycleStartAt"`
 	// Whether this billing cycle was edited.
 	Edited bool `json:"edited"`
 	// The active edited contract for the billing cycle.
@@ -25151,7 +25152,7 @@ type SubscriptionBillingCycleEditedContract struct {
 	// The billing cycles that the edited contract belongs to.
 	BillingCycles *SubscriptionBillingCycleConnection `json:"billingCycles,omitempty"`
 	// The date and time when the subscription contract was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The currency that's used for the subscription contract.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 	// A list of the custom attributes to be added to the generated orders.
@@ -25175,7 +25176,7 @@ type SubscriptionBillingCycleEditedContract struct {
 	// A list of the subscription contract's orders.
 	Orders *OrderConnection `json:"orders,omitempty"`
 	// The date and time when the subscription contract was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (SubscriptionBillingCycleEditedContract) IsSubscriptionContractBase() {}
@@ -25241,7 +25242,7 @@ func (this SubscriptionBillingCycleEditedContract) GetNote() *string { return th
 func (this SubscriptionBillingCycleEditedContract) GetOrders() *OrderConnection { return this.Orders }
 
 // The date and time when the subscription contract was updated.
-func (this SubscriptionBillingCycleEditedContract) GetUpdatedAt() string { return this.UpdatedAt }
+func (this SubscriptionBillingCycleEditedContract) GetUpdatedAt() time.Time { return this.UpdatedAt }
 
 // Return type for `subscriptionBillingCycleEditsDelete` mutation.
 type SubscriptionBillingCycleEditsDeletePayload struct {
@@ -25264,7 +25265,7 @@ type SubscriptionBillingCycleScheduleEditInput struct {
 	// Sets the skip status for the billing cycle.
 	Skip *bool `json:"skip,omitempty,omitempty"`
 	// Sets the expected billing date for the billing cycle.
-	BillingDate *string `json:"billingDate,omitempty,omitempty"`
+	BillingDate *time.Time `json:"billingDate,omitempty,omitempty"`
 	// The reason for editing.
 	Reason SubscriptionBillingCycleScheduleEditInputScheduleEditReason `json:"reason"`
 }
@@ -25282,7 +25283,7 @@ type SubscriptionBillingCycleSelector struct {
 	// Returns a billing cycle by index.
 	Index *int `json:"index,omitempty,omitempty"`
 	// Returns a billing cycle by date.
-	Date *string `json:"date,omitempty,omitempty"`
+	Date *time.Time `json:"date,omitempty,omitempty"`
 }
 
 // The possible errors for a subscription billing cycle.
@@ -25315,9 +25316,9 @@ func (this SubscriptionBillingCycleUserError) GetMessage() string { return this.
 // The input fields to select a subset of subscription billing cycles within a date range.
 type SubscriptionBillingCyclesDateRangeSelector struct {
 	// The start date and time for the range.
-	StartDate string `json:"startDate"`
+	StartDate time.Time `json:"startDate"`
 	// The end date and time for the range.
-	EndDate string `json:"endDate"`
+	EndDate time.Time `json:"endDate"`
 }
 
 // The input fields to select a subset of subscription billing cycles within an index range.
@@ -25367,7 +25368,7 @@ type SubscriptionContract struct {
 	// The billing policy associated with the subscription contract.
 	BillingPolicy *SubscriptionBillingPolicy `json:"billingPolicy,omitempty"`
 	// The date and time when the subscription contract was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The currency that's used for the subscription contract.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 	// A list of the custom attributes to be added to the generated orders.
@@ -25393,7 +25394,7 @@ type SubscriptionContract struct {
 	// The list of subscription lines associated with the subscription contract.
 	Lines *SubscriptionLineConnection `json:"lines,omitempty"`
 	// The next billing date for the subscription contract.
-	NextBillingDate *string `json:"nextBillingDate,omitempty,omitempty"`
+	NextBillingDate *time.Time `json:"nextBillingDate,omitempty,omitempty"`
 	// The note field that will be applied to the generated orders.
 	Note *string `json:"note,omitempty,omitempty"`
 	// A list of the subscription contract's orders.
@@ -25405,7 +25406,7 @@ type SubscriptionContract struct {
 	// The current status of the subscription contract.
 	Status SubscriptionContractSubscriptionStatus `json:"status"`
 	// The date and time when the subscription contract was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (SubscriptionContract) IsNode() {}
@@ -25470,14 +25471,14 @@ func (this SubscriptionContract) GetNote() *string { return this.Note }
 func (this SubscriptionContract) GetOrders() *OrderConnection { return this.Orders }
 
 // The date and time when the subscription contract was updated.
-func (this SubscriptionContract) GetUpdatedAt() string { return this.UpdatedAt }
+func (this SubscriptionContract) GetUpdatedAt() time.Time { return this.UpdatedAt }
 
 // The input fields required to create a Subscription Contract.
 type SubscriptionContractAtomicCreateInput struct {
 	// The ID of the customer to associate with the subscription contract.
 	CustomerID string `json:"customerId"`
 	// The next billing date for the subscription contract.
-	NextBillingDate string `json:"nextBillingDate"`
+	NextBillingDate time.Time `json:"nextBillingDate"`
 	// The currency used for the subscription contract.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 	// The attributes used as input for the Subscription Draft.
@@ -25511,7 +25512,7 @@ type SubscriptionContractCreateInput struct {
 	// The ID of the customer to associate with the subscription contract.
 	CustomerID string `json:"customerId"`
 	// The next billing date for the subscription contract.
-	NextBillingDate string `json:"nextBillingDate"`
+	NextBillingDate time.Time `json:"nextBillingDate"`
 	// The currency used for the subscription contract.
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 	// The attributes used as input for the Subscription Draft.
@@ -25902,7 +25903,7 @@ type SubscriptionDraft struct {
 	// The list of subscription lines to be removed from the subscription contract.
 	LinesRemoved *SubscriptionLineConnection `json:"linesRemoved,omitempty"`
 	// The next billing date for the subscription contract.
-	NextBillingDate *string `json:"nextBillingDate,omitempty,omitempty"`
+	NextBillingDate *time.Time `json:"nextBillingDate,omitempty,omitempty"`
 	// The note field that will be applied to the generated orders.
 	Note *string `json:"note,omitempty,omitempty"`
 	// The original subscription contract.
@@ -25994,7 +25995,7 @@ type SubscriptionDraftInput struct {
 	// The ID of the payment method to be used for the subscription contract.
 	PaymentMethodID *string `json:"paymentMethodId,omitempty,omitempty"`
 	// The next billing date for the subscription contract.
-	NextBillingDate *string `json:"nextBillingDate,omitempty,omitempty"`
+	NextBillingDate *time.Time `json:"nextBillingDate,omitempty,omitempty"`
 	// The billing policy for the subscription contract.
 	BillingPolicy *SubscriptionBillingPolicyInput `json:"billingPolicy,omitempty,omitempty"`
 	// The delivery policy for the subscription contract.
@@ -26637,7 +26638,7 @@ type TenderTransaction struct {
 	// Information about the payment method used for the transaction.
 	PaymentMethod *string `json:"paymentMethod,omitempty,omitempty"`
 	// Date and time when the transaction was processed.
-	ProcessedAt *string `json:"processedAt,omitempty,omitempty"`
+	ProcessedAt *time.Time `json:"processedAt,omitempty,omitempty"`
 	// The remote gateway reference associated with the tender transaction.
 	RemoteReference *string `json:"remoteReference,omitempty,omitempty"`
 	// Whether the transaction is a test transaction.
@@ -26825,7 +26826,7 @@ type Translation struct {
 	// Whether the original content has changed since this translation was updated.
 	Outdated bool `json:"outdated"`
 	// The date and time when the translation was updated.
-	UpdatedAt *string `json:"updatedAt,omitempty,omitempty"`
+	UpdatedAt *time.Time `json:"updatedAt,omitempty,omitempty"`
 	// Translation value.
 	Value *string `json:"value,omitempty,omitempty"`
 }
@@ -27171,7 +27172,7 @@ type URLRedirectImport struct {
 	// Whether the import is finished.
 	Finished bool `json:"finished"`
 	// The date and time when the import finished.
-	FinishedAt *string `json:"finishedAt,omitempty,omitempty"`
+	FinishedAt *time.Time `json:"finishedAt,omitempty,omitempty"`
 	// The ID of the `UrlRedirectImport` object.
 	ID string `json:"id"`
 	// A list of up to three previews of the URL redirects to be imported.
@@ -27354,7 +27355,7 @@ type Video struct {
 	Alt *string `json:"alt,omitempty,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
 	//
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The video's duration in milliseconds. This value is `null` unless the video's status field is
 	// [READY](https://shopify.dev/api/admin-graphql/latest/enums/MediaStatus#value-ready).
 	//
@@ -27386,7 +27387,7 @@ type Video struct {
 	// Current status of the media.
 	Status MediaStatus `json:"status"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (Video) IsMetafieldReference() {}
@@ -27397,7 +27398,7 @@ func (Video) IsFile() {}
 func (this Video) GetAlt() *string { return this.Alt }
 
 // The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was created.
-func (this Video) GetCreatedAt() string { return this.CreatedAt }
+func (this Video) GetCreatedAt() time.Time { return this.CreatedAt }
 
 // Any errors that have occurred on the file.
 func (this Video) GetFileErrors() []FileError {
@@ -27421,7 +27422,7 @@ func (this Video) GetID() string { return this.ID }
 func (this Video) GetPreview() *MediaPreviewImage { return this.Preview }
 
 // The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the file was last updated.
-func (this Video) GetUpdatedAt() string { return this.UpdatedAt }
+func (this Video) GetUpdatedAt() time.Time { return this.UpdatedAt }
 
 func (Video) IsMedia() {}
 
@@ -27566,7 +27567,7 @@ type WebhookSubscription struct {
 	// The destination URI to which the webhook subscription will send a message when an event occurs.
 	CallbackURL string `json:"callbackUrl"`
 	// The date and time when the webhook subscription was created.
-	CreatedAt string `json:"createdAt"`
+	CreatedAt time.Time `json:"createdAt"`
 	// The endpoint to which the webhook subscription will send events.
 	Endpoint WebhookSubscriptionEndpoint `json:"endpoint"`
 	// The format in which the webhook subscription should send the data.
@@ -27584,7 +27585,7 @@ type WebhookSubscription struct {
 	// The type of event that triggers the webhook. The topic determines when the webhook subscription sends a webhook, as well as what class of data object that webhook contains.
 	Topic WebhookSubscriptionTopic `json:"topic"`
 	// The date and time when the webhook subscription was updated.
-	UpdatedAt string `json:"updatedAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (WebhookSubscription) IsLegacyInteroperability() {}
