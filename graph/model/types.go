@@ -3,22 +3,10 @@ package model
 import (
 	"fmt"
 	"reflect"
-	"regexp"
 )
 
-var gidRegex *regexp.Regexp
-
-func init() {
-	gidRegex = regexp.MustCompile(`^gid://shopify/(\w+)/\d+$`)
-}
-
-func concludeObjectType(gid string) (reflect.Type, error) {
-	submatches := gidRegex.FindStringSubmatch(gid)
-	if len(submatches) != 2 {
-		return reflect.TypeOf(nil), fmt.Errorf("malformed gid=`%s`", gid)
-	}
-	resource := submatches[1]
-	switch resource {
+func concludeObjectType(typeName string) (reflect.Type, error) {
+	switch typeName {
 	case "MediaImage":
 		return reflect.TypeOf(MediaImage{}), nil
 	case "Video":
@@ -28,6 +16,6 @@ func concludeObjectType(gid string) (reflect.Type, error) {
 	case "ExternalVideo":
 		return reflect.TypeOf(ExternalVideo{}), nil
 	default:
-		return reflect.TypeOf(nil), fmt.Errorf("`%s` not implemented type", resource)
+		return reflect.TypeOf(nil), fmt.Errorf("`%s` not implemented type", typeName)
 	}
 }

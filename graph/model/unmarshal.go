@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/mitchellh/mapstructure"
 )
@@ -62,8 +63,8 @@ func (c *MediaConnection) UnmarshalJSON(b []byte) error {
 }
 
 func decodeMedia(node map[string]interface{}) (Media, error) {
-	if id, ok := node["id"].(string); ok {
-		mediaType, err := concludeObjectType(id)
+	if typeName, ok := node["__typename"].(string); ok {
+		mediaType, err := concludeObjectType(typeName)
 		if err != nil {
 			return nil, fmt.Errorf("conclude object type: %w", err)
 		}
@@ -74,7 +75,7 @@ func decodeMedia(node map[string]interface{}) (Media, error) {
 		}
 		return media.(Media), nil
 	}
-	return nil, fmt.Errorf("must query id to decode Media")
+	return nil, fmt.Errorf("must query __typename to decode Media")
 }
 
 func (s *WebhookSubscription) UnmarshalJSON(b []byte) error {
@@ -83,10 +84,27 @@ func (s *WebhookSubscription) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	if node, ok := m["endpoint"].(map[string]interface{}); ok {
+	// mapstructure.Decode can't decode these fields
+	createdAt := m["createdAt"]
+	updatedAt := m["updatedAt"]
+	endpoint := m["endpoint"]
+	delete(m, "createdAt")
+	delete(m, "updatedAt")
+	delete(m, "endpoint")
+	err = mapstructure.Decode(m, s)
+	if err != nil {
+		return fmt.Errorf("decode map: %w", err)
+	}
+	if c, ok := createdAt.(string); ok {
+		s.CreatedAt, _ = time.Parse(time.RFC3339, c)
+	}
+	if u, ok := updatedAt.(string); ok {
+		s.UpdatedAt, _ = time.Parse(time.RFC3339, u)
+	}
+	if node, ok := endpoint.(map[string]interface{}); ok {
 		s.Endpoint, err = decodeWebhookSubscriptionEndpoint(node)
 		if err != nil {
-			return fmt.Errorf("decode media node: %w", err)
+			return fmt.Errorf("decode endpoint: %w", err)
 		}
 	}
 	return nil
@@ -94,12 +112,18 @@ func (s *WebhookSubscription) UnmarshalJSON(b []byte) error {
 
 func decodeWebhookSubscriptionEndpoint(node map[string]interface{}) (WebhookSubscriptionEndpoint, error) {
 	var endpoint WebhookSubscriptionEndpoint
-	if _, ok := node["arn"].(string); ok {
-		endpoint = &WebhookEventBridgeEndpoint{}
-	} else if _, ok := node["callbackUrl"].(string); ok {
-		endpoint = &WebhookHTTPEndpoint{}
+	if typeName, ok := node["__typename"].(string); ok {
+		if typeName == "WebhookHttpEndpoint" {
+			endpoint = &WebhookHTTPEndpoint{}
+		}
+		if typeName == "WebhookEventBridgeEndpoint" {
+			endpoint = &WebhookEventBridgeEndpoint{}
+		}
+		if typeName == "WebhookPubSubEndpoint" {
+			endpoint = &WebhookPubSubEndpoint{}
+		}
 	} else {
-		return nil, fmt.Errorf("must query arn and/or callbackUrl to decode WebhookSubscriptionEndpoint")
+		return nil, fmt.Errorf("must query __typename to decode WebhookSubscriptionEndpoint")
 	}
 	err := mapstructure.Decode(node, endpoint)
 	if err != nil {
