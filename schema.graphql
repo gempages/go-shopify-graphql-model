@@ -96,7 +96,7 @@ type Abandonment implements Node {
   """
   daysSinceLastAbandonmentEmail: Int!
 
-  """When the email was sent, if that is the case."""
+  """When the email was sent, if that's the case."""
   emailSentAt: DateTime
 
   """The email state (e.g., sent or not sent)."""
@@ -123,7 +123,7 @@ type Abandonment implements Node {
   isFromShopPay: Boolean!
 
   """
-  Whether the customer did not complete another most significant step since this abandonment.
+  Whether the customer didn't complete another most significant step since this abandonment.
   """
   isMostSignificantAbandonment: Boolean!
 
@@ -1956,7 +1956,7 @@ enum BulkOperationType {
 
 """Return type for `bulkProductResourceFeedbackCreate` mutation."""
 type BulkProductResourceFeedbackCreatePayload {
-  """The feedback that is created."""
+  """The feedback that's created."""
   feedback: [ProductResourceFeedback!]
 
   """The list of errors that occurred from executing the mutation."""
@@ -2243,7 +2243,7 @@ type CalculatedDraftOrder {
   currencyCode: CurrencyCode!
 
   """
-  Customer who will be sent an invoice for the draft order, if there is one.
+  Customer who will be sent an invoice for the draft order, if there's one.
   """
   customer: Customer
 
@@ -2273,11 +2273,11 @@ type CalculatedDraftOrder {
   """Line item that contains the shipping costs."""
   shippingLine: ShippingLine
 
-  "Subtotal of the line items and their discounts (does not contain shipping charges or shipping discounts, or taxes).\n"
+  "Subtotal of the line items and their discounts (doesn't contain shipping charges or shipping discounts, or taxes).\n"
   subtotalPrice: Money!
 
   """
-  Subtotal of the line items and their discounts (does not contain shipping charges or shipping discounts, or taxes).
+  Subtotal of the line items and their discounts (doesn't contain shipping charges or shipping discounts, or taxes).
   """
   subtotalPriceSet: MoneyBag!
 
@@ -2573,7 +2573,7 @@ type CalculatedOrder implements Node {
   ): CalculatedLineItemConnection!
 
   """
-  Amount of the order-level discount (does not contain any line item discounts) in shop and presentment currencies.
+  Amount of the order-level discount (doesn't contain any line item discounts) in shop and presentment currencies.
   """
   cartDiscountAmountSet: MoneyBag
 
@@ -2640,7 +2640,7 @@ type CalculatedOrder implements Node {
   subtotalLineItemsQuantity: Int!
 
   """
-  The subtotal of the line items, in shop and presentment currencies, after all the discounts are applied.  The subtotal does not include shipping.  The subtotal includes taxes for taxes-included orders and excludes taxes for taxes-excluded orders.
+  The subtotal of the line items, in shop and presentment currencies, after all the discounts are applied.  The subtotal doesn't include shipping.  The subtotal includes taxes for taxes-included orders and excludes taxes for taxes-excluded orders.
   """
   subtotalPriceSet: MoneyBag
 
@@ -5105,7 +5105,7 @@ type CompanyContactRoleAssignment implements Node {
   """A globally-unique ID."""
   id: ID!
 
-  """The role that is assigned to the company contact."""
+  """The role that's assigned to the company contact."""
   role: CompanyContactRole!
 
   """
@@ -5300,7 +5300,7 @@ input CompanyInput {
 
   """
   The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at
-  which the company became the customer.
+            which the company became the customer.
   """
   customerSince: DateTime
 }
@@ -7343,7 +7343,7 @@ type Customer implements CommentEventSubject & HasEvents & HasMetafieldDefinitio
   """The average amount that the customer spent per order."""
   averageOrderAmountV2: MoneyV2
 
-  "Whether the merchant can delete the customer from their store.\n\nA customer can be deleted from a store only if they have not yet made an order. After a customer makes an\norder, they can't be deleted from a store.\n"
+  "Whether the merchant can delete the customer from their store.\n\nA customer can be deleted from a store only if they haven't yet made an order. After a customer makes an\norder, they can't be deleted from a store.\n"
   canDelete: Boolean!
 
   """A list of the customer's company contact profiles."""
@@ -7420,7 +7420,7 @@ type Customer implements CommentEventSubject & HasEvents & HasMetafieldDefinitio
   """The market that includes the customer’s default address."""
   market: Market
 
-  "The marketing subscription opt-in level, as described by the M3AAWG best practices guidelines, that the\ncustomer gave when they consented to receive marketing material by email.\n\nIf the customer does not accept email marketing, then this property is `null`.\n"
+  "The marketing subscription opt-in level, as described by the M3AAWG best practices guidelines, that the\ncustomer gave when they consented to receive marketing material by email.\n\nIf the customer doesn't accept email marketing, then this property is `null`.\n"
   marketingOptInLevel: CustomerMarketingOptInLevel @deprecated(reason: "Use `emailMarketingConsent` instead.")
 
   """Whether the customer can be merged with another customer."""
@@ -7829,7 +7829,7 @@ enum CustomerEmailAddressOpenTrackingLevel {
 
 """
 Information that describes when a customer consented to
-receiving marketing material by email.
+        receiving marketing material by email.
 """
 input CustomerEmailMarketingConsentInput {
   """
@@ -7839,13 +7839,13 @@ input CustomerEmailMarketingConsentInput {
 
   """
   The current marketing state associated with the customer's email.
-  If the customer doesn't have an email, then this field is `null`.
+            If the customer doesn't have an email, then this field is `null`.
   """
   marketingState: CustomerEmailMarketingState!
 
   """
   The latest date and time when the customer consented or objected to
-  receiving marketing material by email.
+            receiving marketing material by email.
   """
   consentUpdatedAt: DateTime
 }
@@ -7981,15 +7981,15 @@ input CustomerInput {
 
   """
   Information that describes when the customer consented to receiving marketing
-  material by email. The `email` field is required when creating a customer with email marketing
-  consent information.
+          material by email. The `email` field is required when creating a customer with email marketing
+          consent information.
   """
   emailMarketingConsent: CustomerEmailMarketingConsentInput
 
   """
   The marketing consent information when the customer consented to receiving marketing
-  material by SMS. The `phone` field is required when creating a customer with SMS
-  marketing consent information.
+          material by SMS. The `phone` field is required when creating a customer with SMS
+          marketing consent information.
   """
   smsMarketingConsent: CustomerSmsMarketingConsentInput
 
@@ -9226,7 +9226,7 @@ enum CustomerSmsMarketingConsentErrorCode {
 
 """
 The marketing consent information when the customer consented to
-receiving marketing material by SMS.
+        receiving marketing material by SMS.
 """
 input CustomerSmsMarketingConsentInput {
   "The marketing subscription opt-in level that was set when the customer consented to receive marketing information.\n"
@@ -10458,7 +10458,7 @@ input DeliveryParticipantInput {
   """The ID of the carrier service for this participant."""
   carrierServiceId: ID
 
-  """The fixed feed that is defined by the merchant for this participant."""
+  """The fixed feed that's defined by the merchant for this participant."""
   fixedFee: MoneyInput
 
   """The merchant-defined percentage-of-rate fee for this participant."""
@@ -10537,7 +10537,7 @@ type DeliveryProfile implements Node {
   originLocationCount: Int!
 
   """
-  The number of product variants for this profile. The count for the default profile is not supported and will return -1.
+  The number of product variants for this profile. The count for the default profile isn't supported and will return -1.
   """
   productVariantsCount: Int! @deprecated(reason: "Use `productVariantsCountV2` instead.")
 
@@ -10587,7 +10587,7 @@ type DeliveryProfile implements Node {
   ): SellingPlanGroupConnection!
 
   """
-  List of locations that have not been assigned to a location group for this profile.
+  List of locations that haven't been assigned to a location group for this profile.
   """
   unassignedLocations: [Location!]!
 
@@ -12588,7 +12588,7 @@ type DiscountCountries {
   countries: [CountryCode!]!
 
   """
-  Whether the discount is applicable to countries that have not been defined in the shop's shipping zones.
+  Whether the discount is applicable to countries that haven't been defined in the shop's shipping zones.
   """
   includeRestOfWorld: Boolean!
 }
@@ -12608,7 +12608,7 @@ input DiscountCountriesInput {
   remove: [CountryCode!]
 
   """
-  Whether the discount code is applicable to countries that have not been defined in the shop's shipping zones.
+  Whether the discount code is applicable to countries that haven't been defined in the shop's shipping zones.
   """
   includeRestOfWorld: Boolean = false
 }
@@ -13817,7 +13817,7 @@ type DraftOrder implements CommentEventSubject & HasEvents & HasLocalizationExte
 
   """
   Whether the Draft Order is ready and can be completed. Draft Orders
-  might have asynchronous operations that can take time to finish.
+          might have asynchronous operations that can take time to finish.
   """
   ready: Boolean!
 
@@ -13895,7 +13895,7 @@ type DraftOrder implements CommentEventSubject & HasEvents & HasLocalizationExte
 
 """The order-level discount applied to a draft order."""
 type DraftOrderAppliedDiscount {
-  """Amount of the order-level discount that is applied to the draft order."""
+  """Amount of the order-level discount that's applied to the draft order."""
   amount: Money! @deprecated(reason: "Use `amountV2` instead.")
 
   """
@@ -14130,13 +14130,13 @@ input DraftOrderInput {
 
   """
   The source of the checkout.
-  To use this field for sales attribution, you must register the channels that your app is managing.
-  You can register the channels that your app is managing by completing
-  [this Google Form](https://docs.google.com/forms/d/e/1FAIpQLScmVTZRQNjOJ7RD738mL1lGeFjqKVe_FM2tO9xsm21QEo5Ozg/viewform?usp=sf_link).
-  After you've submitted your request, you need to wait for your request to be processed by Shopify.
-  You can find a list of your channels in the Partner Dashboard, in your app's Marketplace extension.
-  You need to specify the handle as the `source_name` value in your request.
-  The handle is the channel that the order was placed from.
+            To use this field for sales attribution, you must register the channels that your app is managing.
+            You can register the channels that your app is managing by completing
+            [this Google Form](https://docs.google.com/forms/d/e/1FAIpQLScmVTZRQNjOJ7RD738mL1lGeFjqKVe_FM2tO9xsm21QEo5Ozg/viewform?usp=sf_link).
+            After you've submitted your request, you need to wait for your request to be processed by Shopify.
+            You can find a list of your channels in the Partner Dashboard, in your app's Marketplace extension.
+            You need to specify the handle as the `source_name` value in your request.
+            The handle is the channel that the order was placed from.
   """
   sourceName: String
 
@@ -14252,10 +14252,10 @@ type DraftOrderLineItem implements Node {
   """
   title: String!
 
-  "The total value of the discount that is applied to the line item.\n"
+  "The total value of the discount that's applied to the line item.\n"
   totalDiscount: Money!
 
-  """The total value of the discount that is applied to the line item."""
+  """The total value of the discount that's applied to the line item."""
   totalDiscountSet: MoneyBag!
 
   "The associated variant for the line item.\n"
@@ -15610,7 +15610,7 @@ input FulfillmentEventInput {
   happenedAt: DateTime
 
   """
-  The ID for the fulfillment that is associated with this fulfillment event.
+  The ID for the fulfillment that's associated with this fulfillment event.
   """
   fulfillmentId: ID!
 
@@ -15766,7 +15766,7 @@ type FulfillmentLineItemEdge {
 
 "The FulfillmentOrder object represents either an item or a group of items in an\n[Order](https://shopify.dev/api/admin-graphql/latest/objects/Order)\nthat are expected to be fulfilled from the same location.\nThere can be more than one fulfillment order for an\n[order](https://shopify.dev/api/admin-graphql/latest/objects/Order)\nat a given location.\n\n{{ '/api/reference/fulfillment_order_relationships.png' | image }}\n\nFulfillment orders represent the work which is intended to be done in relation to an order.\nWhen fulfillment has started for one or more line items, a\n[Fulfillment](https://shopify.dev/api/admin-graphql/latest/objects/Fulfillment)\nis created by a merchant or third party to represent the ongoing or completed work of fulfillment.\n\n[See below for more details on creating fulfillments](#the-lifecycle-of-a-fulfillment-order-at-a-location-which-is-managed-by-a-fulfillment-service).\n\n> Note:\n> Shopify creates fulfillment orders automatically when an order is created.\n> It is not possible to manually create fulfillment orders.\n>\n> [See below for more details on the lifecycle of a fulfillment order](#the-lifecycle-of-a-fulfillment-order).\n\n## Retrieving fulfillment orders\n\n### Fulfillment orders from an order\n\nAll fulfillment orders related to a given order can be retrieved with the\n[Order.fulfillmentOrders](https://shopify.dev/api/admin-graphql/latest/objects/Order#connection-order-fulfillmentorders)\nconnection.\n\n[API access scopes](#api-access-scopes)\ngovern which fulfillments orders are returned to clients.\nAn API client will only receive a subset of the fulfillment orders which belong to an order\nif they don't have the necessary access scopes to view all of the fulfillment orders.\n\n### Fulfillment orders assigned to the app for fulfillment\n\nFulfillment service apps can retrieve the fulfillment orders which have been assigned to their locations with the\n[Shop.assignedFulfillmentOrders](https://shopify.dev/api/admin-graphql/latest/objects/Shop#connection-shop-assignedfulfillmentorders)\nconnection.\nUse the `assignmentStatus` argument to control whether all assigned fulfillment orders\nshould be returned or only those where a merchant has sent a\n[fulfillment request](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentOrderMerchantRequest)\nand it has yet to be responded to.\n\nThe API client must be granted the `read_assigned_fulfillment_orders` access scope to access\nthe assigned fulfillment orders.\n\n### All fulfillment orders\n\nApps can retrieve all fulfillment orders with the\n[fulfillmentOrders](https://shopify.dev/api/admin-graphql/latest/queries/fulfillmentOrders)\nquery. This query returns all assigned, merchant-managed, and third-party fulfillment orders on the shop,\nwhich are accessible to the app according to the\n[fulfillment order access scopes](#api-access-scopes) it was granted with.\n\n## The lifecycle of a fulfillment order\n\n### Fulfillment Order Creation\n\nAfter an order is created, a background worker performs the order routing process which determines\nwhich locations will be responsible for fulfilling the purchased items.\nOnce the order routing process is complete, one or more fulfillment orders will be created\nand assigned to these locations. It is not possible to manually create fulfillment orders.\n\nOnce a fulfillment order has been created, it will have one of two different lifecycles depending on\nthe type of location which the fulfillment order is assigned to.\n\n### The lifecycle of a fulfillment order at a merchant managed location\n\nFulfillment orders are completed by creating\n[fulfillments](https://shopify.dev/api/admin-graphql/latest/objects/Fulfillment).\nFulfillments represents the work done.\n\nFor digital products a merchant or an order management app would create a fulfilment once the digital asset\nhas been provisioned.\nFor example, in the case of a digital gift card, a merchant would to do this once\nthe gift card has been activated - before the email has been shipped.\n\nOn the other hand, for a traditional shipped order,\na merchant or an order management app would create a fulfillment after picking and packing the items relating\nto a fulfillment order, but before the courier has collected the goods.\n\n[Learn about managing fulfillment orders as an order management app](https://shopify.dev/apps/fulfillment/order-management-apps/manage-fulfillments).\n\n### The lifecycle of a fulfillment order at a location which is managed by a fulfillment service\n\nFor fulfillment orders which are assigned to a location that is managed by a fulfillment service,\na merchant or an Order Management App can\n[send a fulfillment request](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderSubmitFulfillmentRequest)\nto the fulfillment service which operates the location to request that they fulfill the associated items.\nA fulfillment service has the option to\n[accept](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderAcceptFulfillmentRequest)\nor [reject](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderRejectFulfillmentRequest)\nthis fulfillment request.\n\nOnce the fulfillment service has accepted the request, the request can no longer be cancelled by the merchant\nor order management app and instead a\n[cancellation request must be submitted](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderSubmitCancellationRequest)\nto the fulfillment service.\n\nOnce a fulfillment service accepts a fulfillment request,\nthen after they are ready to pack items and send them for delivery, they create fulfillments with the\n[fulfillmentCreateV2](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentCreateV2)\nmutation.\nThey can provide tracking information right away or create fulfillments without it and then\nupdate the tracking information for fulfillments with the\n[fulfillmentTrackingInfoUpdateV2](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentTrackingInfoUpdateV2)\nmutation.\n\n[Learn about managing fulfillment orders as a fulfillment service](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments).\n\n## API access scopes\n\nFulfillment orders are governed by the following API access scopes:\n\n* The `read_merchant_managed_fulfillment_orders` and\n  `write_merchant_managed_fulfillment_orders` access scopes\n  grant access to fulfillment orders assigned to merchant-managed locations.\n* The `read_assigned_fulfillment_orders` and `write_assigned_fulfillment_orders`\n  access scopes are intended for fulfillment services.\n  These scopes grant access to fulfillment orders assigned to locations that are being managed\n  by fulfillment services.\n* The `read_third_party_fulfillment_orders` and `write_third_party_fulfillment_orders`\n  access scopes grant access to fulfillment orders\n  assigned to locations managed by other fulfillment services.\n\n### Fulfillment service app access scopes\n\nUsually, **fulfillment services** have the `write_assigned_fulfillment_orders` access scope\nand don't have the `*_third_party_fulfillment_orders`\nor `*_merchant_managed_fulfillment_orders` access scopes.\nThe app will only have access to the fulfillment orders assigned to their location\n(or multiple locations if the app registers multiple fulfillment services on the shop).\nThe app will not have access to fulfillment orders assigned to merchant-managed locations\nor locations owned by other fulfillment service apps.\n\n### Order management app access scopes\n\n**Order management apps** will usually request `write_merchant_managed_fulfillment_orders` and\n`write_third_party_fulfillment_orders` access scopes. This will allow them to manage all fulfillment orders\non behalf of a merchant.\n\nIf an app combines the functions of an order management app and a fulfillment service,\nthen the app should request all\naccess scopes to manage all assigned and all unassigned fulfillment orders.\n\n## Notifications about fulfillment orders\n\nFulfillment services are required to\n[register](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentService)\na self-hosted callback URL which has a number of uses. One of these uses is that this callback URL will be notified\nwhenever a merchant submits a fulfillment or cancellation request.\n\nBoth merchants and apps can\n[subscribe](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#webhooks)\nto the\n[fulfillment order webhooks](https://shopify.dev/api/admin-graphql/latest/enums/WebhookSubscriptionTopic#value-fulfillmentorderscancellationrequestaccepted)\nto be notified whenever fulfillment order related domain events occur.\n\n[Learn about fulfillment workflows](https://shopify.dev/apps/fulfillment).\n"
 type FulfillmentOrder implements Node {
-  "The fulfillment order's assigned location. This is the location where the fulfillment is expected to happen.\n\nThe fulfillment order's assigned location might change in the following cases:\n\n- The fulfillment order has been entirely moved to a new location. For example, the [fulfillmentOrderMove](\n  https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderMove\n  ) mutation has been called, and you see the original fulfillment order in the [movedFulfillmentOrder](\n  https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderMove#field-fulfillmentordermovepayload-movedfulfillmentorder\n  ) field within the mutation's response.\n- Work on the fulfillment order has not yet begun, which means that the fulfillment order has the\n    [OPEN](https://shopify.dev/api/admin-graphql/latest/enums/FulfillmentOrderStatus#value-open),\n    [SCHEDULED](https://shopify.dev/api/admin-graphql/latest/enums/FulfillmentOrderStatus#value-scheduled), or\n    [ON_HOLD](https://shopify.dev/api/admin-graphql/latest/enums/FulfillmentOrderStatus#value-onhold)\n    status, and the shop's location properties might be undergoing edits (for example, in the Shopify admin).\n"
+  "The fulfillment order's assigned location. This is the location where the fulfillment is expected to happen.\n\nThe fulfillment order's assigned location might change in the following cases:\n\n- The fulfillment order has been entirely moved to a new location. For example, the [fulfillmentOrderMove](\n  https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderMove\n  ) mutation has been called, and you see the original fulfillment order in the [movedFulfillmentOrder](\n  https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentOrderMove#field-fulfillmentordermovepayload-movedfulfillmentorder\n  ) field within the mutation's response.\n- Work on the fulfillment order hasn't yet begun, which means that the fulfillment order has the\n    [OPEN](https://shopify.dev/api/admin-graphql/latest/enums/FulfillmentOrderStatus#value-open),\n    [SCHEDULED](https://shopify.dev/api/admin-graphql/latest/enums/FulfillmentOrderStatus#value-scheduled), or\n    [ON_HOLD](https://shopify.dev/api/admin-graphql/latest/enums/FulfillmentOrderStatus#value-onhold)\n    status, and the shop's location properties might be undergoing edits (for example, in the Shopify admin).\n"
   assignedLocation: FulfillmentOrderAssignedLocation!
 
   """Date and time when the fulfillment order was created."""
@@ -16122,7 +16122,7 @@ type FulfillmentOrderHoldPayload {
   """The fulfillment order on which a fulfillment hold was applied."""
   fulfillmentOrder: FulfillmentOrder
 
-  "The remaining fulfillment order containing the line items to which the hold was not applied,\nif specific line items were specified to be placed on hold.\n"
+  "The remaining fulfillment order containing the line items to which the hold wasn't applied,\nif specific line items were specified to be placed on hold.\n"
   remainingFulfillmentOrder: FulfillmentOrder
 
   """The list of errors that occurred from executing the mutation."""
@@ -16647,7 +16647,7 @@ type FulfillmentOrderSplitResult {
   remainingFulfillmentOrder: FulfillmentOrder!
 
   """
-  The replacement fulfillment order if the original fulfillment order was not in a state to be split.
+  The replacement fulfillment order if the original fulfillment order wasn't in a state to be split.
   """
   replacementFulfillmentOrder: FulfillmentOrder
 }
@@ -16961,7 +16961,7 @@ type FulfillmentTrackingInfo {
   "The tracking number of the fulfillment.\n\nThe tracking number is clickable in the interface if one of the following applies\n(the highest in the list has the highest priority):\n\n* Tracking url provided in the `url` field.\n* [Shopify-known tracking company name](#supported-tracking-companies) specified in the `company` field.\n  Shopify will build the tracking URL automatically based on the tracking number specified.\n* The tracking number has a Shopify-known format.\n  Shopify will guess the tracking provider and build the tracking url based on the tracking number format.\n  Not all tracking carriers are supported, and multiple tracking carriers may use similarly formatted tracking numbers.\n  This can result in an invalid tracking URL.\n  It is highly recommended that you send the tracking company and the tracking URL.\n"
   number: String
 
-  "The URLs to track the fulfillment.\n\nThe tracking URL is displayed in the merchant's admin on the order page.\nThe tracking URL is displayed in the shipping confirmation email, which can optionally be sent to the customer.\nWhen accounts are enabled, it is also displayed in the customer's order history.\n"
+  "The URLs to track the fulfillment.\n\nThe tracking URL is displayed in the merchant's admin on the order page.\nThe tracking URL is displayed in the shipping confirmation email, which can optionally be sent to the customer.\nWhen accounts are enabled, it's also displayed in the customer's order history.\n"
   url: URL
 }
 
@@ -16979,16 +16979,16 @@ input FulfillmentTrackingInput {
   "The tracking number of the fulfillment.\n\nThe tracking number will be clickable in the interface if one of the following applies\n(the highest in the list has the highest priority):\n\n* Tracking url provided in the `url` field.\n* [Shopify-known tracking company name](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)\n  specified in the `company` field.\n  Shopify will build the tracking URL automatically based on the tracking number specified.\n* The tracking number has a Shopify-known format.\n  Shopify will guess the tracking provider and build the tracking url based on the tracking number format.\n  Not all tracking carriers are supported, and multiple tracking carriers may use similarly formatted tracking numbers.\n  This can result in an invalid tracking URL.\n  It is highly recommended that you send the tracking company and the tracking URL.\n"
   number: String
 
-  "The URL to track the fulfillment.\n\nThe tracking URL is displayed in the merchant's admin on the order page.\nThe tracking URL is displayed in the shipping confirmation email, which can optionally be sent to the customer.\nWhen accounts are enabled, it is also displayed in the customer's order history.\n\nThe URL must be an [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) and\n[RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987)-compliant URI string.\nFor example, `\"https://www.myshipping.com/track/?tracknumbers=TRACKING_NUMBER\"` is a valid URL.\nIt includes a scheme (`https`) and a host (`myshipping.com`).\n"
+  "The URL to track the fulfillment.\n\nThe tracking URL is displayed in the merchant's admin on the order page.\nThe tracking URL is displayed in the shipping confirmation email, which can optionally be sent to the customer.\nWhen accounts are enabled, it's also displayed in the customer's order history.\n\nThe URL must be an [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) and\n[RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987)-compliant URI string.\nFor example, `\"https://www.myshipping.com/track/?tracknumbers=TRACKING_NUMBER\"` is a valid URL.\nIt includes a scheme (`https`) and a host (`myshipping.com`).\n"
   url: URL
 
   "The name of the tracking company.\n\nIf you specify a tracking company name from\n[the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies),\nShopify will automatically build tracking URLs for all provided tracking numbers,\nwhich will make the tracking numbers clickable in the interface.\nThe same tracking company will be applied to all tracking numbers specified.\n\nAdditionally, for the tracking companies listed on the\n[Shipping Carriers help page](https://help.shopify.com/manual/shipping/understanding-shipping/shipping-carriers#integrated-shipping-carriers)\nShopify will automatically update the fulfillment's `shipment_status` field during the fulfillment process.\n\n> Note:\n> Send the tracking company name exactly as written in\n> [the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)\n> (capitalization matters).\n"
   company: String
 
-  "The tracking numbers of the fulfillment, one or many.\n\nWith multiple tracking numbers, you can provide tracking information\nfor all shipments associated with the fulfillment, if there are more than one.\nFor example, if you are shipping assembly parts of one furniture item in several boxes.\n\nTracking numbers will be clickable in the interface if one of the following applies\n(the highest in the list has the highest priority):\n\n* Tracking URLs provided in the `urls` field.\n  The tracking URLs will be matched to the tracking numbers based on their positions in the arrays.\n* [Shopify-known tracking company name](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)\n  specified in the `company` field.\n  Shopify will build tracking URLs automatically for all tracking numbers specified.\n  The same tracking company will be applied to all tracking numbers.\n* Tracking numbers have a Shopify-known format.\n  Shopify will guess tracking providers and build tracking URLs based on the tracking number formats.\n  Not all tracking carriers are supported, and multiple tracking carriers may use similarly formatted tracking numbers.\n  This can result in an invalid tracking URL.\n  It is highly recommended that you send the tracking company and the tracking URLs.\n\n"
+  "The tracking numbers of the fulfillment, one or many.\n\nWith multiple tracking numbers, you can provide tracking information\nfor all shipments associated with the fulfillment, if there are more than one.\nFor example, if you're shipping assembly parts of one furniture item in several boxes.\n\nTracking numbers will be clickable in the interface if one of the following applies\n(the highest in the list has the highest priority):\n\n* Tracking URLs provided in the `urls` field.\n  The tracking URLs will be matched to the tracking numbers based on their positions in the arrays.\n* [Shopify-known tracking company name](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)\n  specified in the `company` field.\n  Shopify will build tracking URLs automatically for all tracking numbers specified.\n  The same tracking company will be applied to all tracking numbers.\n* Tracking numbers have a Shopify-known format.\n  Shopify will guess tracking providers and build tracking URLs based on the tracking number formats.\n  Not all tracking carriers are supported, and multiple tracking carriers may use similarly formatted tracking numbers.\n  This can result in an invalid tracking URL.\n  It is highly recommended that you send the tracking company and the tracking URLs.\n\n"
   numbers: [String!]
 
-  "The URLs to track the fulfillment, one or many.\n\nThe tracking URLs are displayed in the merchant's admin on the order page.\nThe tracking URLs are displayed in the shipping confirmation email, which can optionally be sent to the customer.\nWhen accounts are enabled, the tracking URLs are also displayed in the customer's order history.\n\nIf you are not specifying a\n[Shopify-known](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)\ntracking company name in the `company` field,\nthen provide tracking URLs for all tracking numbers from the `numbers` field.\n\nTracking URLs from the `urls` array field are being matched with the tracking numbers from the `numbers` array\nfield correspondingly their positions in the arrays.\n\nEach URL must be an [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) and\n[RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987)-compliant URI string.\nFor example, `\"https://www.myshipping.com/track/?tracknumbers=TRACKING_NUMBER\"` is a valid URL.\nIt includes a scheme (`https`) and a host (`myshipping.com`).\n"
+  "The URLs to track the fulfillment, one or many.\n\nThe tracking URLs are displayed in the merchant's admin on the order page.\nThe tracking URLs are displayed in the shipping confirmation email, which can optionally be sent to the customer.\nWhen accounts are enabled, the tracking URLs are also displayed in the customer's order history.\n\nIf you're not specifying a\n[Shopify-known](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)\ntracking company name in the `company` field,\nthen provide tracking URLs for all tracking numbers from the `numbers` field.\n\nTracking URLs from the `urls` array field are being matched with the tracking numbers from the `numbers` array\nfield correspondingly their positions in the arrays.\n\nEach URL must be an [RFC 3986](https://datatracker.ietf.org/doc/html/rfc3986) and\n[RFC 3987](https://datatracker.ietf.org/doc/html/rfc3987)-compliant URI string.\nFor example, `\"https://www.myshipping.com/track/?tracknumbers=TRACKING_NUMBER\"` is a valid URL.\nIt includes a scheme (`https`) and a host (`myshipping.com`).\n"
   urls: [URL!]
 }
 
@@ -16997,7 +16997,7 @@ input FulfillmentV2Input {
   "The fulfillment's tracking information, including a tracking URL, a tracking number,\nand the company associated with the fulfillment.\n"
   trackingInfo: FulfillmentTrackingInput
 
-  "Whether the customer is notified.\nIf `true`, then a notification is sent when the fulfillment is created.\n"
+  "Whether the customer is notified.\nIf `true`, then a notification is sent when the fulfillment is created. The default value is `false`.\n"
   notifyCustomer: Boolean = false
 
   "Pairs of `fulfillment_order_id` and `fulfillment_order_line_items` that represent the fulfillment\norder line items that have to be fulfilled for each fulfillment order.  For any given pair, if the\nfulfillment order line items are left blank then all the fulfillment order line items of the\nassociated fulfillment order ID will be fulfilled.\n"
@@ -17105,7 +17105,7 @@ type GiftCard implements Node {
   maskedCode: String!
 
   """
-  The note associated with the gift card, which is not visible to the customer.
+  The note associated with the gift card, which isn't visible to the customer.
   """
   note: String
 
@@ -17130,7 +17130,7 @@ input GiftCardCreateInput {
   """The initial value of the gift card."""
   initialValue: Decimal!
 
-  "The gift card's code. It must be 8-20 characters long and contain only letters(a-z) and numbers(0-9).\nIt is not case sensitive. If not provided, then a random code will be generated.\n"
+  "The gift card's code. It must be 8-20 characters long and contain only letters(a-z) and numbers(0-9).\nIt isn't case sensitive. If not provided, then a random code will be generated.\n"
   code: String
 
   """
@@ -17142,11 +17142,11 @@ input GiftCardCreateInput {
   expiresOn: Date
 
   """
-  The note associated with the gift card, which is not visible to the customer.
+  The note associated with the gift card, which isn't visible to the customer.
   """
   note: String
 
-  "The suffix of the Liquid template that is used to render the gift card online.\nFor example, if the value is `birthday`, then the gift card is rendered using the template `gift_card.birthday.liquid`.\nIf not provided, then the default `gift_card.liquid` template is used.\n"
+  "The suffix of the Liquid template that's used to render the gift card online.\nFor example, if the value is `birthday`, then the gift card is rendered using the template `gift_card.birthday.liquid`.\nIf not provided, then the default `gift_card.liquid` template is used.\n"
   templateSuffix: String
 }
 
@@ -17276,17 +17276,17 @@ enum GiftCardSortKeys {
 """The input fields to update a gift card."""
 input GiftCardUpdateInput {
   """
-  The note associated with the gift card, which is not visible to the customer.
+  The note associated with the gift card, which isn't visible to the customer.
   """
   note: String
 
   "The date at which the gift card will expire. If set to `null`, then the gift card will never expire.\n"
   expiresOn: Date
 
-  "The ID of the customer who will receive the gift card. The ID cannot be changed if the gift card already has an assigned customer ID.\n"
+  "The ID of the customer who will receive the gift card. The ID can't be changed if the gift card already has an assigned customer ID.\n"
   customerId: ID
 
-  "The suffix of the Liquid template that is used to render the gift card online.\nFor example, if the value is `birthday`, then the gift card is rendered using the template `gift_card.birthday.liquid`.\n"
+  "The suffix of the Liquid template that's used to render the gift card online.\nFor example, if the value is `birthday`, then the gift card is rendered using the template `gift_card.birthday.liquid`.\n"
   templateSuffix: String
 }
 
@@ -17495,7 +17495,7 @@ type Image implements HasMetafields {
   altText: String
 
   """
-  The original height of the image in pixels. Returns `null` if the image is not hosted by Shopify.
+  The original height of the image in pixels. Returns `null` if the image isn't hosted by Shopify.
   """
   height: Int
 
@@ -17575,7 +17575,7 @@ type Image implements HasMetafields {
   """The location of the image as a URL."""
   src: URL! @deprecated(reason: "Use `url` instead.")
 
-  "The location of the transformed image as a URL.\n\nAll transformation arguments are considered \"best-effort\". If they can be applied to an image, they will be.\nOtherwise any transformations which an image type does not support will be ignored.\n"
+  "The location of the transformed image as a URL.\n\nAll transformation arguments are considered \"best-effort\". If they can be applied to an image, they will be.\nOtherwise any transformations which an image type doesn't support will be ignored.\n"
   transformedSrc(
     """Image width in pixels between 1 and 5760."""
     maxWidth: Int
@@ -17604,7 +17604,7 @@ type Image implements HasMetafields {
   ): URL!
 
   """
-  The original width of the image in pixels. Returns `null` if the image is not hosted by Shopify.
+  The original width of the image in pixels. Returns `null` if the image isn't hosted by Shopify.
   """
   width: Int
 }
@@ -17719,7 +17719,7 @@ input InventoryAdjustQuantitiesInput {
   name: String!
 
   """
-  The reference document URI for the changes. Used to denote what is causing the change.
+  The reference document URI for the changes. Used to denote what's causing the change.
   """
   referenceDocumentUri: String
 
@@ -17855,7 +17855,7 @@ type InventoryAdjustmentGroup implements Node {
   reason: String!
 
   """
-  The reference document URI for the changes. Denotes what is causing the change.
+  The reference document URI for the changes. Denotes what's causing the change.
   """
   referenceDocumentUri: String
 
@@ -18276,7 +18276,7 @@ input InventoryMoveQuantitiesInput {
   reason: String!
 
   """
-  The reference document URI for the changes. Used to denote what is causing the change.
+  The reference document URI for the changes. Used to denote what's causing the change.
   """
   referenceDocumentUri: String!
 
@@ -18442,7 +18442,7 @@ input InventorySetOnHandQuantitiesInput {
   reason: String!
 
   """
-  The reference document URI for the changes. Used to denote what is causing the change.
+  The reference document URI for the changes. Used to denote what's causing the change.
   """
   referenceDocumentUri: String
 
@@ -19060,6 +19060,9 @@ type LineItem implements Node {
   """The image associated to the line item's variant."""
   image: Image
 
+  """The line item group associated to the line item."""
+  lineItemGroup: LineItemGroup
+
   """Whether the line item can be edited or not."""
   merchantEditable: Boolean!
 
@@ -19187,6 +19190,18 @@ type LineItemEdge {
   node: LineItem!
 }
 
+"""A line item group (bundle) to which a line item belongs to."""
+type LineItemGroup {
+  """A globally-unique ID."""
+  id: ID!
+
+  """Quantity of the line item group on the order."""
+  quantity: Int!
+
+  """Title of the line item group."""
+  title: String!
+}
+
 """Represents a single line item on an order."""
 type LineItemMutable implements Node {
   """Whether the line item can be restocked."""
@@ -19242,7 +19257,7 @@ type LineItemMutable implements Node {
   name: String!
 
   """
-  The total number of units that can't be fulfilled. For example, if items have been refunded, or the item is not something that can be fulfilled, like a tip.
+  The total number of units that can't be fulfilled. For example, if items have been refunded, or the item isn't something that can be fulfilled, like a tip.
   """
   nonFulfillableQuantity: Int!
 
@@ -20092,7 +20107,7 @@ input LocationEditInput {
   """The address of the location."""
   address: LocationEditAddressInput
 
-  """Whether inventory at this location is available for sale online."""
+  "Whether inventory at this location is available for sale online.\n\n**Note:** This can't be disabled for fulfillment service locations.\n"
   fulfillsOnlineOrders: Boolean
 
   """Additional customizable information to associate with the location."""
@@ -20416,7 +20431,7 @@ type Market implements HasMetafieldDefinitions & HasMetafields & Node {
   """The market’s currency settings."""
   currencySettings: MarketCurrencySettings!
 
-  "Whether the market is enabled to receive visitors and sales. **Note**: Regions in inactive\nmarkets cannot be selected on the storefront or in checkout.\n"
+  "Whether the market is enabled to receive visitors and sales. **Note**: Regions in inactive\nmarkets can't be selected on the storefront or in checkout.\n"
   enabled: Boolean!
 
   """
@@ -21147,7 +21162,7 @@ type MarketWebPresenceUpdatePayload {
 
 """
 The marketing activity resource represents marketing that a
-merchant created through an app.
+        merchant created through an app.
 """
 type MarketingActivity implements Node {
   """
@@ -21178,7 +21193,7 @@ type MarketingActivity implements Node {
 
   """
   Whether the marketing activity is in the main workflow version of
-  the marketing automation.
+            the marketing automation.
   """
   inMainWorkflowVersion: Boolean!
 
@@ -21207,8 +21222,8 @@ type MarketingActivity implements Node {
 
   """
   The [date and time](
-  https://help.shopify.com/https://en.wikipedia.org/wiki/ISO_8601
-  ) when the activity's status last changed.
+            https://help.shopify.com/https://en.wikipedia.org/wiki/ISO_8601
+            ) when the activity's status last changed.
   """
   statusTransitionedAt: DateTime
 
@@ -21228,8 +21243,8 @@ type MarketingActivity implements Node {
 
   """
   The set of [Urchin Tracking Module](
-  https://help.shopify.com/https://en.wikipedia.org/wiki/UTM_parameters
-  ) used in the URL for tracking this marketing activity.
+            https://help.shopify.com/https://en.wikipedia.org/wiki/UTM_parameters
+            ) used in the URL for tracking this marketing activity.
   """
   utmParameters: UTMParameters
 }
@@ -21543,7 +21558,7 @@ input MarketingActivityUpdateInput {
 
   """
   The form data of the marketing activity. This is only used if the marketing activity is
-  integrated with the external editor.
+                integrated with the external editor.
   """
   formData: String
 
@@ -22444,7 +22459,7 @@ type MerchantApprovalSignals {
   identityVerified: Boolean!
 
   """
-  Whether Shopify has pre-verified the merchant's business for onboarding to channel integration apps. Returns `false` if the shop is not marked for verification.
+  Whether Shopify has pre-verified the merchant's business for onboarding to channel integration apps. Returns `false` if the shop isn't marked for verification.
   """
   verifiedByShopify: Boolean!
 
@@ -22983,7 +22998,7 @@ input MetafieldDefinitionUpdateInput {
   "The container for a group of metafields that the metafield definition is associated with. Used to help identify\nthe metafield definition, but cannot be updated itself.\n"
   namespace: String!
 
-  "The unique identifier for the metafield definition within its namespace. Used to help identify the metafield\ndefinition, but cannot be updated itself.\n"
+  "The unique identifier for the metafield definition within its namespace. Used to help identify the metafield\ndefinition, but can't be updated itself.\n"
   key: String!
 
   """The human-readable name for the metafield definition."""
@@ -22992,7 +23007,7 @@ input MetafieldDefinitionUpdateInput {
   """The description for the metafield definition."""
   description: String
 
-  "The resource type that the metafield definition is attached to. Used to help identify the metafield definition,\nbut cannot be updated itself.\n"
+  "The resource type that the metafield definition is attached to. Used to help identify the metafield definition,\nbut can't be updated itself.\n"
   ownerType: MetafieldOwnerType!
 
   "A list of [validation options](https://shopify.dev/apps/metafields/definitions/validation) for\nthe metafields that belong to the metafield definition. For example, for a metafield definition with the\ntype `date`, you can set a minimum date validation so that each of the metafields that belong to it can only\nstore dates after the specified minimum.\n"
@@ -23140,13 +23155,13 @@ type MetafieldEdge {
 
 "The input fields to use to create or update a metafield through a mutation on the owning resource.\nAn alternative way to create or update a metafield is by using the\n[metafieldsSet](https://shopify.dev/api/admin-graphql/latest/mutations/metafieldsSet) mutation.\n"
 input MetafieldInput {
-  "The unique ID of the metafield.\n\nRequired when updating a metafield, but should not be included when creating as it's created automatically.\n"
+  "The unique ID of the metafield.\n\nRequired when updating a metafield, but shouldn't be included when creating as it's created automatically.\n"
   id: ID
 
-  "The container for a group of metafields that the metafield is or will be associated with. Used in tandem with\n`key` to lookup a metafield on a resource, preventing conflicts with other metafields with the same `key`.\n\nRequired when creating a metafield, but optional when updating. Used to help identify the metafield when\nupdating, but cannot be updated itself.\n\nMust be 3-255 characters long and can contain alphanumeric, hyphen, and underscore characters.\n"
+  "The container for a group of metafields that the metafield is or will be associated with. Used in tandem with\n`key` to lookup a metafield on a resource, preventing conflicts with other metafields with the same `key`.\n\nRequired when creating a metafield, but optional when updating. Used to help identify the metafield when\nupdating, but can't be updated itself.\n\nMust be 3-255 characters long and can contain alphanumeric, hyphen, and underscore characters.\n"
   namespace: String
 
-  "The unique identifier for a metafield within its namespace.\n\nRequired when creating a metafield, but optional when updating. Used to help identify the metafield when\nupdating, but cannot be updated itself.\n\nMust be 3-64 characters long and can contain alphanumeric, hyphen, and underscore characters.\n"
+  "The unique identifier for a metafield within its namespace.\n\nRequired when creating a metafield, but optional when updating. Used to help identify the metafield when\nupdating, but can't be updated itself.\n\nMust be 3-64 characters long and can contain alphanumeric, hyphen, and underscore characters.\n"
   key: String
 
   "The data stored in the metafield. Always stored as a string, regardless of the metafield's type.\n"
@@ -23783,7 +23798,7 @@ input MetaobjectDefinitionCreateInput {
   """An administrative description of the definition."""
   description: String
 
-  "The type of the metaobject definition. This cannot be changed.\n\nMust be 3-255 characters long and only contain alphanumeric, hyphen, and underscore characters.\n"
+  "The type of the metaobject definition. This can't be changed.\n\nMust be 3-255 characters long and only contain alphanumeric, hyphen, and underscore characters.\n"
   type: String!
 
   """A set of field definitions to create on this metaobject definition."""
@@ -23943,7 +23958,7 @@ type MetaobjectFieldDefinition {
 
 """The input fields for creating a metaobject field definition."""
 input MetaobjectFieldDefinitionCreateInput {
-  "The key of the new field definition. This cannot be changed.\n\nMust be 3-64 characters long and only contain alphanumeric, hyphen, and underscore characters.\n"
+  "The key of the new field definition. This can't be changed.\n\nMust be 3-64 characters long and only contain alphanumeric, hyphen, and underscore characters.\n"
   key: String!
 
   """The metafield type applied to values of the field."""
@@ -24903,7 +24918,7 @@ type Mutation {
     encryptedDuplicationData: String!
   ): CustomerPaymentMethodCreateFromDuplicationDataPayload
 
-  """Creates a credit card payment method for a customer."""
+  "Creates a credit card payment method for a customer using a session id.\nThese values are only obtained through card imports happening from a PCI compliant environment.\nPlease use customerPaymentMethodRemoteCreate if you are not managing credit cards directly.\n"
   customerPaymentMethodCreditCardCreate(
     """The ID of the customer."""
     customerId: ID!
@@ -24911,7 +24926,9 @@ type Mutation {
     """The billing address."""
     billingAddress: MailingAddressInput!
 
-    """The Cardserver session ID."""
+    """
+    The Cardserver session ID. Obtained by storing card data with Shopify's Cardsink. Exchanging raw card data for a session ID must be done in a PCI complaint environment.
+    """
     sessionId: String!
   ): CustomerPaymentMethodCreditCardCreatePayload
 
@@ -25633,7 +25650,7 @@ type Mutation {
     fulfillmentOrderMergeInputs: [FulfillmentOrderMergeInput!]!
   ): FulfillmentOrderMergePayload
 
-  "Changes the location which is assigned to fulfill a number of unfulfilled fulfillment order line items.\n\nLine items which have already been fulfilled can't be re-assigned\nand will always remain assigned to the original location.\n\nYou can't change the assigned location while a fulfillment order has a\n[request status](https://shopify.dev/docs/api/admin-graphql/latest/enums/FulfillmentOrderRequestStatus)\nof `SUBMITTED`, `ACCEPTED`, `CANCELLATION_REQUESTED`, or `CANCELLATION_REJECTED`.\nThese request statuses mean that a fulfillment order is awaiting action by a fulfillment service\nand can't be re-assigned without first having the fulfillment service accept a cancellation request.\nThis behavior is intended to prevent items from being fulfilled by multiple locations or fulfillment services.\n\n### How re-assigning line items affects fulfillment orders\n\n**First scenario:** Re-assign all line items belonging to a fulfillment order to a new location.\n\nIn this case, the\n[assignedLocation](https://shopify.dev/docs/api/admin-graphql/latest/objects/fulfillmentorder#field-fulfillmentorder-assignedlocation)\nof the original fulfillment order will be updated to the new location.\n\n**Second scenario:** Re-assign a subset of the line items belonging to a fulfillment order to a new location.\nYou can specify a subset of line items using the `fulfillmentOrderLineItems` parameter\n(available as of the `2023-04` API version),\nor specify that the original fulfillment order contains line items which have already been fulfilled.\n\nIf the new location is already assigned to another active fulfillment order, on the same order,\nthen the line items are moved to the existing fulfillment order.\nOtherwise, a new fulfillment order is created for the new location, and the line items are moved to the new location.\n"
+  "Changes the location which is assigned to fulfill a number of unfulfilled fulfillment order line items.\n\nMoving a fulfillment order will fail in the following circumstances:\n\n* The fulfillment order is closed.\n* The destination location has never stocked the requested inventory item.\n* The API client doesn't have the correct permissions.\n\nLine items which have already been fulfilled can't be re-assigned\nand will always remain assigned to the original location.\n\nYou can't change the assigned location while a fulfillment order has a\n[request status](https://shopify.dev/docs/api/admin-graphql/latest/enums/FulfillmentOrderRequestStatus)\nof `SUBMITTED`, `ACCEPTED`, `CANCELLATION_REQUESTED`, or `CANCELLATION_REJECTED`.\nThese request statuses mean that a fulfillment order is awaiting action by a fulfillment service\nand can't be re-assigned without first having the fulfillment service accept a cancellation request.\nThis behavior is intended to prevent items from being fulfilled by multiple locations or fulfillment services.\n\n### How re-assigning line items affects fulfillment orders\n\n**First scenario:** Re-assign all line items belonging to a fulfillment order to a new location.\n\nIn this case, the\n[assignedLocation](https://shopify.dev/docs/api/admin-graphql/latest/objects/fulfillmentorder#field-fulfillmentorder-assignedlocation)\nof the original fulfillment order will be updated to the new location.\n\n**Second scenario:** Re-assign a subset of the line items belonging to a fulfillment order to a new location.\nYou can specify a subset of line items using the `fulfillmentOrderLineItems` parameter\n(available as of the `2023-04` API version),\nor specify that the original fulfillment order contains line items which have already been fulfilled.\n\nIf the new location is already assigned to another active fulfillment order, on the same order,\nthen the line items are moved to the existing fulfillment order.\nOtherwise, a new fulfillment order is created for the new location, and the line items are moved to the new location.\n"
   fulfillmentOrderMove(
     """The ID of the fulfillment order to be moved."""
     id: ID!
@@ -25679,7 +25696,7 @@ type Mutation {
     """An optional reason for rejecting the fulfillment request."""
     message: String
 
-    """A list of rejected line items."""
+    "An optional array of line item rejection details. If none are provided, all line items will be assumed to be unfulfillable.\n\n**Note**: After the fulfillment request has been rejected, none of the line items will be able to be fulfilled. This field documents which line items specifically were unable to be fulfilled and why.\n"
     lineItems: [IncomingRequestLineItemInput!]
   ): FulfillmentOrderRejectFulfillmentRequestPayload
 
@@ -25774,7 +25791,7 @@ type Mutation {
     fulfillmentDeadline: DateTime!
   ): FulfillmentOrdersSetFulfillmentDeadlinePayload
 
-  """Creates a fulfillment service."""
+  "Creates a fulfillment service.\n\n## Fulfillment service location\n\nWhen creating a fulfillment service, a new location will be automatically created on the shop\nand will be associated with this fulfillment service.\nThis location will be named after the fulfillment service and inherit the shop's address.\n\nIf you are using API version `2023-10` or later, and you need to specify custom attributes for the fulfillment service location\n(for example, to change its address to a country different from the shop's country),\nuse the\n[LocationEdit](https://shopify.dev/api/admin-graphql/latest/mutations/locationEdit)\nmutation after creating the fulfillment service.\n"
   fulfillmentServiceCreate(
     """The name of the fulfillment service."""
     name: String!
@@ -25806,7 +25823,7 @@ type Mutation {
     destinationLocationId: ID
   ): FulfillmentServiceDeletePayload
 
-  """Updates a fulfillment service."""
+  "Updates a fulfillment service.\n\nIf you are using API version `2023-10` or later,\nand you need to update the location managed by the fulfillment service\n(for example, to change the address of a fulfillment service),\nuse the\n[LocationEdit](https://shopify.dev/api/admin-graphql/latest/mutations/locationEdit)\nmutation.\n"
   fulfillmentServiceUpdate(
     """The id of the fulfillment service."""
     id: ID!
@@ -25981,7 +25998,7 @@ type Mutation {
     locationId: ID!
   ): LocationDeletePayload
 
-  """Edits an existing location."""
+  "Edits an existing location.\n\n[As of the 2023-10 API version](https://shopify.dev/changelog/apps-can-now-change-the-name-and-address-of-their-fulfillment-service-locations), apps can change the name and address of their fulfillment service locations.\n"
   locationEdit(
     """The ID of a location to edit."""
     id: ID!
@@ -26295,7 +26312,7 @@ type Mutation {
 
     """
     Whether the payment should be authorized or captured. If `false`, then the authorization of
-    the payment is triggered.
+                the payment is triggered.
     """
     autoCapture: Boolean = true
   ): OrderCreateMandatePaymentPayload
@@ -27146,8 +27163,8 @@ type Mutation {
 
     """
     The reverse delivery line items to be created. If an empty array is provided, then this mutation
-    will create a reverse delivery line item for each reverse fulfillment order line item, with its quantity equal
-    to the reverse fulfillment order line item total quantity.
+              will create a reverse delivery line item for each reverse fulfillment order line item, with its quantity equal
+              to the reverse fulfillment order line item total quantity.
     """
     reverseDeliveryLineItems: [ReverseDeliveryLineItemInput!]!
 
@@ -27502,7 +27519,7 @@ type Mutation {
   ): SubscriptionBillingCycleContractEditPayload
 
   """
-  Delete the current or future schedule and contract edits of a subscription billing cycle.
+  Delete the schedule and contract edits of the selected subscription billing cycle.
   """
   subscriptionBillingCycleEditDelete(
     """Input object used to select and use billing cycles."""
@@ -27510,7 +27527,7 @@ type Mutation {
   ): SubscriptionBillingCycleEditDeletePayload
 
   """
-  Delete the current or future schedule and contract edits of a list of subscription billing cycles.
+  Delete the current and future schedule and contract edits of a list of subscription billing cycles.
   """
   subscriptionBillingCycleEditsDelete(
     """
@@ -27760,8 +27777,8 @@ type Mutation {
   urlRedirectBulkDeleteByIds(
     """
     A list of [`URLRedirect`](
-    https://help.shopify.com/en/manual/online-store/menus-and-links/url-redirect
-    ) object IDs to delete.
+                https://help.shopify.com/en/manual/online-store/menus-and-links/url-redirect
+              ) object IDs to delete.
     """
     ids: [ID!]!
   ): UrlRedirectBulkDeleteByIdsPayload
@@ -28045,7 +28062,7 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
   """Whether the order is closed."""
   closed: Boolean!
 
-  "The date and time when the order was closed.\nReturns `null` if the order is not closed.\n"
+  "The date and time when the order was closed.\nReturns `null` if the order isn't closed.\n"
   closedAt: DateTime
 
   "A randomly generated alpha-numeric identifier for the order that may be shown to the customer\ninstead of the sequential order name. For example, \"XPAV284CT\", \"R50KELTJP\" or \"35PKUN0UJ\".\nThis value isn't guaranteed to be unique.\n"
@@ -28139,7 +28156,7 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
   "The primary address of the customer.\nReturns `null` if neither the shipping address nor the billing address was provided.\n"
   displayAddress: MailingAddress
 
-  "The financial status of the order that can be shown to the merchant.\nThis field does not capture all the details of an order's financial state. It should only be used for display summary purposes.\n"
+  "The financial status of the order that can be shown to the merchant.\nThis field doesn't capture all the details of an order's financial state. It should only be used for display summary purposes.\n"
   displayFinancialStatus: OrderDisplayFinancialStatus
 
   "The fulfillment status for the order that can be shown to the merchant.\nThis field does not capture all the details of an order's fulfillment state. It should only be used for display summary purposes.\nFor a more granular view of the fulfillment status, refer to the [FulfillmentOrder](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentOrder) object.\n"
@@ -28317,7 +28334,7 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
     reverse: Boolean = false
   ): LocalizationExtensionConnection!
 
-  "The fulfillment location that was assigned when the order was created.\nUse the [`FulfillmentOrder`](https://shopify.dev/api/admin-graphql/latest/objects/fulfillmentorder) object for up-to-date fulfillment location information.\n"
+  "The fulfillment location that was assigned when the order was created.\nOrders can have multiple fulfillment orders. These fulfillment orders can each be assigned to a different location which is responsible for fulfilling a subset of the items in an order. The `Order.location` field will only point to one of these locations.\nUse the [`FulfillmentOrder`](https://shopify.dev/api/admin-graphql/latest/objects/fulfillmentorder)\nobject for up-to-date fulfillment location information.\n"
   location: String @deprecated(reason: "Use `physicalLocation` instead.")
 
   """
@@ -28451,7 +28468,7 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
   """The phone number associated with the customer."""
   phone: String
 
-  "The fulfillment location that was assigned when the order was created.\nUse the [`FulfillmentOrder`](https://shopify.dev/api/admin-graphql/latest/objects/fulfillmentorder) object for up to date fulfillment location information.\n"
+  "The fulfillment location that was assigned when the order was created.\nOrders can have multiple fulfillment orders. These fulfillment orders can each be assigned to a different location which is responsible for fulfilling a subset of the items in an order. The `Order.physicalLocation` field will only point to one of these locations.\nUse the [`FulfillmentOrder`](https://shopify.dev/api/admin-graphql/latest/objects/fulfillmentorder)\nobject for up to date fulfillment location information.\n"
   physicalLocation: Location
 
   """The PO number associated with the order."""
@@ -28636,13 +28653,13 @@ type Order implements CommentEventSubject & HasEvents & HasLocalizationExtension
   """Whether taxes are included in the subtotal price of the order."""
   taxesIncluded: Boolean!
 
-  "Whether the order is a test.\nTest orders are made using the Shopify Bogus Gateway or a payment provider with test mode enabled.\nA test order cannot be converted into a real order and vice versa.\n"
+  "Whether the order is a test.\nTest orders are made using the Shopify Bogus Gateway or a payment provider with test mode enabled.\nA test order can't be converted into a real order and vice versa.\n"
   test: Boolean!
 
-  "The authorized amount that is uncaptured or undercaptured, in shop currency.\nThis amount isn't adjusted for returns.\n"
+  "The authorized amount that's uncaptured or undercaptured, in shop currency.\nThis amount isn't adjusted for returns.\n"
   totalCapturable: Money! @deprecated(reason: "Use `totalCapturableSet` instead.")
 
-  "The authorized amount that is uncaptured or undercaptured, in shop and presentment currencies.\nThis amount isn't adjusted for returns.\n"
+  "The authorized amount that's uncaptured or undercaptured, in shop and presentment currencies.\nThis amount isn't adjusted for returns.\n"
   totalCapturableSet: MoneyBag!
 
   "The total amount discounted on the order before returns, in shop currency.\nThis includes both order and line level discounts.\n"
@@ -28833,7 +28850,7 @@ input OrderCaptureInput {
   amount: Money!
 
   """
-  The currency (in ISO format) that is used to capture the order. This must be the presentment currency (the currency used by the customer) and is a required field for orders where the currency and presentment currency differ.
+  The currency (in ISO format) that's used to capture the order. This must be the presentment currency (the currency used by the customer) and is a required field for orders where the currency and presentment currency differ.
   """
   currency: CurrencyCode
 }
@@ -29405,7 +29422,7 @@ union OrderStagedChange = OrderStagedChangeAddCustomItem | OrderStagedChangeAddL
 "A change to the order representing the addition of a\ncustom line item. For example, you might want to add gift wrapping service\nas a custom line item.\n"
 type OrderStagedChangeAddCustomItem {
   """
-  The price of an individual item without any discounts applied. This value cannot be negative.
+  The price of an individual item without any discounts applied. This value can't be negative.
   """
   originalUnitPrice: MoneyV2!
 
@@ -29435,7 +29452,7 @@ type OrderStagedChangeAddShippingLine {
   """The phone number at the shipping address."""
   phone: String
 
-  "The shipping line's title that is shown to the buyer.\n"
+  "The shipping line's title that's shown to the buyer.\n"
   presentmentTitle: String
 
   """The price that applies to the shipping line."""
@@ -30645,7 +30662,7 @@ type PolarisVizResponse implements ShopifyqlResponse {
 
   """
   The result in a tabular format with schema and row data.
-  It's always present even if query has a `VISUALIZE` keyword.
+                  It's always present even if query has a `VISUALIZE` keyword.
   """
   tableData: TableData
 
@@ -30677,7 +30694,7 @@ enum PriceCalculationType {
 
 """The input fields for updating the price of a parent product variant."""
 input PriceInput {
-  "The specific type of calculation done to determine the price of the parent variant.\nThe price is calculated during Bundle creation. Updating a component variant will not recalculate the price.\n"
+  "The specific type of calculation done to determine the price of the parent variant.\nThe price is calculated during Bundle creation. Updating a component variant won't recalculate the price.\n"
   calculation: PriceCalculationType
 
   """
@@ -30712,7 +30729,7 @@ type PriceList implements Node {
   prices(
     """
     The origin of this price, either fixed (defined on the price list)
-    or relative (calculated using an adjustment via a price list parent configuration).
+                   or relative (calculated using an adjustment via a price list parent configuration).
     """
     originType: PriceListPriceOriginType
 
@@ -30991,7 +31008,7 @@ input PriceListParentUpdateInput {
 
 """
 Represents information about pricing for a product variant
-as defined on a price list, such as the price, compare at price, and origin type. You can use a PriceListPrice to specify a fixed price for a specific product variant.
+        as defined on a price list, such as the price, compare at price, and origin type. You can use a PriceListPrice to specify a fixed price for a specific product variant.
 """
 type PriceListPrice {
   """The compare-at price of the product variant on this price list."""
@@ -32285,7 +32302,7 @@ input PriceRuleShippingEntitlementsInput {
   countryCodes: [CountryCode!]
 
   """
-  Whether the price rule is applicable to countries that have not been defined in the shop's shipping zones.
+  Whether the price rule is applicable to countries that haven't been defined in the shop's shipping zones.
   """
   includeRestOfWorld: Boolean = false
 }
@@ -32296,7 +32313,7 @@ type PriceRuleShippingLineEntitlements {
   countryCodes: [CountryCode!]!
 
   """
-  Whether the price rule is applicable to countries that have not been defined in the shop's shipping zones.
+  Whether the price rule is applicable to countries that haven't been defined in the shop's shipping zones.
   """
   includeRestOfWorld: Boolean!
 
@@ -32780,7 +32797,7 @@ type Product implements HasMetafieldDefinitions & HasMetafields & HasPublishedTr
   """The online store preview URL."""
   onlineStorePreviewUrl: URL
 
-  "The online store URL for the product.\nA value of `null` indicates that the product is not published to the Online Store sales channel.\n"
+  "The online store URL for the product.\nA value of `null` indicates that the product isn't published to the Online Store sales channel.\n"
   onlineStoreUrl: URL
 
   """
@@ -32923,7 +32940,7 @@ type Product implements HasMetafieldDefinitions & HasMetafields & HasPublishedTr
   requiresSellingPlan: Boolean!
 
   """
-  The resource that is either published or staged to be published to the calling app's publication. Requires the `read_product_listings` scope.
+  The resource that's either published or staged to be published to the calling app's publication. Requires the `read_product_listings` scope.
   """
   resourcePublicationOnCurrentPublication: ResourcePublicationV2
 
@@ -33431,6 +33448,9 @@ enum ProductDuplicateUserErrorCode {
 
   """The title cannot be empty."""
   EMPTY_TITLE
+
+  """Cannot duplicate a bundle product."""
+  BUNDLES_ERROR
 
   """Something went wrong, please try again."""
   GENERIC_ERROR
@@ -34079,7 +34099,7 @@ type ProductVariant implements HasMetafieldDefinitions & HasMetafields & HasPubl
   """
   displayName: String!
 
-  "The fulfillment service that stocks a product variant.\n\nThis is a third-party fulfillment service if the following conditions are met:\n- The product variant is stocked by a single fulfillment service.\n- The [FulfillmentService](/api/admin-graphql/latest/objects/FulfillmentService) is a third-party fulfillment service. Third-party fulfillment services don't have a handle with the value `manual`.\n- The fulfillment service has not [opted into SKU sharing](/api/admin-graphql/latest/objects/FulfillmentService#field-fulfillmentservice-permitsskusharing).\n\nIf the conditions aren't met, then the fulfillment service has the `manual` handle.\n"
+  "The fulfillment service that stocks a product variant.\n\nThis is a third-party fulfillment service if the following conditions are met:\n- The product variant is stocked by a single fulfillment service.\n- The [FulfillmentService](/api/admin-graphql/latest/objects/FulfillmentService) is a third-party fulfillment service. Third-party fulfillment services don't have a handle with the value `manual`.\n- The fulfillment service hasn't [opted into SKU sharing](/api/admin-graphql/latest/objects/FulfillmentService#field-fulfillmentservice-permitsskusharing).\n\nIf the conditions aren't met, then the fulfillment service has the `manual` handle.\n"
   fulfillmentService: FulfillmentService @deprecated(reason: "\nThe [relationship between a product variant and a fulfillment service was changed in the `2022-07` API version](/changelog/fulfillment-service-sku-sharing). A [ProductVariant](/api/admin-graphql/latest/objects/ProductVariant) can be stocked by multiple fulfillment services. As a result, we recommend that you use the [inventoryItem field](/api/admin-graphql/latest/objects/ProductVariant#field-productvariant-inventoryitem) if you need to determine where a product variant is stocked.\n\nIf you need to determine whether a product is a gift card, then you should continue to use this field until an alternative is available.\n\nLearn more about [managing inventory quantities and states](/apps/fulfillment/inventory-management-apps/quantities-states).\n")
 
   """
@@ -34487,7 +34507,7 @@ type ProductVariantEdge {
 
 """The input fields for the bundle components for core."""
 input ProductVariantGroupRelationshipInput {
-  """The ID of the product variant that is a component of the bundle."""
+  """The ID of the product variant that's a component of the bundle."""
   id: ID!
 
   """
@@ -34531,7 +34551,7 @@ input ProductVariantInput {
   inventoryPolicy: ProductVariantInventoryPolicy
 
   """
-  The inventory quantities at each location where the variant is stocked. Used as input only to the `productVariantCreate` mutation.
+  The inventory quantities at each location where the variant is stocked.
   """
   inventoryQuantities: [InventoryLevelInput!]
 
@@ -34983,7 +35003,7 @@ input ProductVariantsBulkInput {
   """
   inventoryPolicy: ProductVariantInventoryPolicy
 
-  "The inventory quantities at each location where the variant is stocked. The number of elements\nin the array of inventory quantities cannot exceed 10 and the amount specified for the plan. Used as input only to the `productVariantCreate` mutation.\n"
+  "The inventory quantities at each location where the variant is stocked. The number of elements\nin the array of inventory quantities can't exceed the amount specified for the plan.\n"
   inventoryQuantities: [InventoryLevelInput!]
 
   """The inventory item associated with the variant, used for unit cost."""
@@ -35742,10 +35762,10 @@ union PurchasingEntity = Customer | PurchasingCompany
 The input fields for a purchasing entity. Can either be a customer or a purchasing company.
 """
 input PurchasingEntityInput {
-  """Represents a customer. Null if there is a purchasing company."""
+  """Represents a customer. Null if there's a purchasing company."""
   customerId: ID
 
-  """Represents a purchasing company. Null if there is a customer."""
+  """Represents a purchasing company. Null if there's a customer."""
   purchasingCompany: PurchasingCompanyInput
 }
 
@@ -35945,7 +35965,7 @@ type QueryRoot {
     id: ID
   ): AppInstallation
 
-  """List of app installations."""
+  """List of app installations. Requires the `read_apps` access scope."""
   appInstallations(
     """Returns up to the first `n` elements from the list."""
     first: Int
@@ -36192,8 +36212,8 @@ type QueryRoot {
 
   """
   List of code discounts. Special fields for query params:
-  * status: active, expired, scheduled
-  * discount_type: bogo, fixed_amount, free_shipping, percentage.
+   * status: active, expired, scheduled
+   * discount_type: bogo, fixed_amount, free_shipping, percentage.
   """
   codeDiscountNodes(
     """Returns up to the first `n` elements from the list."""
@@ -36319,7 +36339,7 @@ type QueryRoot {
     """Sort the underlying list by the given key."""
     sortKey: CompanySortKeys = ID
 
-    "Supported filter parameters:\n - `created_at`\n - `external_id`\n - `name`\n - `since_date`\n - `updated_at`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters.\n"
+    "Supported filter parameters:\n - `active_customers_count`\n - `created_at`\n - `external_id`\n - `name`\n - `since_date`\n - `updated_at`\n\nSee the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)\nfor more information about using filters.\n"
     query: String
   ): CompanyConnection!
 
@@ -36588,7 +36608,7 @@ type QueryRoot {
   discountCodeCount(
     """
     Supported filter parameters:
-    * times_used.
+     * times_used.
     """
     query: String
   ): Int!
@@ -36970,10 +36990,10 @@ type QueryRoot {
     """
     The query conditions used to filter fulfillment orders. Only fulfillment orders corresponding to orders matching the query will be counted.
     Supported filter parameters:
-    - `order_financial_status`
-    - `order_risk_level`
-    - `shipping_address_coordinates_validated`
-
+     - `order_financial_status`
+     - `order_risk_level`
+     - `shipping_address_coordinates_validated`
+    
     See the detailed [search syntax](https://shopify.dev/api/usage/search-syntax)
     for more information about using filters.
     """
@@ -38435,10 +38455,10 @@ input RefundInput {
   """
   currency: CurrencyCode
 
-  """The ID of the order that is being refunded."""
+  """The ID of the order that's being refunded."""
   orderId: ID!
 
-  """An optional note that is attached to the refund."""
+  """An optional note that's attached to the refund."""
   note: String
 
   """Whether to send a refund notification to the customer."""
@@ -38602,10 +38622,10 @@ type ResourceAlert {
   "The secondary text in the alert that includes further information or instructions about how to solve a problem.\n"
   content: HTML!
 
-  "Unique identifier that appears when an alert is manually closed by the merchant.\nMost alerts cannot be manually closed.\n"
+  "Unique identifier that appears when an alert is manually closed by the merchant.\nMost alerts can't be manually closed.\n"
   dismissibleHandle: String
 
-  """An icon that is optionally displayed with the alert."""
+  """An icon that's optionally displayed with the alert."""
   icon: ResourceAlertIcon
 
   """Indication of how important the alert is."""
@@ -38679,7 +38699,7 @@ input ResourceFeedbackCreateInput {
   "The date and time when the feedback was generated. Used to help determine whether\nincoming feedback is outdated compared to existing feedback.\n"
   feedbackGeneratedAt: DateTime!
 
-  "If the feedback state is `requires_action`, then you can send a string message that communicates the action to be taken by the merchant.\nThe string must be a single message up to 100 characters long and must end with a period.\nYou need to adhere to the message formatting rules or your requests will fail:\n- `[Explanation of the problem]. [Suggested action].`\n\n**Examples:**\n- `[Your app name]` is not connected. Connect your account to use this sales channel. `[Learn more]`\n- `[Your app name]` is not configured. Agree to the terms and conditions to use this app. `[Learn more]`\nBoth `Your app name` and `Learn more` (a button which directs merchants to your app) are automatically populated in the Shopify admin.\n"
+  "If the feedback state is `requires_action`, then you can send a string message that communicates the action to be taken by the merchant.\nThe string must be a single message up to 100 characters long and must end with a period.\nYou need to adhere to the message formatting rules or your requests will fail:\n- `[Explanation of the problem]. [Suggested action].`\n\n**Examples:**\n- `[Your app name]` isn't connected. Connect your account to use this sales channel. `[Learn more]`\n- `[Your app name]` isn't configured. Agree to the terms and conditions to use this app. `[Learn more]`\nBoth `Your app name` and `Learn more` (a button which directs merchants to your app) are automatically populated in the Shopify admin.\n"
   messages: [String!]
 
   """The state of the feedback and whether it requires merchant action."""
@@ -38707,7 +38727,7 @@ type ResourceLimit {
   quantityLimit: Int
 
   """
-  Quantity used of the resource. If null the quantity used cannot be retrieved.
+  Quantity used of the resource. If null the quantity used can't be retrieved.
   """
   quantityUsed: Int
 }
@@ -39099,7 +39119,7 @@ input ReturnInput {
   returnLineItems: [ReturnLineItemInput!]!
 
   """
-  When `true` the customer will receive a notification if there is an `Order.email` present.
+  When `true` the customer will receive a notification if there's an `Order.email` present.
   """
   notifyCustomer: Boolean = false
 
@@ -39180,7 +39200,7 @@ input ReturnLineItemInput {
   """The reason for the item to be returned."""
   returnReason: ReturnReason!
 
-  "A note about the reason that the item is being returned.\nA note can be provided only if the return reason is `OTHER`.\nMaximum length: 255 characters.\n"
+  "A note about the reason that the item is being returned.\nMaximum length: 255 characters.\n"
   returnReasonNote: String = ""
 }
 
@@ -39488,7 +39508,7 @@ input ReverseDeliveryDisposeInput {
 
   """
   The ID of the location where the reverse delivery line item is to be disposed. This is required
-  when the disposition type is RESTOCKED.
+            when the disposition type is RESTOCKED.
   """
   locationId: ID
 }
@@ -39696,7 +39716,7 @@ input ReverseFulfillmentOrderDisposeInput {
 
   """
   The ID of the location where the reverse fulfillment order line item is to be disposed.
-  This is required when the disposition type is RESTOCKED.
+          This is required when the disposition type is RESTOCKED.
   """
   locationId: ID
 
@@ -40603,7 +40623,7 @@ type SegmentMembership {
   """
   isMember: Boolean!
 
-  """A `segmentId` that is used for testing membership."""
+  """A `segmentId` that's used for testing membership."""
   segmentId: ID!
 }
 
@@ -40759,7 +40779,7 @@ type SellingPlan implements HasPublishedTranslations & Node {
   name: String!
 
   """
-  The values of all options available on the selling plan. Selling plans are grouped together in Liquid when they are created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
+  The values of all options available on the selling plan. Selling plans are grouped together in Liquid when they're created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
   """
   options: [String!]!
 
@@ -40788,7 +40808,7 @@ type SellingPlanAnchor {
   "The cutoff day for the anchor.\n\nIf `type` is WEEKDAY, then the value must be between 1-7. Shopify interprets\nthe days of the week according to ISO 8601, where 1 is Monday.\n\nIf `type` is MONTHDAY, then the value must be between 1-31.\n\nIf `type` is YEARDAY, then the value must be `null`.\n"
   cutoffDay: Int
 
-  "The day of the anchor.\n\nIf `type` is WEEKDAY, then the value must be between 1-7. Shopify interprets\nthe days of the week according to ISO 8601, where 1 is Monday.\n\nIf `type` is not WEEKDAY, then the value must be between 1-31.\n"
+  "The day of the anchor.\n\nIf `type` is WEEKDAY, then the value must be between 1-7. Shopify interprets\nthe days of the week according to ISO 8601, where 1 is Monday.\n\nIf `type` isn't WEEKDAY, then the value must be between 1-31.\n"
   day: Int!
 
   "The month of the anchor. If type is different than YEARDAY, then the value must\nbe `null` or between 1-12.\n"
@@ -40803,7 +40823,7 @@ input SellingPlanAnchorInput {
   "Represents the anchor type, must be one of WEEKDAY, MONTHDAY, YEARDAY.\n"
   type: SellingPlanAnchorType
 
-  "The day of the anchor.\n\nIf `type` is WEEKDAY, then the value must be between 1-7. Shopify interprets\nthe days of the week according to ISO 8601, where 1 is Monday.\n\nIf `type` is not WEEKDAY, then the value must be between 1-31.\n"
+  "The day of the anchor.\n\nIf `type` is WEEKDAY, then the value must be between 1-7. Shopify interprets\nthe days of the week according to ISO 8601, where 1 is Monday.\n\nIf `type` isn't WEEKDAY, then the value must be between 1-31.\n"
   day: Int
 
   "The month of the anchor. If type is different than YEARDAY, then the value must\nbe `null` or between 1-12.\n"
@@ -40843,8 +40863,8 @@ input SellingPlanBillingPolicyInput {
 
 """
 The category of the selling plan. For the `OTHER` category,
-you must fill out our [request form](https://docs.google.com/forms/d/e/1FAIpQLSeU18Xmw0Q61V8wdH-dfGafFqIBfRchQKUO8WAF3yJTvgyyZQ/viewform),
-where we'll review your request for a new purchase option.
+         you must fill out our [request form](https://docs.google.com/forms/d/e/1FAIpQLSeU18Xmw0Q61V8wdH-dfGafFqIBfRchQKUO8WAF3yJTvgyyZQ/viewform),
+         where we'll review your request for a new purchase option.
 """
 enum SellingPlanCategory {
   """The selling plan is for anything not in one of the other categories."""
@@ -41045,7 +41065,7 @@ enum SellingPlanFixedDeliveryPolicyPreAnchorBehavior {
   NEXT
 }
 
-"""Represents a fixed selling plan pricing policy."""
+"Represents the pricing policy of a subscription or deferred purchase option selling plan.\nThe selling plan fixed pricing policy works with the billing and delivery policy\nto determine the final price. Discounts are divided among fulfillments.\nFor example, a subscription with a $10 discount and two deliveries will have a $5\ndiscount applied to each delivery.\n"
 type SellingPlanFixedPricingPolicy implements SellingPlanPricingPolicyBase {
   """The price adjustment type."""
   adjustmentType: SellingPlanPricingPolicyAdjustmentType!
@@ -41131,7 +41151,7 @@ type SellingPlanGroup implements HasPublishedTranslations & Node {
   name: String!
 
   """
-  The values of all options available on the selling plan group. Selling plans are grouped together in Liquid when they are created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
+  The values of all options available on the selling plan group. Selling plans are grouped together in Liquid when they're created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
   """
   options: [String!]!
 
@@ -41300,7 +41320,7 @@ input SellingPlanGroupInput {
   sellingPlansToDelete: [ID!]
 
   """
-  The values of all options available on the selling plan group. Selling plans are grouped together in Liquid when they are created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
+  The values of all options available on the selling plan group. Selling plans are grouped together in Liquid when they're created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
   """
   options: [String!]
 
@@ -41618,7 +41638,7 @@ input SellingPlanInput {
   pricingPolicies: [SellingPlanPricingPolicyInput!]
 
   """
-  The values of all options available on the selling plan. Selling plans are grouped together in Liquid when they are created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
+  The values of all options available on the selling plan. Selling plans are grouped together in Liquid when they're created by the same app, and have the same `selling_plan_group.name` and `selling_plan_group.options` values.
   """
   options: [String!]
 
@@ -41993,7 +42013,7 @@ type ShippingLine {
   requestedFulfillmentService: FulfillmentService
 
   """
-  A unique identifier for the shipping rate. The format can change without notice and is not meant to be shown to users.
+  A unique identifier for the shipping rate. The format can change without notice and isn't meant to be shown to users.
   """
   shippingRateHandle: String
 
@@ -43449,7 +43469,7 @@ type ShopResourceLimits {
   redirectLimitReached: Boolean!
 
   """
-  The maximum number of variants allowed per shop. If the shop has unlimited SKUs, then the quantity used cannot be retrieved.
+  The maximum number of variants allowed per shop. If the shop has unlimited SKUs, then the quantity used can't be retrieved.
   """
   skuResourceLimits: ResourceLimit!
 }
@@ -43742,12 +43762,12 @@ type ShopifyPaymentsDispute implements LegacyInteroperability & Node {
   evidenceDueBy: Date
 
   """
-  The date when evidence was sent. Returns null if evidence has not yet been sent.
+  The date when evidence was sent. Returns null if evidence hasn't yet been sent.
   """
   evidenceSentOn: Date
 
   """
-  The date when this dispute was resolved. Returns null if the dispute is not yet resolved.
+  The date when this dispute was resolved. Returns null if the dispute isn't yet resolved.
   """
   finalizedOn: Date
 
@@ -43760,7 +43780,7 @@ type ShopifyPaymentsDispute implements LegacyInteroperability & Node {
   """The ID of the corresponding resource in the REST Admin API."""
   legacyResourceId: UnsignedInt64!
 
-  """The order that contains the charge that is under dispute."""
+  """The order that contains the charge that's under dispute."""
   order: Order
 
   """The reason of the dispute."""
@@ -43801,7 +43821,7 @@ type ShopifyPaymentsDisputeEvidence implements Node {
   """The activity logs associated with the dispute evidence."""
   accessActivityLog: String
 
-  """The billing address that is provided by the customer."""
+  """The billing address that's provided by the customer."""
   billingAddress: MailingAddress
 
   """
@@ -43857,7 +43877,7 @@ type ShopifyPaymentsDisputeEvidence implements Node {
   """The service documentation file associated with the dispute evidence."""
   serviceDocumentationFile: ShopifyPaymentsDisputeFileUpload
 
-  """The mailing address for shipping that is provided by the customer."""
+  """The mailing address for shipping that's provided by the customer."""
   shippingAddress: MailingAddress
 
   """The shipping documentation file associated with the dispute evidence."""
@@ -44075,10 +44095,10 @@ type ShopifyPaymentsExtendedAuthorization {
 
 """The fraud settings of a payments account."""
 type ShopifyPaymentsFraudSettings {
-  """Decline a charge if there is an AVS failure."""
+  """Decline a charge if there's an AVS failure."""
   declineChargeOnAvsFailure: Boolean!
 
-  """Decline a charge if there is an CVC failure."""
+  """Decline a charge if there's an CVC failure."""
   declineChargeOnCvcFailure: Boolean!
 }
 
@@ -44328,8 +44348,8 @@ interface ShopifyqlResponse {
 
   """
   The result in a tabular format with schema and row data.
-  To be used as a raw 2-dimensional response of the query.
-  It's always present even if query has a `VISUALIZE` keyword.
+            To be used as a raw 2-dimensional response of the query.
+            It's always present even if query has a `VISUALIZE` keyword.
   """
   tableData: TableData
 }
@@ -44478,7 +44498,7 @@ enum StaffMemberPermission {
 
   """
   The staff member can view the Overview and Live view pages,
-  which include sales information, and other shop and sales channels data.
+              which include sales information, and other shop and sales channels data.
   """
   OVERVIEWS
 
@@ -45509,7 +45529,7 @@ enum SubscriptionBillingCyclesSortKeys {
 
 """Select subscription billing cycles to be targeted."""
 enum SubscriptionBillingCyclesTargetSelection {
-  """Target all future subscription billing cycles."""
+  """Target all current and upcoming subscription billing cycles."""
   ALL
 }
 
@@ -45521,7 +45541,7 @@ type SubscriptionBillingPolicy {
   anchors: [SellingPlanAnchor!]!
 
   """
-  The kind of interval that is associated with this schedule (e.g. Monthly, Weekly, etc).
+  The kind of interval that's associated with this schedule (e.g. Monthly, Weekly, etc).
   """
   interval: SellingPlanInterval!
 
@@ -45538,7 +45558,7 @@ type SubscriptionBillingPolicy {
 """The input fields for a Subscription Billing Policy."""
 input SubscriptionBillingPolicyInput {
   """
-  The kind of interval that is associated with this schedule (e.g. Monthly, Weekly, etc).
+  The kind of interval that's associated with this schedule (e.g. Monthly, Weekly, etc).
   """
   interval: SellingPlanInterval!
 
@@ -46142,7 +46162,7 @@ input SubscriptionDeliveryMethodShippingInput {
 
 """Represents the selected shipping option on a subscription contract."""
 type SubscriptionDeliveryMethodShippingOption {
-  "The carrier service that is providing this shipping option.\nThis field isn't currently supported and returns null.\n"
+  "The carrier service that's providing this shipping option.\nThis field isn't currently supported and returns null.\n"
   carrierService: DeliveryCarrierService @deprecated(reason: "This field has never been implemented.")
 
   """The code of the shipping option."""
@@ -46206,7 +46226,7 @@ type SubscriptionDeliveryPolicy {
   anchors: [SellingPlanAnchor!]!
 
   """
-  The kind of interval that is associated with this schedule (e.g. Monthly, Weekly, etc).
+  The kind of interval that's associated with this schedule (e.g. Monthly, Weekly, etc).
   """
   interval: SellingPlanInterval!
 
@@ -46217,7 +46237,7 @@ type SubscriptionDeliveryPolicy {
 """The input fields for a Subscription Delivery Policy."""
 input SubscriptionDeliveryPolicyInput {
   """
-  The kind of interval that is associated with this schedule (e.g. Monthly, Weekly, etc).
+  The kind of interval that's associated with this schedule (e.g. Monthly, Weekly, etc).
   """
   interval: SellingPlanInterval!
 
@@ -46696,7 +46716,7 @@ enum SubscriptionDraftErrorCode {
   CURRENCY_NOT_ENABLED
 
   """
-  Cannot update a subscription contract with a future contract or schedule edit.
+  Cannot update a subscription contract with a current or upcoming billing cycle contract edit.
   """
   HAS_FUTURE_EDITS
 
@@ -47293,7 +47313,7 @@ input SubscriptionPricingPolicyInput {
 
 """A shipping option to deliver a subscription contract."""
 type SubscriptionShippingOption {
-  "The carrier service that is providing this shipping option.\nThis field isn't currently supported and returns null.\n"
+  "The carrier service that's providing this shipping option.\nThis field isn't currently supported and returns null.\n"
   carrierService: DeliveryCarrierService @deprecated(reason: "This field has never been implemented.")
 
   """The code of the shipping option."""
@@ -48125,7 +48145,7 @@ type TranslatableContent {
   """Hash digest representation of the content value."""
   digest: String
 
-  """The resource field that is being translated."""
+  """The resource field that's being translated."""
   key: String!
 
   """Locale of the content."""
@@ -48191,7 +48211,7 @@ enum TranslatableResourceType {
 
   """
   The delivery method definition. For example, "Standard", or "Expedited".
-  Translatable fields: `name`.
+          Translatable fields: `name`.
   """
   DELIVERY_METHOD_DEFINITION
 
@@ -48248,7 +48268,7 @@ enum TranslatableResourceType {
 
   """
   An online store custom product property name. For example, "Size", "Color", or "Material".
-  Translatable fields: `name`.
+          Translatable fields: `name`.
   """
   PRODUCT_OPTION
 
@@ -48574,8 +48594,8 @@ Possible error codes that can be returned by `UrlRedirectBulkDeleteByIdsUserErro
 enum UrlRedirectBulkDeleteByIdsUserErrorCode {
   """
   You must pass one or more [`URLRedirect`](
-  https://help.shopify.com/en/manual/online-store/menus-and-links/url-redirect
-  ) object IDs.
+              https://help.shopify.com/en/manual/online-store/menus-and-links/url-redirect
+            ) object IDs.
   """
   IDS_EMPTY
 }
@@ -49428,18 +49448,18 @@ enum WebhookSubscriptionTopic {
 
   """
   The webhook topic for `fulfillment_orders/moved` events. Occurs whenever the location which is assigned to fulfill one or more fulfillment order line items is changed.
-
+  
   * `original_fulfillment_order` - The final state of the original fulfillment order.
   * `moved_fulfillment_order` - The fulfillment order which now contains the re-assigned line items.
   * `source_location` - The original location which was assigned to fulfill the line items (available as of the `2023-04` API version).
   * `destination_location_id` - The ID of the location which is now responsible for fulfilling the line items.
-
+  
   **Note:** The [assignedLocation](https://shopify.dev/docs/api/admin-graphql/latest/objects/fulfillmentorder#field-fulfillmentorder-assignedlocation)
   of the `original_fulfillment_order` might be changed by the move operation.
   If you need to determine the originally assigned location, then you should refer to the `source_location`.
-
+  
   [Learn more about moving line items](https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentOrderMove).
-  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders.
+   Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders.
   """
   FULFILLMENT_ORDERS_MOVED
 
@@ -49837,14 +49857,14 @@ enum WebhookSubscriptionTopic {
   The webhook topic for `reverse_deliveries/attach_deliverable` events. Occurs whenever a deliverable is attached to a reverse delivery.
   This occurs when a reverse delivery is created or updated with delivery metadata.
   Metadata includes the delivery method, label, and tracking information associated with a reverse delivery.
-  Requires at least one of the following scopes: read_returns, read_marketplace_returns.
+   Requires at least one of the following scopes: read_returns, read_marketplace_returns.
   """
   REVERSE_DELIVERIES_ATTACH_DELIVERABLE
 
   """
   The webhook topic for `reverse_fulfillment_orders/dispose` events. Occurs whenever a disposition is made on a reverse fulfillment order.
   This includes dispositions made on reverse deliveries that are associated with the reverse fulfillment order.
-  Requires at least one of the following scopes: read_returns, read_marketplace_returns.
+   Requires at least one of the following scopes: read_returns, read_marketplace_returns.
   """
   REVERSE_FULFILLMENT_ORDERS_DISPOSE
 
