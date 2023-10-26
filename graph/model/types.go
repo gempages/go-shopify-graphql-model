@@ -15,6 +15,8 @@ func concludeObjectType(typeName string) (reflect.Type, error) {
 		return reflect.TypeOf(Model3d{}), nil
 	case "ExternalVideo":
 		return reflect.TypeOf(ExternalVideo{}), nil
+	case "GenericFile":
+		return reflect.TypeOf(GenericFile{}), nil
 	default:
 		return reflect.TypeOf(nil), fmt.Errorf("`%s` not implemented type", typeName)
 	}

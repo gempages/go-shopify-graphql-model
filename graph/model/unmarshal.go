@@ -131,3 +131,98 @@ func decodeWebhookSubscriptionEndpoint(node map[string]interface{}) (WebhookSubs
 	}
 	return endpoint, nil
 }
+
+func (fe *FileEdge) UnmarshalJSON(b []byte) error {
+	var m map[string]interface{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+
+	if cursor, ok := m["cursor"].(string); ok {
+		fe.Cursor = cursor
+	}
+	if node, ok := m["node"].(map[string]interface{}); ok {
+		fe.Node, err = decodeFile(node)
+		if err != nil {
+			return fmt.Errorf("decode file node: %w", err)
+		}
+	}
+	return nil
+}
+
+func (fp *FileCreatePayload) UnmarshalJSON(b []byte) error {
+	var m map[string]interface{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+
+	if files, ok := m["files"].([]interface{}); ok {
+		fp.Files = make([]File, len(files))
+		for i, n := range files {
+			if file, ok := n.(map[string]interface{}); ok {
+				fp.Files[i], err = decodeFile(file)
+				if err != nil {
+					return fmt.Errorf("decode file node: %w", err)
+				}
+			} else {
+				return fmt.Errorf("expected type map[string]interface{} for File, got %T", n)
+			}
+		}
+	}
+	return nil
+}
+
+func (fc *FileConnection) UnmarshalJSON(b []byte) error {
+	var (
+		m     map[string]interface{}
+		mConn struct {
+			Edges    []FileEdge `json:"edges,omitempty"`
+			PageInfo *PageInfo  `json:"pageInfo,omitempty"`
+		}
+	)
+
+	err := json.Unmarshal(b, &mConn)
+	if err != nil {
+		return err
+	}
+	fc.Edges = mConn.Edges
+	fc.PageInfo = mConn.PageInfo
+
+	err = json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+	if nodes, ok := m["nodes"].([]interface{}); ok {
+		fc.Nodes = make([]File, len(nodes))
+		for i, n := range nodes {
+			if node, ok := n.(map[string]interface{}); ok {
+				fc.Nodes[i], err = decodeFile(node)
+				if err != nil {
+					return fmt.Errorf("decode file node: %w", err)
+				}
+			} else {
+				return fmt.Errorf("expected type map[string]interface{} for File node, got %T", n)
+			}
+		}
+	}
+	return nil
+}
+
+func decodeFile(node map[string]interface{}) (File, error) {
+	if typeName, ok := node["__typename"].(string); ok {
+		fileType, err := concludeObjectType(typeName)
+		if err != nil {
+			return nil, fmt.Errorf("conclude object type: %w", err)
+		}
+		file := reflect.New(fileType).Interface()
+		err = mapstructure.Decode(node, file)
+		if err != nil {
+			return nil, fmt.Errorf("decode file node: %w", err)
+		}
+
+		return file.(File), nil
+	}
+	return nil, fmt.Errorf("must query __typename to decode File")
+}
