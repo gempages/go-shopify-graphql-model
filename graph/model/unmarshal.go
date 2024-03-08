@@ -171,6 +171,21 @@ func (fp *FileCreatePayload) UnmarshalJSON(b []byte) error {
 			}
 		}
 	}
+
+	if userErrors, ok := m["userErrors"].([]interface{}); ok {
+		var uErrors []FilesUserError
+		bytes, err := json.Marshal(userErrors)
+		if err != nil {
+			return fmt.Errorf("marshal userErros got %w", err)
+		}
+
+		err = json.Unmarshal(bytes, &uErrors)
+		if err != nil {
+			return fmt.Errorf("unmarshal userErros got %w", err)
+		}
+		fp.UserErrors = uErrors
+	}
+
 	return nil
 }
 
