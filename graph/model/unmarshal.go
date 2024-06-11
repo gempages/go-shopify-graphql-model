@@ -132,6 +132,30 @@ func decodeWebhookSubscriptionEndpoint(node map[string]interface{}) (WebhookSubs
 	return endpoint, nil
 }
 
+func (dc *DiscountNode) UnmarshalJSON(b []byte) error {
+	var m map[string]interface{}
+	err := json.Unmarshal(b, &m)
+	if err != nil {
+		return err
+	}
+	if discount, ok := m["discount"].(map[string]interface{}); ok {
+		if typeName, ok := discount["__typename"].(string); ok {
+			discountType, err := concludeObjectType(typeName)
+			if err != nil {
+				return fmt.Errorf("conclude object type: %w", err)
+			}
+			disc := reflect.New(discountType).Interface()
+			err = mapstructure.Decode(discount, disc)
+			if err != nil {
+				return fmt.Errorf("decode discount node: %w", err)
+			}
+			dc.Discount = disc.(Discount)
+			return nil
+		}
+	}
+	return nil
+}
+
 func (fe *FileEdge) UnmarshalJSON(b []byte) error {
 	var m map[string]interface{}
 	err := json.Unmarshal(b, &m)
