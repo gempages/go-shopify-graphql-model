@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/spf13/cast"
 )
 
 func (e *MediaEdge) UnmarshalJSON(b []byte) error {
@@ -139,19 +140,11 @@ func (dc *DiscountNode) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	if discount, ok := m["discount"].(map[string]interface{}); ok {
-		if typeName, ok := discount["__typename"].(string); ok {
-			discountType, err := concludeObjectType(typeName)
-			if err != nil {
-				return fmt.Errorf("conclude object type: %w", err)
-			}
-			disc := reflect.New(discountType).Interface()
-			err = mapstructure.Decode(discount, disc)
-			if err != nil {
-				return fmt.Errorf("decode discount node: %w", err)
-			}
-			dc.Discount = disc.(Discount)
-			return nil
+		disc, err := decodeDiscount(discount)
+		if err != nil {
+			return fmt.Errorf("decodeDiscount: %w", err)
 		}
+		dc.Discount = disc.(Discount)
 	}
 	return nil
 }
@@ -247,6 +240,53 @@ func (fc *FileConnection) UnmarshalJSON(b []byte) error {
 		}
 	}
 	return nil
+}
+
+func (d *DiscountAutomaticNode) UnmarshalJSON(data []byte) error {
+	var m map[string]interface{}
+	if err := json.Unmarshal(data, &m); err != nil {
+		return fmt.Errorf("unmarshal DiscountAutomaticNode: %w", err)
+	}
+
+	if id, ok := m["id"].(string); ok {
+		d.ID = id
+	}
+	if metafield, ok := m["metafield"].(*Metafield); ok {
+		d.Metafield = metafield
+	}
+
+	// Unmarshal AutomaticDiscount into a map to access __typename
+	if automaticDiscount, ok := m["automaticDiscount"].(map[string]any); ok {
+		discount, err := decodeDiscount(automaticDiscount)
+		if err != nil {
+			return fmt.Errorf("decodeDiscount: %w", err)
+		}
+		d.AutomaticDiscount = discount.(DiscountAutomatic)
+	}
+
+	return nil
+}
+
+func decodeDiscount(node map[string]interface{}) (any, error) {
+	typeName, ok := node["__typename"].(string)
+	if !ok {
+		return nil, fmt.Errorf("`__typename` field not found or not a string in `%s`", node)
+	}
+	discountType, err := concludeObjectType(typeName)
+	if err != nil {
+		return nil, fmt.Errorf("concludeObjectType: %w", err)
+	}
+	if startsAt, ok := node["startsAt"].(string); ok {
+		node["startsAt"] = cast.ToTime(startsAt)
+	}
+	if endsAt, ok := node["endsAt"]; ok && endsAt != nil {
+		node["endsAt"] = cast.ToTime(endsAt)
+	}
+	discount := reflect.New(discountType).Interface()
+	if err := mapstructure.Decode(node, discount); err != nil {
+		return nil, fmt.Errorf("mapstructure.Decode AutomaticDiscount: %w", err)
+	}
+	return discount, nil
 }
 
 func decodeFile(node map[string]interface{}) (File, error) {
