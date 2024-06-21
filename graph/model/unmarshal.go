@@ -251,8 +251,13 @@ func (d *DiscountAutomaticNode) UnmarshalJSON(data []byte) error {
 	if id, ok := m["id"].(string); ok {
 		d.ID = id
 	}
-	if metafield, ok := m["metafield"].(*Metafield); ok {
-		d.Metafield = metafield
+	if metafield, ok := m["metafield"].(map[string]any); ok {
+		if d.Metafield == nil {
+			d.Metafield = &Metafield{}
+		}
+		if err := mapstructure.Decode(metafield, d.Metafield); err != nil {
+			return fmt.Errorf("decode metafield: %w", err)
+		}
 	}
 
 	// Unmarshal AutomaticDiscount into a map to access __typename
@@ -267,7 +272,7 @@ func (d *DiscountAutomaticNode) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func decodeDiscount(node map[string]interface{}) (any, error) {
+func decodeDiscount(node map[string]any) (any, error) {
 	typeName, ok := node["__typename"].(string)
 	if !ok {
 		return nil, fmt.Errorf("`__typename` field not found or not a string in `%s`", node)
