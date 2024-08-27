@@ -14,13 +14,14 @@ async function main() {
         body: JSON.stringify({ query: introspectionQuery }),
     })
 
-    const { data } = await response.json()
+    const result = await response.json()
 
-    const schema = buildClientSchema(data)
+    const schema = buildClientSchema(result.data)
 
-    const outputFile = "./result.graphql"
+    const outputFile = "./schema.graphql"
 
     await promises.writeFile(outputFile, printSchema(schema))
+    await promises.writeFile(`./${process.env.API_VERSION}.json`, JSON.stringify(result)) // Use this schema file for GemPages v6
 }
 
 main()

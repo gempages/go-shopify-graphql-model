@@ -1,4 +1,3 @@
-
 .DS_Store
 node_modules
 graph/generated/generated.go
@@ -6,6 +5,8 @@ graph/resolver.go
 graph/schema.resolvers.go
 result.gql
 result.graphql
+*.json
+schema.graphql
 generated.go
 /.idea
 /.vscode

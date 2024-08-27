@@ -16,8 +16,7 @@ This is a simple library to help you use Shopify's GraphQL objects in your Go co
     STORE=my-store ACCESS_TOKEN=shpat_xxxxx API_VERSION=2023-07 yarn fetch
     ```
 
-2. Rename or copy its content from `result.graphql` to `schema.graphql`
-3. Remove the following declaration from `schema.graphql` so that models can be generated
+2. Remove the following declaration from `schema.graphql` so that models can be generated
 
     ```graphql
     schema {
@@ -26,8 +25,8 @@ This is a simple library to help you use Shopify's GraphQL objects in your Go co
     }
     ```
 
-4. Generate models
+3. Generate models
 
     ```bash
-    go run main.go 
+    go run main.go
     ```
