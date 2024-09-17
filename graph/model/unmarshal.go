@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
+	"github.com/shopspring/decimal"
 	"github.com/spf13/cast"
 )
 
@@ -309,4 +310,52 @@ func decodeFile(node map[string]interface{}) (File, error) {
 		return file.(File), nil
 	}
 	return nil, fmt.Errorf("must query __typename to decode File")
+}
+
+func (d *AppPlanV2) UnmarshalJSON(data []byte) error {
+	var m map[string]interface{}
+	err := json.Unmarshal(data, &m)
+	if err != nil {
+		return err
+	}
+
+	if value, ok := m["pricingDetails"].(map[string]any); ok {
+		pricingDetails, err := decodePricingDetails(value)
+		if err != nil {
+			return fmt.Errorf("decodePricingDetails: %w", err)
+		}
+		d.PricingDetails = pricingDetails.(AppPricingDetails)
+	}
+	return nil
+}
+
+func decodePricingDetails(data map[string]any) (any, error) {
+	typeName, ok := data["__typename"].(string)
+	if !ok {
+		return nil, fmt.Errorf("`__typename` field not found or not a string in `%s`", data)
+	}
+	pricingType, err := concludeObjectType(typeName)
+	if err != nil {
+		return nil, fmt.Errorf("concludeObjectType: %w", err)
+	}
+	if balanceUsed, ok := data["balanceUsed"].(map[string]any); ok {
+		if amount, ok := balanceUsed["amount"]; ok {
+			balanceUsed["amount"] = decimal.NewFromFloat(cast.ToFloat64(amount))
+		}
+	}
+	if cappedAmount, ok := data["cappedAmount"].(map[string]any); ok {
+		if amount, ok := cappedAmount["amount"]; ok {
+			cappedAmount["amount"] = decimal.NewFromFloat(cast.ToFloat64(amount))
+		}
+	}
+	if price, ok := data["price"].(map[string]any); ok {
+		if amount, ok := price["amount"]; ok {
+			price["amount"] = decimal.NewFromFloat(cast.ToFloat64(amount))
+		}
+	}
+	pricing := reflect.New(pricingType).Interface()
+	if err := mapstructure.Decode(data, pricing); err != nil {
+		return nil, fmt.Errorf("mapstructure.Decode PricingDetails: %w", err)
+	}
+	return pricing, nil
 }

@@ -31,6 +31,10 @@ func concludeObjectType(typeName string) (reflect.Type, error) {
 		return reflect.TypeOf(DiscountAutomaticBxgy{}), nil
 	case "DiscountAutomaticFreeShipping":
 		return reflect.TypeOf(DiscountAutomaticFreeShipping{}), nil
+	case "AppRecurringPricing":
+		return reflect.TypeOf(AppRecurringPricing{}), nil
+	case "AppUsagePricing":
+		return reflect.TypeOf(AppUsagePricing{}), nil
 	default:
 		return reflect.TypeOf(nil), fmt.Errorf("`%s` not implemented type", typeName)
 	}
