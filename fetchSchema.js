@@ -15,6 +15,10 @@ async function main() {
     })
 
     const result = await response.json()
+    if (result.errors) {
+        console.error(result.errors)
+        return
+    }
 
     const schema = buildClientSchema(result.data)
 
