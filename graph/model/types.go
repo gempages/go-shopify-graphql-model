@@ -3,59 +3,48 @@ package model
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/gempages/go-shopify-graphql-model/graph/types"
 )
 
-type GqlTypeName string
-
-const (
-	MediaImageTypeName                    GqlTypeName = "MediaImage"
-	VideoTypeName                         GqlTypeName = "Video"
-	Model3dTypeName                       GqlTypeName = "Model3d"
-	ExternalVideoTypeName                 GqlTypeName = "ExternalVideo"
-	GenericFileTypeName                   GqlTypeName = "GenericFile"
-	DiscountAutomaticAppTypeName          GqlTypeName = "DiscountAutomaticApp"
-	DiscountCodeBasicTypeName             GqlTypeName = "DiscountCodeBasic"
-	DiscountCodeBuyXGetYTypeName          GqlTypeName = "DiscountCodeBuyXGetY"
-	DiscountCodeFreeShippingTypeName      GqlTypeName = "DiscountCodeFreeShipping"
-	DiscountAutomaticBasicTypeName        GqlTypeName = "DiscountAutomaticBasic"
-	DiscountAutomaticBxgyTypeName         GqlTypeName = "DiscountAutomaticBxgy"
-	DiscountAutomaticFreeShippingTypeName GqlTypeName = "DiscountAutomaticFreeShipping"
-	AppRecurringPricingTypeName           GqlTypeName = "AppRecurringPricing"
-	AppUsagePricingTypeName               GqlTypeName = "AppUsagePricing"
-)
-
-// concludeObjectType returns the `reflect.Type` corresponding to a given `typeName`, returns error if `typeName` is not supported.
-func concludeObjectType(typeName GqlTypeName) (reflect.Type, error) {
+// ConcludeObjectType returns the `reflect.Type` corresponding to a given `typeName`, returns error if `typeName` is not supported.
+func ConcludeObjectType(typeName types.GqlTypeName) (reflect.Type, error) {
 	switch typeName {
-	case MediaImageTypeName:
+	case types.MediaImage:
 		return reflect.TypeOf(MediaImage{}), nil
-	case VideoTypeName:
+	case types.Video:
 		return reflect.TypeOf(Video{}), nil
-	case Model3dTypeName:
+	case types.Model3d:
 		return reflect.TypeOf(Model3d{}), nil
-	case ExternalVideoTypeName:
+	case types.ExternalVideo:
 		return reflect.TypeOf(ExternalVideo{}), nil
-	case GenericFileTypeName:
+	case types.GenericFile:
 		return reflect.TypeOf(GenericFile{}), nil
-	case DiscountAutomaticAppTypeName:
+	case types.DiscountAutomaticApp:
 		return reflect.TypeOf(DiscountAutomaticApp{}), nil
-	case DiscountCodeBasicTypeName:
+	case types.DiscountCodeBasic:
 		return reflect.TypeOf(DiscountCodeBasic{}), nil
-	case DiscountCodeBuyXGetYTypeName:
+	case types.DiscountCodeBuyXGetY:
 		return reflect.TypeOf(DiscountCodeBxgy{}), nil
-	case DiscountCodeFreeShippingTypeName:
+	case types.DiscountCodeFreeShipping:
 		return reflect.TypeOf(DiscountCodeFreeShipping{}), nil
-	case DiscountAutomaticBasicTypeName:
+	case types.DiscountAutomaticBasic:
 		return reflect.TypeOf(DiscountAutomaticBasic{}), nil
-	case DiscountAutomaticBxgyTypeName:
+	case types.DiscountAutomaticBxgy:
 		return reflect.TypeOf(DiscountAutomaticBxgy{}), nil
-	case DiscountAutomaticFreeShippingTypeName:
+	case types.DiscountAutomaticFreeShipping:
 		return reflect.TypeOf(DiscountAutomaticFreeShipping{}), nil
-	case AppRecurringPricingTypeName:
+	case types.AppRecurringPricing:
 		return reflect.TypeOf(AppRecurringPricing{}), nil
-	case AppUsagePricingTypeName:
+	case types.AppUsagePricing:
 		return reflect.TypeOf(AppUsagePricing{}), nil
+	case types.AppSubscriptionDiscount:
+		return reflect.TypeOf(AppSubscriptionDiscount{}), nil
+	case types.AppSubscriptionDiscountAmount:
+		return reflect.TypeOf(AppSubscriptionDiscountAmount{}), nil
+	case types.AppSubscriptionDiscountPercentage:
+		return reflect.TypeOf(AppSubscriptionDiscountPercentage{}), nil
 	default:
-		return reflect.TypeOf(nil), fmt.Errorf("`%s` not implemented type", typeName)
+		return nil, fmt.Errorf("`%s` is not implemented", typeName)
 	}
 }

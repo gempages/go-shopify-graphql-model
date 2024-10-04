@@ -6,8 +6,9 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/gempages/go-shopify-graphql-model/graph/types"
+
 	"github.com/mitchellh/mapstructure"
-	"github.com/shopspring/decimal"
 	"github.com/spf13/cast"
 )
 
@@ -66,7 +67,7 @@ func (c *MediaConnection) UnmarshalJSON(b []byte) error {
 
 func decodeMedia(node map[string]interface{}) (Media, error) {
 	if typeName, ok := node["__typename"].(string); ok {
-		mediaType, err := concludeObjectType(GqlTypeName(typeName))
+		mediaType, err := ConcludeObjectType(types.GqlTypeName(typeName))
 		if err != nil {
 			return nil, fmt.Errorf("conclude object type: %w", err)
 		}
@@ -278,9 +279,9 @@ func decodeDiscount(node map[string]any) (any, error) {
 	if !ok {
 		return nil, fmt.Errorf("`__typename` field not found or not a string in `%s`", node)
 	}
-	discountType, err := concludeObjectType(GqlTypeName(typeName))
+	discountType, err := ConcludeObjectType(types.GqlTypeName(typeName))
 	if err != nil {
-		return nil, fmt.Errorf("concludeObjectType: %w", err)
+		return nil, fmt.Errorf("ConcludeObjectType: %w", err)
 	}
 	if startsAt, ok := node["startsAt"].(string); ok {
 		node["startsAt"] = cast.ToTime(startsAt)
@@ -297,9 +298,9 @@ func decodeDiscount(node map[string]any) (any, error) {
 
 func decodeFile(node map[string]interface{}) (File, error) {
 	if typeName, ok := node["__typename"].(string); ok {
-		fileType, err := concludeObjectType(GqlTypeName(typeName))
+		fileType, err := ConcludeObjectType(types.GqlTypeName(typeName))
 		if err != nil {
-			return nil, fmt.Errorf("conclude object type: %w", err)
+			return nil, fmt.Errorf("ConcludeObjectType: %w", err)
 		}
 		file := reflect.New(fileType).Interface()
 		err = mapstructure.Decode(node, file)
@@ -312,111 +313,19 @@ func decodeFile(node map[string]interface{}) (File, error) {
 	return nil, fmt.Errorf("must query __typename to decode File")
 }
 
-func (p *AppPlanV2) UnmarshalJSON(data []byte) error {
+func (ap *AppPlanV2) UnmarshalJSON(data []byte) error {
 	var m map[string]any
 	if err := json.Unmarshal(data, &m); err != nil {
 		return fmt.Errorf("unmarshal AppPlanV2: %w", err)
 	}
 
 	if pd, ok := m["pricingDetails"].(map[string]any); ok {
-		pricingDetails, err := decodePricingDetails(pd)
+		pricingDetails, err := Decode(pd)
 		if err != nil {
-			return fmt.Errorf("decodePricingDetails: %w", err)
+			return fmt.Errorf("decode PricingDetails: %w", err)
 		}
-		p.PricingDetails = pricingDetails.(AppPricingDetails)
+		ap.PricingDetails = pricingDetails.(AppPricingDetails)
 	}
+
 	return nil
-}
-
-func decodePricingDetails(data map[string]any) (any, error) {
-	typeName, ok := data["__typename"].(string)
-	if !ok {
-		return nil, fmt.Errorf("`__typename` field is not supported or not a string in `%s`", data)
-	}
-
-	// pricingDetails has a nested structure with struct pointers and interfaces, preventing direct use of `mapstructure.Decode`.
-	// So its fields must be formated to correct data types before decoding.
-	newData := make(map[string]any)
-	switch GqlTypeName(typeName) {
-	case AppRecurringPricingTypeName:
-		newData = formatAppRecurringPricingDetails(data)
-	case AppUsagePricingTypeName:
-		newData = formatAppUsagePricingDetails(data)
-	default:
-		return nil, fmt.Errorf("pricingDetails `__typeName` is not supported")
-	}
-
-	pricingType, err := concludeObjectType(GqlTypeName(typeName))
-	if err != nil {
-		return nil, fmt.Errorf("concludeObjectType: %w", err)
-	}
-
-	pricingDetails := reflect.New(pricingType).Interface()
-	if err = mapstructure.Decode(newData, pricingDetails); err != nil {
-		return nil, fmt.Errorf("mapstructure.Decode PricingDetails: %w", err)
-	}
-
-	return pricingDetails, nil
-}
-
-func formatAppUsagePricingDetails(data map[string]any) map[string]any {
-	if balanceUsed, ok := data["balanceUsed"].(map[string]any); ok {
-		if amount, ok := balanceUsed["amount"]; ok {
-			balanceUsed["amount"] = toDecimal(amount)
-		}
-	}
-	if cappedAmount, ok := data["cappedAmount"].(map[string]any); ok {
-		if amount, ok := cappedAmount["amount"]; ok {
-			cappedAmount["amount"] = toDecimal(amount)
-		}
-	}
-	if price, ok := data["price"].(map[string]any); ok {
-		if amount, ok := price["amount"]; ok {
-			price["amount"] = toDecimal(amount)
-		}
-	}
-
-	return data
-}
-
-func formatAppRecurringPricingDetails(data map[string]any) map[string]any {
-	if price, ok := data["price"].(map[string]any); ok {
-		if amount, ok := price["amount"]; ok {
-			price["amount"] = toDecimal(amount)
-		}
-	}
-
-	if discount, ok := data["discount"].(map[string]any); ok {
-		if priceAfterDiscount, ok := discount["priceAfterDiscount"].(map[string]any); ok {
-			if amount, ok := priceAfterDiscount["amount"]; ok {
-				priceAfterDiscount["amount"] = toDecimal(amount)
-			}
-		}
-
-		if value, ok := discount["value"].(map[string]any); ok {
-			if a, ok := value["amount"].(map[string]any); ok {
-				if amount, ok := a["amount"]; ok {
-					if currencyCode, ok := a["currencyCode"]; ok {
-						discount["value"] = &AppSubscriptionDiscountAmount{
-							Amount: &MoneyV2{
-								Amount:       toDecimal(amount),
-								CurrencyCode: CurrencyCode(cast.ToString(currencyCode)),
-							},
-						}
-					}
-				}
-			} else if percentage, ok := value["percentage"].(float64); ok {
-				discount["value"] = &AppSubscriptionDiscountPercentage{
-					Percentage: percentage,
-				}
-			}
-		}
-	}
-
-	return data
-}
-
-// toDecimal converts a value to float64, then from float64 to Decimal.
-func toDecimal(val any) decimal.Decimal {
-	return decimal.NewFromFloat(cast.ToFloat64(val))
 }
