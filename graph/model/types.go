@@ -2,48 +2,53 @@ package model
 
 import (
 	"fmt"
-	"reflect"
 
 	"github.com/gempages/go-shopify-graphql-model/graph/types"
 )
 
-// ConcludeObjectType returns the `reflect.Type` corresponding to a given `typeName`, returns error if `typeName` is not supported.
-func ConcludeObjectType(typeName types.GqlTypeName) (reflect.Type, error) {
+// concludeObjectType returns a pointer to the corresponding struct of given `typeName`. It returns error if `typeName` is not implemented.
+func concludeObjectType(typeName types.GqlTypeName) (any, error) {
 	switch typeName {
 	case types.MediaImage:
-		return reflect.TypeOf(MediaImage{}), nil
+		return &MediaImage{}, nil
 	case types.Video:
-		return reflect.TypeOf(Video{}), nil
+		return &Video{}, nil
 	case types.Model3d:
-		return reflect.TypeOf(Model3d{}), nil
+		return &Model3d{}, nil
 	case types.ExternalVideo:
-		return reflect.TypeOf(ExternalVideo{}), nil
+		return &ExternalVideo{}, nil
 	case types.GenericFile:
-		return reflect.TypeOf(GenericFile{}), nil
+		return &GenericFile{}, nil
 	case types.DiscountAutomaticApp:
-		return reflect.TypeOf(DiscountAutomaticApp{}), nil
+		return &DiscountAutomaticApp{}, nil
 	case types.DiscountCodeBasic:
-		return reflect.TypeOf(DiscountCodeBasic{}), nil
+		return &DiscountCodeBasic{}, nil
 	case types.DiscountCodeBuyXGetY:
-		return reflect.TypeOf(DiscountCodeBxgy{}), nil
+		return &DiscountCodeBxgy{}, nil
 	case types.DiscountCodeFreeShipping:
-		return reflect.TypeOf(DiscountCodeFreeShipping{}), nil
+		return &DiscountCodeFreeShipping{}, nil
 	case types.DiscountAutomaticBasic:
-		return reflect.TypeOf(DiscountAutomaticBasic{}), nil
+		return &DiscountAutomaticBasic{}, nil
 	case types.DiscountAutomaticBxgy:
-		return reflect.TypeOf(DiscountAutomaticBxgy{}), nil
+		return &DiscountAutomaticBxgy{}, nil
 	case types.DiscountAutomaticFreeShipping:
-		return reflect.TypeOf(DiscountAutomaticFreeShipping{}), nil
+		return &DiscountAutomaticFreeShipping{}, nil
 	case types.AppRecurringPricing:
-		return reflect.TypeOf(AppRecurringPricing{}), nil
+		return &AppRecurringPricing{}, nil
 	case types.AppUsagePricing:
-		return reflect.TypeOf(AppUsagePricing{}), nil
+		return &AppUsagePricing{}, nil
 	case types.AppSubscriptionDiscount:
-		return reflect.TypeOf(AppSubscriptionDiscount{}), nil
+		return &AppSubscriptionDiscount{}, nil
 	case types.AppSubscriptionDiscountAmount:
-		return reflect.TypeOf(AppSubscriptionDiscountAmount{}), nil
+		return &AppSubscriptionDiscountAmount{}, nil
 	case types.AppSubscriptionDiscountPercentage:
-		return reflect.TypeOf(AppSubscriptionDiscountPercentage{}), nil
+		return &AppSubscriptionDiscountPercentage{}, nil
+	case types.WebhookHttpEndpoint:
+		return &WebhookHTTPEndpoint{}, nil
+	case types.WebhookEventBridgeEndpoint:
+		return &WebhookEventBridgeEndpoint{}, nil
+	case types.WebhookPubSubEndpoint:
+		return &WebhookPubSubEndpoint{}, nil
 	default:
 		return nil, fmt.Errorf("`%s` is not implemented", typeName)
 	}
