@@ -22,4 +22,7 @@ const (
 	AppSubscriptionDiscount           GqlTypeName = "AppSubscriptionDiscount"
 	AppSubscriptionDiscountAmount     GqlTypeName = "AppSubscriptionDiscountAmount"
 	AppSubscriptionDiscountPercentage GqlTypeName = "AppSubscriptionDiscountPercentage"
+	WebhookHttpEndpoint               GqlTypeName = "WebhookHttpEndpoint"
+	WebhookEventBridgeEndpoint        GqlTypeName = "WebhookEventBridgeEndpoint"
+	WebhookPubSubEndpoint             GqlTypeName = "WebhookPubSubEndpoint"
 )

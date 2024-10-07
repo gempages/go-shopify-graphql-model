@@ -1,9 +1,10 @@
 package model_test
 
 import (
-	"github.com/gempages/go-shopify-graphql-model/graph/model"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+
+	"github.com/gempages/go-shopify-graphql-model/graph/model"
 )
 
 var _ = Describe("Decode", func() {
@@ -21,7 +22,7 @@ var _ = Describe("Decode", func() {
 		})
 
 		It("returns an error indicating unknown type", func() {
-			result, err = model.Decode(data)
+			result, err = model.Decode(data, nil)
 			Expect(err).To(HaveOccurred())
 			Expect(result).To(BeNil())
 		})
@@ -38,7 +39,7 @@ var _ = Describe("Decode", func() {
 		})
 
 		It("returns an error", func() {
-			result, err = model.Decode(data)
+			result, err = model.Decode(data, nil)
 			Expect(err).To(HaveOccurred())
 			Expect(result).To(BeNil())
 		})
@@ -56,7 +57,7 @@ var _ = Describe("Decode", func() {
 		})
 
 		It("returns an error during decimal decoding", func() {
-			result, err = model.Decode(data)
+			result, err = model.Decode(data, &model.AppRecurringPricing{})
 			Expect(err).To(HaveOccurred())
 			Expect(result).To(BeNil())
 		})
@@ -87,7 +88,7 @@ var _ = Describe("Decode", func() {
 		})
 
 		It("decodes the data into an AppRecurringPricing object", func() {
-			result, err = model.Decode(data)
+			result, err = model.Decode(data, &model.AppRecurringPricing{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result).To(BeAssignableToTypeOf(&model.AppRecurringPricing{}))
 
@@ -134,7 +135,7 @@ var _ = Describe("Decode", func() {
 		})
 
 		It("decodes the data into an AppRecurringPricing object", func() {
-			result, err = model.Decode(data)
+			result, err = model.Decode(data, &model.AppRecurringPricing{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result).To(BeAssignableToTypeOf(&model.AppRecurringPricing{}))
 
@@ -176,7 +177,7 @@ var _ = Describe("Decode", func() {
 		})
 
 		It("decodes the data into an AppUsagePricing object", func() {
-			result, err = model.Decode(data)
+			result, err = model.Decode(data, &model.AppUsagePricing{})
 			Expect(err).NotTo(HaveOccurred())
 			Expect(result).To(BeAssignableToTypeOf(&model.AppUsagePricing{}))
 
