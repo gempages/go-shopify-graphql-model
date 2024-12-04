@@ -9,7 +9,6 @@ require (
 	github.com/onsi/gomega v1.34.2
 	github.com/shopspring/decimal v1.4.0
 	github.com/sirupsen/logrus v1.9.3
-	github.com/spf13/cast v1.7.0
 	github.com/vektah/gqlparser/v2 v2.5.16
 )
 
