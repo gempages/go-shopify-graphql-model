@@ -124,6 +124,21 @@ type CommentEventSubject interface {
 	GetID() string
 }
 
+// A customer account page.
+type CustomerAccountPage interface {
+	IsNavigable()
+	IsNode()
+	IsCustomerAccountPage()
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+	GetDefaultCursor() string
+	// A unique, human-friendly string for the customer account page.
+	GetHandle() string
+	// The unique ID for the customer account page.
+	GetID() string
+	// The title of the customer account page.
+	GetTitle() string
+}
+
 // Represents a session preceding an order, often used for building a timeline of events leading to an order.
 type CustomerMoment interface {
 	IsCustomerMoment()
@@ -144,6 +159,11 @@ type DeliveryConditionCriteria interface {
 // A rate provided by a merchant-defined rate or a participant.
 type DeliveryRateProvider interface {
 	IsDeliveryRateProvider()
+}
+
+// Configuration of the deposit.
+type DepositConfiguration interface {
+	IsDepositConfiguration()
 }
 
 // A discount.
@@ -244,6 +264,8 @@ type DraftOrderWarning interface {
 // addition of a product.
 type Event interface {
 	IsEvent()
+	// The action that occured.
+	GetAction() string
 	// The name of the app that created the event.
 	GetAppTitle() *string
 	// Whether the event was created by an app.
@@ -286,6 +308,33 @@ type File interface {
 	GetUpdatedAt() time.Time
 }
 
+// Represents information about the metafields associated to the specified resource.
+type GiftCardTransaction interface {
+	IsHasMetafields()
+	IsGiftCardTransaction()
+	// The amount of the transaction.
+	GetAmount() *MoneyV2
+	// The gift card that the transaction belongs to.
+	GetGiftCard() *GiftCard
+	// The unique ID for the transaction.
+	GetID() string
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
+	GetMetafield() *Metafield
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
+	GetMetafields() *MetafieldConnection
+	// A note about the transaction.
+	GetNote() *string
+	// Returns a private metafield by namespace and key that belongs to the resource.
+	GetPrivateMetafield() *PrivateMetafield
+	// List of private metafields that belong to the resource.
+	GetPrivateMetafields() *PrivateMetafieldConnection
+	// The date and time when the transaction was processed.
+	GetProcessedAt() time.Time
+}
+
 // Represents a summary of the current version of data in a resource.
 //
 // The `compare_digest` field can be used as input for mutations that implement a compare-and-swap mechanism.
@@ -319,9 +368,12 @@ type HasMetafieldDefinitions interface {
 // Represents information about the metafields associated to the specified resource.
 type HasMetafields interface {
 	IsHasMetafields()
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	GetMetafield() *Metafield
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	GetMetafields() *MetafieldConnection
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	GetPrivateMetafield() *PrivateMetafield
@@ -332,7 +384,7 @@ type HasMetafields interface {
 // Published translations associated with the resource.
 type HasPublishedTranslations interface {
 	IsHasPublishedTranslations()
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	GetTranslations() []Translation
 }
 
@@ -426,7 +478,7 @@ type MobilePlatformApplication interface {
 // [Paginating results with GraphQL](https://shopify.dev/api/usage/pagination-graphql).
 type Navigable interface {
 	IsNavigable()
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	GetDefaultCursor() string
 }
 
@@ -443,8 +495,13 @@ type Node interface {
 // Online Store preview URL of the object.
 type OnlineStorePreviewable interface {
 	IsOnlineStorePreviewable()
-	// The online store preview URL.
+	// The [preview URL](https://help.shopify.com/manual/online-store/setting-up#preview-your-store) for the online store.
 	GetOnlineStorePreviewURL() *string
+}
+
+// Represents the body of a theme file.
+type OnlineStoreThemeFileBody interface {
+	IsOnlineStoreThemeFileBody()
 }
 
 // A change that has been applied to an order.
@@ -490,27 +547,44 @@ type PublicationOperation interface {
 // A publishable resource can be either a Product or Collection.
 type Publishable interface {
 	IsPublishable()
-	// The number of publications a resource is published to without feedback errors.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	GetAvailablePublicationsCount() *Count
-	// The number of publications a resource is published on.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	GetPublicationCount() int
-	// Check to see whether the resource is published to a given channel.
+	// Whether the resource is published to a specific channel.
 	GetPublishedOnChannel() bool
-	// Check to see whether the resource is published to the calling app's channel.
+	// Whether the resource is published to a
+	// [channel](https://shopify.dev/docs/api/admin-graphql/latest/objects/Channel).
+	// For example, the resource might be published to the online store channel.
 	GetPublishedOnCurrentChannel() bool
-	// Check to see whether the resource is published to the calling app's publication.
+	// Whether the resource is published to the app's
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
+	// For example, the resource might be published to the app's online store channel.
 	GetPublishedOnCurrentPublication() bool
-	// Check to see whether the resource is published to a given publication.
+	// Whether the resource is published to a specified
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	GetPublishedOnPublication() bool
-	// The list of resources that are published to a publication.
+	// The list of resources that are published to a
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	GetResourcePublications() *ResourcePublicationConnection
-	// The number of publications a resource is published on.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	GetResourcePublicationsCount() *Count
-	// The list of resources that are either published or staged to be published to a publication.
+	// The list of resources that are either published or staged to be published to a
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	GetResourcePublicationsV2() *ResourcePublicationV2Connection
 	// The list of channels that the resource is not published to.
 	GetUnpublishedChannels() *ChannelConnection
-	// The list of publications that the resource is not published to.
+	// The list of [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that the resource isn't published to.
 	GetUnpublishedPublications() *PublicationConnection
 }
 
@@ -758,21 +832,59 @@ type WebhookSubscriptionEndpoint interface {
 type AbandonedCheckout struct {
 	// The URL for the buyer to recover their checkout.
 	AbandonedCheckoutURL string `json:"abandonedCheckoutUrl"`
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// The billing address provided by the buyer.
+	// Null if the user did not provide a billing address.
+	BillingAddress *MailingAddress `json:"billingAddress,omitempty,omitempty"`
+	// The date and time when the buyer completed the checkout.
+	// Null if the checkout has not been completed.
+	CompletedAt *time.Time `json:"completedAt,omitempty,omitempty"`
+	// The date and time when the checkout was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// A list of extra information that has been added to the checkout.
+	CustomAttributes []Attribute `json:"customAttributes,omitempty"`
+	// The customer who created this checkout.
+	// May be null if the checkout was created from a draft order or via an app.
+	Customer *Customer `json:"customer,omitempty,omitempty"`
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	DefaultCursor string `json:"defaultCursor"`
+	// The discount codes entered by the buyer at checkout.
+	DiscountCodes []string `json:"discountCodes,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// A list of the line items in this checkout.
 	LineItems *AbandonedCheckoutLineItemConnection `json:"lineItems,omitempty"`
 	// The number of products in the checkout.
 	LineItemsQuantity int `json:"lineItemsQuantity"`
+	// Unique merchant-facing identifier for the checkout.
+	Name string `json:"name"`
+	// A merchant-facing note added to the checkout. Not visible to the buyer.
+	Note string `json:"note"`
+	// The shipping address to where the line items will be shipped.
+	// Null if the user did not provide a shipping address.
+	ShippingAddress *MailingAddress `json:"shippingAddress,omitempty,omitempty"`
+	// The sum of all items in the checkout, including discounts but excluding shipping, taxes and tips.
+	SubtotalPriceSet *MoneyBag `json:"subtotalPriceSet,omitempty"`
+	// Individual taxes charged on the checkout.
+	TaxLines []TaxLine `json:"taxLines,omitempty"`
+	// Whether taxes are included in line item and shipping line prices.
+	TaxesIncluded bool `json:"taxesIncluded"`
+	// The total amount of discounts to be applied.
+	TotalDiscountSet *MoneyBag `json:"totalDiscountSet,omitempty"`
+	// The total duties applied to the checkout.
+	TotalDutiesSet *MoneyBag `json:"totalDutiesSet,omitempty,omitempty"`
+	// The sum of the prices of all line items in the checkout.
+	TotalLineItemsPriceSet *MoneyBag `json:"totalLineItemsPriceSet,omitempty"`
 	// The sum of all items in the checkout, including discounts, shipping, taxes, and tips.
 	TotalPriceSet *MoneyBag `json:"totalPriceSet,omitempty"`
+	// The total tax applied to the checkout.
+	TotalTaxSet *MoneyBag `json:"totalTaxSet,omitempty,omitempty"`
+	// The date and time when the checkout was most recently updated.
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (AbandonedCheckout) IsNavigable() {}
 
-// A default cursor that returns the single next record, sorted ascending by ID.
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 func (this AbandonedCheckout) GetDefaultCursor() string { return this.DefaultCursor }
 
 func (AbandonedCheckout) IsNode() {}
@@ -780,10 +892,30 @@ func (AbandonedCheckout) IsNode() {}
 // A globally-unique ID.
 func (this AbandonedCheckout) GetID() string { return this.ID }
 
+// An auto-generated type for paginating through multiple AbandonedCheckouts.
+type AbandonedCheckoutConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []AbandonedCheckoutEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in AbandonedCheckoutEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []AbandonedCheckout `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one AbandonedCheckout and a cursor during pagination.
+type AbandonedCheckoutEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of AbandonedCheckoutEdge.
+	Node *AbandonedCheckout `json:"node,omitempty"`
+}
+
 // A single line item in an abandoned checkout.
 type AbandonedCheckoutLineItem struct {
 	// A list of extra information that has been added to the line item.
 	CustomAttributes []Attribute `json:"customAttributes,omitempty"`
+	// Discount allocations that have been applied on the line item.
+	DiscountAllocations *DiscountAllocationConnection `json:"discountAllocations,omitempty"`
 	// Final total price for the entire quantity of this line item, including discounts.
 	DiscountedTotalPriceSet *MoneyBag `json:"discountedTotalPriceSet,omitempty"`
 	// The total price for the entire quantity of this line item, after all discounts are applied, at both the line item and code-based line item level.
@@ -825,17 +957,17 @@ func (this AbandonedCheckoutLineItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple AbandonedCheckoutLineItems.
 type AbandonedCheckoutLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AbandonedCheckoutLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AbandonedCheckoutLineItemEdge.
+	// A list of nodes that are contained in AbandonedCheckoutLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AbandonedCheckoutLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one AbandonedCheckoutLineItem and a cursor during pagination.
 type AbandonedCheckoutLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AbandonedCheckoutLineItemEdge.
 	Node *AbandonedCheckoutLineItem `json:"node,omitempty"`
@@ -1239,6 +1371,8 @@ type App struct {
 	LaunchURL string `json:"launchUrl"`
 	// Menu items for the app, which also appear as submenu items in left navigation sidebar in the Shopify admin.
 	NavigationItems []NavigationItem `json:"navigationItems,omitempty"`
+	// The optional scopes requested by the app. Lists the optional access scopes the app has declared in its configuration. These scopes are optionally requested by the app after installation.
+	OptionalAccessScopes []AccessScope `json:"optionalAccessScopes,omitempty"`
 	// Whether the app was previously installed on the current shop.
 	PreviouslyInstalled bool `json:"previouslyInstalled"`
 	// Detailed information about the app pricing.
@@ -1326,11 +1460,11 @@ func (AppCatalog) IsNode() {}
 
 // An auto-generated type for paginating through multiple Apps.
 type AppConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppEdge.
+	// A list of nodes that are contained in AppEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []App `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -1355,17 +1489,17 @@ func (this AppCredit) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple AppCredits.
 type AppCreditConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppCreditEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppCreditEdge.
+	// A list of nodes that are contained in AppCreditEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AppCredit `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one AppCredit and a cursor during pagination.
 type AppCreditEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppCreditEdge.
 	Node *AppCredit `json:"node,omitempty"`
@@ -1393,7 +1527,7 @@ type AppDiscountType struct {
 
 // An auto-generated type which holds one App and a cursor during pagination.
 type AppEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppEdge.
 	Node *App `json:"node,omitempty"`
@@ -1405,10 +1539,14 @@ type AppEdge struct {
 type AppFeedback struct {
 	// The application associated to the feedback.
 	App *App `json:"app,omitempty"`
+	// The date and time when the app feedback was generated.
+	FeedbackGeneratedAt time.Time `json:"feedbackGeneratedAt"`
 	// A link to where merchants can resolve errors.
 	Link *Link `json:"link,omitempty,omitempty"`
 	// The feedback message presented to the merchant.
 	Messages []UserError `json:"messages,omitempty"`
+	// Conveys the state of the feedback and whether it requires merchant action or not.
+	State ResourceFeedbackState `json:"state"`
 }
 
 // Represents an installed application on a shop.
@@ -1429,9 +1567,12 @@ type AppInstallation struct {
 	ID string `json:"id"`
 	// The URL to launch the application.
 	LaunchURL string `json:"launchUrl"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// One-time purchases to a shop.
 	OneTimePurchases *AppPurchaseOneTimeConnection `json:"oneTimePurchases,omitempty"`
@@ -1451,10 +1592,13 @@ type AppInstallation struct {
 
 func (AppInstallation) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this AppInstallation) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this AppInstallation) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -1474,17 +1618,17 @@ func (AppInstallation) IsMetafieldReferencer() {}
 
 // An auto-generated type for paginating through multiple AppInstallations.
 type AppInstallationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppInstallationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppInstallationEdge.
+	// A list of nodes that are contained in AppInstallationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AppInstallation `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one AppInstallation and a cursor during pagination.
 type AppInstallationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppInstallationEdge.
 	Node *AppInstallation `json:"node,omitempty"`
@@ -1545,11 +1689,11 @@ func (this AppPurchaseOneTime) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple AppPurchaseOneTimes.
 type AppPurchaseOneTimeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppPurchaseOneTimeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppPurchaseOneTimeEdge.
+	// A list of nodes that are contained in AppPurchaseOneTimeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AppPurchaseOneTime `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -1570,7 +1714,7 @@ type AppPurchaseOneTimeCreatePayload struct {
 
 // An auto-generated type which holds one AppPurchaseOneTime and a cursor during pagination.
 type AppPurchaseOneTimeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppPurchaseOneTimeEdge.
 	Node *AppPurchaseOneTime `json:"node,omitempty"`
@@ -1627,20 +1771,55 @@ func (this AppRevenueAttributionRecord) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple AppRevenueAttributionRecords.
 type AppRevenueAttributionRecordConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppRevenueAttributionRecordEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppRevenueAttributionRecordEdge.
+	// A list of nodes that are contained in AppRevenueAttributionRecordEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AppRevenueAttributionRecord `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one AppRevenueAttributionRecord and a cursor during pagination.
 type AppRevenueAttributionRecordEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppRevenueAttributionRecordEdge.
 	Node *AppRevenueAttributionRecord `json:"node,omitempty"`
+}
+
+// Represents an error that happens while revoking a granted scope.
+type AppRevokeAccessScopesAppRevokeScopeError struct {
+	// The error code.
+	Code *AppRevokeAccessScopesAppRevokeScopeErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (AppRevokeAccessScopesAppRevokeScopeError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this AppRevokeAccessScopesAppRevokeScopeError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this AppRevokeAccessScopesAppRevokeScopeError) GetMessage() string { return this.Message }
+
+// Return type for `appRevokeAccessScopes` mutation.
+type AppRevokeAccessScopesPayload struct {
+	// The list of scope handles that have been revoked.
+	Revoked []AccessScope `json:"revoked,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []AppRevokeAccessScopesAppRevokeScopeError `json:"userErrors,omitempty"`
 }
 
 // Provides users access to services and/or features for a duration of time.
@@ -1680,11 +1859,11 @@ type AppSubscriptionCancelPayload struct {
 
 // An auto-generated type for paginating through multiple AppSubscriptions.
 type AppSubscriptionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppSubscriptionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppSubscriptionEdge.
+	// A list of nodes that are contained in AppSubscriptionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AppSubscription `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -1746,7 +1925,7 @@ type AppSubscriptionDiscountValueInput struct {
 
 // An auto-generated type which holds one AppSubscription and a cursor during pagination.
 type AppSubscriptionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppSubscriptionEdge.
 	Node *AppSubscription `json:"node,omitempty"`
@@ -1863,11 +2042,11 @@ func (this AppUsageRecord) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple AppUsageRecords.
 type AppUsageRecordConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []AppUsageRecordEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in AppUsageRecordEdge.
+	// A list of nodes that are contained in AppUsageRecordEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []AppUsageRecord `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -1881,7 +2060,7 @@ type AppUsageRecordCreatePayload struct {
 
 // An auto-generated type which holds one AppUsageRecord and a cursor during pagination.
 type AppUsageRecordEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of AppUsageRecordEdge.
 	Node *AppUsageRecord `json:"node,omitempty"`
@@ -1905,6 +2084,331 @@ type AppleApplication struct {
 
 func (AppleApplication) IsMobilePlatformApplication() {}
 
+// An article in the blogging system.
+type Article struct {
+	// The name of the author of the article.
+	Author *ArticleAuthor `json:"author,omitempty,omitempty"`
+	// The blog containing the article.
+	Blog *Blog `json:"blog,omitempty"`
+	// The text of the article's body, complete with HTML markup.
+	Body string `json:"body"`
+	// List of the article's comments.
+	Comments *CommentConnection `json:"comments,omitempty"`
+	// Count of comments.
+	CommentsCount *Count `json:"commentsCount,omitempty,omitempty"`
+	// The date and time (ISO 8601 format) when the article was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+	DefaultCursor string `json:"defaultCursor"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
+	// A unique, human-friendly string for the article that's automatically generated from the article's title.
+	// The handle is used in the article's URL.
+	Handle string `json:"handle"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// The image associated with the article.
+	Image *Image `json:"image,omitempty,omitempty"`
+	// Whether or not the article is visible.
+	IsPublished bool `json:"isPublished"`
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
+	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
+	// List of metafield definitions.
+	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
+	Metafields *MetafieldConnection `json:"metafields,omitempty"`
+	// Returns a private metafield by namespace and key that belongs to the resource.
+	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
+	// List of private metafields that belong to the resource.
+	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
+	// The date and time (ISO 8601 format) when the article became or will become visible.
+	// Returns null when the article isn't visible.
+	PublishedAt *time.Time `json:"publishedAt,omitempty,omitempty"`
+	// A summary of the article, which can include HTML markup.
+	// The summary is used by the online store theme to display the article on other pages, such as the home page or the main blog page.
+	Summary *string `json:"summary,omitempty,omitempty"`
+	// A comma-separated list of tags.
+	// Tags are additional short descriptors formatted as a string of comma-separated values.
+	Tags []string `json:"tags,omitempty"`
+	// The name of the template an article is using if it's using an alternate template.
+	// If an article is using the default `article.liquid` template, then the value returned is `null`.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The title of the article.
+	Title string `json:"title"`
+	// The published translations associated with the resource.
+	Translations []Translation `json:"translations,omitempty"`
+	// The date and time (ISO 8601 format) when the article was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty,omitempty"`
+}
+
+func (Article) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this Article) GetEvents() *EventConnection { return this.Events }
+
+func (Article) IsHasMetafieldDefinitions() {}
+
+// List of metafield definitions.
+func (this Article) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
+	return this.MetafieldDefinitions
+}
+
+func (Article) IsHasMetafields() {}
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+func (this Article) GetMetafield() *Metafield { return this.Metafield }
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+func (this Article) GetMetafields() *MetafieldConnection { return this.Metafields }
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+func (this Article) GetPrivateMetafield() *PrivateMetafield { return this.PrivateMetafield }
+
+// List of private metafields that belong to the resource.
+func (this Article) GetPrivateMetafields() *PrivateMetafieldConnection { return this.PrivateMetafields }
+
+func (Article) IsHasPublishedTranslations() {}
+
+// The published translations associated with the resource.
+func (this Article) GetTranslations() []Translation {
+	if this.Translations == nil {
+		return nil
+	}
+	interfaceSlice := make([]Translation, 0, len(this.Translations))
+	for _, concrete := range this.Translations {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (Article) IsNavigable() {}
+
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+func (this Article) GetDefaultCursor() string { return this.DefaultCursor }
+
+func (Article) IsNode() {}
+
+// A globally-unique ID.
+func (this Article) GetID() string { return this.ID }
+
+func (Article) IsMetafieldReferencer() {}
+
+// Represents an article author in an Article.
+type ArticleAuthor struct {
+	// The author's full name.
+	Name string `json:"name"`
+}
+
+// The input fields of a blog when an article is created or updated.
+type ArticleBlogInput struct {
+	// The title of the blog.
+	Title string `json:"title"`
+}
+
+// An auto-generated type for paginating through multiple Articles.
+type ArticleConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []ArticleEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in ArticleEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []Article `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// The input fields to create an article.
+type ArticleCreateInput struct {
+	// The ID of the blog containing the article.
+	BlogID *string `json:"blogId,omitempty,omitempty"`
+	// A unique, human-friendly string for the article that's automatically generated from the article's title.
+	// The handle is used in the article's URL.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The text of the article's body, complete with HTML markup.
+	Body *string `json:"body,omitempty,omitempty"`
+	// A summary of the article, which can include HTML markup.
+	// The summary is used by the online store theme to display the article on other pages, such as the home page or the main blog page.
+	Summary *string `json:"summary,omitempty,omitempty"`
+	// Whether or not the article should be visible.
+	IsPublished *bool `json:"isPublished,omitempty,omitempty"`
+	// The date and time (ISO 8601 format) when the article should become visible.
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
+	// The suffix of the template that's used to render the page.
+	// If the value is an empty string or `null`, then the default article template is used.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The input fields to create or update a metafield.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// A comma-separated list of tags.
+	// Tags are additional short descriptors formatted as a string of comma-separated values.
+	Tags []string `json:"tags,omitempty,omitempty"`
+	// The image associated with the article.
+	Image *ArticleImageInput `json:"image,omitempty,omitempty"`
+	// The title of the article.
+	Title string `json:"title"`
+	// The name of the author of the article.
+	Author *AuthorInput `json:"author,omitempty"`
+}
+
+// Return type for `articleCreate` mutation.
+type ArticleCreatePayload struct {
+	// The article that was created.
+	Article *Article `json:"article,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ArticleCreateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ArticleCreate`.
+type ArticleCreateUserError struct {
+	// The error code.
+	Code *ArticleCreateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ArticleCreateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ArticleCreateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ArticleCreateUserError) GetMessage() string { return this.Message }
+
+// Return type for `articleDelete` mutation.
+type ArticleDeletePayload struct {
+	// The ID of the deleted article.
+	DeletedArticleID *string `json:"deletedArticleId,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ArticleDeleteUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ArticleDelete`.
+type ArticleDeleteUserError struct {
+	// The error code.
+	Code *ArticleDeleteUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ArticleDeleteUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ArticleDeleteUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ArticleDeleteUserError) GetMessage() string { return this.Message }
+
+// An auto-generated type which holds one Article and a cursor during pagination.
+type ArticleEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of ArticleEdge.
+	Node *Article `json:"node,omitempty"`
+}
+
+// The input fields for an image associated with an article.
+type ArticleImageInput struct {
+	// A word or phrase to share the nature or contents of an image.
+	AltText *string `json:"altText,omitempty,omitempty"`
+	// The URL of the image.
+	URL *string `json:"url,omitempty,omitempty"`
+}
+
+// The input fields to update an article.
+type ArticleUpdateInput struct {
+	// The ID of the blog containing the article.
+	BlogID *string `json:"blogId,omitempty,omitempty"`
+	// A unique, human-friendly string for the article that's automatically generated from the article's title.
+	// The handle is used in the article's URL.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The text of the article's body, complete with HTML markup.
+	Body *string `json:"body,omitempty,omitempty"`
+	// A summary of the article, which can include HTML markup.
+	// The summary is used by the online store theme to display the article on other pages, such as the home page or the main blog page.
+	Summary *string `json:"summary,omitempty,omitempty"`
+	// Whether or not the article should be visible.
+	IsPublished *bool `json:"isPublished,omitempty,omitempty"`
+	// The date and time (ISO 8601 format) when the article should become visible.
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
+	// The suffix of the template that's used to render the page.
+	// If the value is an empty string or `null`, then the default article template is used.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The input fields to create or update a metafield.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// A comma-separated list of tags.
+	// Tags are additional short descriptors formatted as a string of comma-separated values.
+	Tags []string `json:"tags,omitempty,omitempty"`
+	// The image associated with the article.
+	Image *ArticleImageInput `json:"image,omitempty,omitempty"`
+	// The title of the article.
+	Title *string `json:"title,omitempty,omitempty"`
+	// The name of the author of the article.
+	Author *AuthorInput `json:"author,omitempty,omitempty"`
+	// Whether a redirect is required after a new handle has been provided.
+	// If `true`, then the old handle is redirected to the new one automatically.
+	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
+}
+
+// Return type for `articleUpdate` mutation.
+type ArticleUpdatePayload struct {
+	// The article that was updated.
+	Article *Article `json:"article,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ArticleUpdateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ArticleUpdate`.
+type ArticleUpdateUserError struct {
+	// The error code.
+	Code *ArticleUpdateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ArticleUpdateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ArticleUpdateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ArticleUpdateUserError) GetMessage() string { return this.Message }
+
 // Represents a generic custom attribute, such as whether an order is a customer's first.
 type Attribute struct {
 	// The key or name of the attribute. For example, `"customersFirstOrder"`.
@@ -1919,6 +2423,14 @@ type AttributeInput struct {
 	Key string `json:"key"`
 	// Value of the attribute.
 	Value string `json:"value"`
+}
+
+// The input fields for an author. Either the `name` or `user_id` fields can be supplied, but never both.
+type AuthorInput struct {
+	// The author's full name.
+	Name *string `json:"name,omitempty,omitempty"`
+	// The ID of a staff member's account.
+	UserID *string `json:"userId,omitempty,omitempty"`
 }
 
 // Automatic discount applications capture the intentions of a discount that was automatically applied.
@@ -1972,9 +2484,69 @@ type AvailableChannelDefinitionsByChannel struct {
 
 // Basic events chronicle resource activities such as the creation of an article, the fulfillment of an order, or
 // the addition of a product.
+//
+// ### General events
+//
+// | Action | Description  |
+// |---|---|
+// | `create` | The item was created. |
+// | `destroy` | The item was destroyed. |
+// | `published` | The item was published. |
+// | `unpublished` | The item was unpublished. |
+// | `update` | The item was updated.  |
+//
+// ### Order events
+//
+// Order events can be divided into the following categories:
+//
+// - *Authorization*: Includes whether the authorization succeeded, failed, or is pending.
+// - *Capture*: Includes whether the capture succeeded, failed, or is pending.
+// - *Email*: Includes confirmation or cancellation of the order, as well as shipping.
+// - *Fulfillment*: Includes whether the fulfillment succeeded, failed, or is pending. Also includes cancellation, restocking, and fulfillment updates.
+// - *Order*: Includess the placement, confirmation, closing, re-opening, and cancellation of the order.
+// - *Refund*: Includes whether the refund succeeded, failed, or is pending.
+// - *Sale*: Includes whether the sale succeeded, failed, or is pending.
+// - *Void*: Includes whether the void succeeded, failed, or is pending.
+//
+// | Action  | Message  | Description  |
+// |---|---|---|
+// | `authorization_failure` | The customer, unsuccessfully, tried to authorize: `{money_amount}`. | Authorization failed. The funds cannot be captured. |
+// | `authorization_pending` | Authorization for `{money_amount}` is pending. | Authorization pending. |
+// | `authorization_success` | The customer successfully authorized us to capture: `{money_amount}`. | Authorization was successful and the funds are available for capture. |
+// | `cancelled` | Order was cancelled by `{shop_staff_name}`. | The order was cancelled. |
+// | `capture_failure` | We failed to capture: `{money_amount}`. | The capture failed. The funds cannot be transferred to the shop. |
+// | `capture_pending` | Capture for `{money_amount}` is pending. | The capture is in process. The funds are not yet available to the shop. |
+// | `capture_success` | We successfully captured: `{money_amount}` | The capture was successful and the funds are now available to the shop. |
+// | `closed` | Order was closed. | The order was closed. |
+// | `confirmed` | Received a new order: `{order_number}` by `{customer_name}`. | The order was confirmed. |
+// | `fulfillment_cancelled` | We cancelled `{number_of_line_items}` from being fulfilled by the third party fulfillment service. | Fulfillment for one or more of the line_items failed. |
+// | `fulfillment_pending` | We submitted `{number_of_line_items}` to the third party service. | One or more of the line_items has been assigned to a third party service for fulfillment. |
+// | `fulfillment_success` | We successfully fulfilled line_items. | Fulfillment was successful for one or more line_items. |
+// | `mail_sent` | `{message_type}` email was sent to the customer. | An email was sent to the customer. |
+// | `placed` | Order was placed. | An order was placed by the customer. |
+// | `re_opened` | Order was re-opened. | An order was re-opened. |
+// | `refund_failure` | We failed to refund `{money_amount}`. | The refund failed. The funds are still with the shop. |
+// | `refund_pending` | Refund of `{money_amount}` is still pending. | The refund is in process. The funds are still with shop. |
+// | `refund_success` | We successfully refunded `{money_amount}`. | The refund was successful. The funds have been transferred to the customer. |
+// | `restock_line_items` | We restocked `{number_of_line_items}`. |	One or more of the order's line items have been restocked. |
+// | `sale_failure` | The customer failed to pay `{money_amount}`. | The sale failed. The funds are not available to the shop. |
+// | `sale_pending` | The `{money_amount}` is pending. | The sale is in process. The funds are not yet available to the shop. |
+// | `sale_success` | We successfully captured `{money_amount}`. | The sale was successful. The funds are now with the shop. |
+// | `update` | `{order_number}` was updated. | The order was updated. |
+// | `void_failure` | We failed to void the authorization. | Voiding the authorization failed. The authorization is still valid. |
+// | `void_pending` | Authorization void is pending. | Voiding the authorization is in process. The authorization is still valid. |
+// | `void_success` | We successfully voided the authorization. | Voiding the authorization was successful. The authorization is no longer valid. |
 type BasicEvent struct {
+	// The action that occured.
+	Action string `json:"action"`
+	// Provides additional content for collapsible timeline events.
+	AdditionalContent *string `json:"additionalContent,omitempty,omitempty"`
+	// Provides additional data for event consumers.
+	AdditionalData *string `json:"additionalData,omitempty,omitempty"`
 	// The name of the app that created the event.
 	AppTitle *string `json:"appTitle,omitempty,omitempty"`
+	// Refers to a certain event and its resources.
+	Arguments *string `json:"arguments,omitempty,omitempty"`
 	// Whether the event was created by an app.
 	AttributeToApp bool `json:"attributeToApp"`
 	// Whether the event was caused by an admin user.
@@ -1983,13 +2555,27 @@ type BasicEvent struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// Whether the event is critical.
 	CriticalAlert bool `json:"criticalAlert"`
+	// Whether this event has additional content.
+	HasAdditionalContent bool `json:"hasAdditionalContent"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// Human readable text that describes the event.
 	Message string `json:"message"`
+	// Human readable text that supports the event message.
+	SecondaryMessage *string `json:"secondaryMessage,omitempty,omitempty"`
+	// The resource that generated the event. To see a list of possible types,
+	// refer to [HasEvents](https://shopify.dev/docs/api/admin-graphql/unstable/interfaces/HasEvents#implemented-in).
+	Subject HasEvents `json:"subject,omitempty"`
+	// The ID of the resource that generated the event.
+	SubjectID string `json:"subjectId"`
+	// The type of the resource that generated the event.
+	SubjectType EventSubjectType `json:"subjectType"`
 }
 
 func (BasicEvent) IsEvent() {}
+
+// The action that occured.
+func (this BasicEvent) GetAction() string { return this.Action }
 
 // The name of the app that created the event.
 func (this BasicEvent) GetAppTitle() *string { return this.AppTitle }
@@ -2042,6 +2628,270 @@ func (this BillingAttemptUserError) GetField() []string {
 
 // The error message.
 func (this BillingAttemptUserError) GetMessage() string { return this.Message }
+
+// Shopify stores come with a built-in blogging engine, allowing a shop to have one or more blogs.  Blogs are meant
+// to be used as a type of magazine or newsletter for the shop, with content that changes over time.
+type Blog struct {
+	// List of the blog's articles.
+	Articles *ArticleConnection `json:"articles,omitempty"`
+	// Count of articles.
+	ArticlesCount *Count `json:"articlesCount,omitempty,omitempty"`
+	// Indicates whether readers can post comments to the blog and if comments are moderated or not.
+	CommentPolicy CommentPolicy `json:"commentPolicy"`
+	// The date and time when the blog was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
+	// FeedBurner provider details. Any blogs that aren't already integrated with FeedBurner can't use the service.
+	Feed *BlogFeed `json:"feed,omitempty,omitempty"`
+	// A unique, human-friendly string for the blog. If no handle is specified, a handle will be generated automatically from the blog title.
+	// The handle is customizable and is used by the Liquid templating language to refer to the blog.
+	Handle string `json:"handle"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
+	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
+	// List of metafield definitions.
+	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
+	Metafields *MetafieldConnection `json:"metafields,omitempty"`
+	// Returns a private metafield by namespace and key that belongs to the resource.
+	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
+	// List of private metafields that belong to the resource.
+	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
+	// A list of tags associated with the 200 most recent blog articles.
+	Tags []string `json:"tags,omitempty"`
+	// The name of the template a blog is using if it's using an alternate template.
+	// Returns `null` if a blog is using the default blog.liquid template.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The title of the blog.
+	Title string `json:"title"`
+	// The published translations associated with the resource.
+	Translations []Translation `json:"translations,omitempty"`
+	// The date and time when the blog was update.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty,omitempty"`
+}
+
+func (Blog) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this Blog) GetEvents() *EventConnection { return this.Events }
+
+func (Blog) IsHasMetafieldDefinitions() {}
+
+// List of metafield definitions.
+func (this Blog) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
+	return this.MetafieldDefinitions
+}
+
+func (Blog) IsHasMetafields() {}
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+func (this Blog) GetMetafield() *Metafield { return this.Metafield }
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+func (this Blog) GetMetafields() *MetafieldConnection { return this.Metafields }
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+func (this Blog) GetPrivateMetafield() *PrivateMetafield { return this.PrivateMetafield }
+
+// List of private metafields that belong to the resource.
+func (this Blog) GetPrivateMetafields() *PrivateMetafieldConnection { return this.PrivateMetafields }
+
+func (Blog) IsHasPublishedTranslations() {}
+
+// The published translations associated with the resource.
+func (this Blog) GetTranslations() []Translation {
+	if this.Translations == nil {
+		return nil
+	}
+	interfaceSlice := make([]Translation, 0, len(this.Translations))
+	for _, concrete := range this.Translations {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (Blog) IsNode() {}
+
+// A globally-unique ID.
+func (this Blog) GetID() string { return this.ID }
+
+func (Blog) IsMetafieldReferencer() {}
+
+// An auto-generated type for paginating through multiple Blogs.
+type BlogConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []BlogEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in BlogEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []Blog `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// The input fields to create a blog.
+type BlogCreateInput struct {
+	// A unique, human-friendly string for the blog. If no handle is specified, a handle will be generated automatically from the blog title.
+	// The handle is customizable and is used by the Liquid templating language to refer to the blog.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The name of the template a blog is using if it's using an alternate template.
+	// Returns `null` if a blog is using the default blog.liquid template.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// Attaches additional metadata to a store's resources.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// Indicates whether readers can post comments to the blog and whether comments are moderated.
+	CommentPolicy *CommentPolicy `json:"commentPolicy,omitempty,omitempty"`
+	// The title of the blog.
+	Title string `json:"title"`
+}
+
+// Return type for `blogCreate` mutation.
+type BlogCreatePayload struct {
+	// The blog that was created.
+	Blog *Blog `json:"blog,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []BlogCreateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `BlogCreate`.
+type BlogCreateUserError struct {
+	// The error code.
+	Code *BlogCreateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (BlogCreateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this BlogCreateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this BlogCreateUserError) GetMessage() string { return this.Message }
+
+// Return type for `blogDelete` mutation.
+type BlogDeletePayload struct {
+	// The ID of the deleted blog.
+	DeletedBlogID *string `json:"deletedBlogId,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []BlogDeleteUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `BlogDelete`.
+type BlogDeleteUserError struct {
+	// The error code.
+	Code *BlogDeleteUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (BlogDeleteUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this BlogDeleteUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this BlogDeleteUserError) GetMessage() string { return this.Message }
+
+// An auto-generated type which holds one Blog and a cursor during pagination.
+type BlogEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of BlogEdge.
+	Node *Blog `json:"node,omitempty"`
+}
+
+// FeedBurner provider details. Any blogs that aren't already integrated with FeedBurner can't use the service.
+type BlogFeed struct {
+	// Blog feed provider url.
+	Location string `json:"location"`
+	// Blog feed provider path.
+	Path string `json:"path"`
+}
+
+// The input fields to update a blog.
+type BlogUpdateInput struct {
+	// A unique, human-friendly string for the blog. If no handle is specified, a handle will be generated automatically from the blog title.
+	// The handle is customizable and is used by the Liquid templating language to refer to the blog.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The name of the template a blog is using if it's using an alternate template.
+	// Returns `null` if a blog is using the default blog.liquid template.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// Attaches additional metadata to a store's resources.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// Indicates whether readers can post comments to the blog and whether comments are moderated.
+	CommentPolicy *CommentPolicy `json:"commentPolicy,omitempty,omitempty"`
+	// The title of the blog.
+	Title *string `json:"title,omitempty,omitempty"`
+	// Whether a redirect is required after a new handle has been provided.
+	// If `true`, then the old handle is redirected to the new one automatically.
+	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
+	// Whether to redirect blog posts automatically.
+	RedirectArticles *bool `json:"redirectArticles,omitempty,omitempty"`
+}
+
+// Return type for `blogUpdate` mutation.
+type BlogUpdatePayload struct {
+	// The blog that was updated.
+	Blog *Blog `json:"blog,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []BlogUpdateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `BlogUpdate`.
+type BlogUpdateUserError struct {
+	// The error code.
+	Code *BlogUpdateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (BlogUpdateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this BlogUpdateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this BlogUpdateUserError) GetMessage() string { return this.Message }
 
 // Represents an error that happens during execution of a bulk mutation.
 type BulkMutationUserError struct {
@@ -2222,10 +3072,49 @@ func (this BusinessCustomerUserError) GetField() []string {
 // The error message.
 func (this BusinessCustomerUserError) GetMessage() string { return this.Message }
 
+// Represents a merchant's Business Entity.
+type BusinessEntity struct {
+	// The address of the merchant's Business Entity.
+	Address *BusinessEntityAddress `json:"address,omitempty"`
+	// The name of the company associated with the merchant's Business Entity.
+	CompanyName *string `json:"companyName,omitempty,omitempty"`
+	// The display name of the merchant's Business Entity.
+	DisplayName string `json:"displayName"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// Whether it's the merchant's primary Business Entity.
+	Primary bool `json:"primary"`
+	// Shopify Payments account information, including balances and payouts.
+	ShopifyPaymentsAccount *ShopifyPaymentsAccount `json:"shopifyPaymentsAccount,omitempty,omitempty"`
+}
+
+func (BusinessEntity) IsNode() {}
+
+// A globally-unique ID.
+func (this BusinessEntity) GetID() string { return this.ID }
+
+// Represents the address of a merchant's Business Entity.
+type BusinessEntityAddress struct {
+	// The first line of the address. Typically the street address or PO Box number.
+	Address1 *string `json:"address1,omitempty,omitempty"`
+	// The second line of the address. Typically the number of the apartment, suite, or unit.
+	Address2 *string `json:"address2,omitempty,omitempty"`
+	// The name of the city, district, village, or town.
+	City *string `json:"city,omitempty,omitempty"`
+	// The country code of the merchant's Business Entity.
+	CountryCode CountryCode `json:"countryCode"`
+	// The region of the address, such as the province, state, or district.
+	Province *string `json:"province,omitempty,omitempty"`
+	// The zip or postal code of the address.
+	Zip *string `json:"zip,omitempty,omitempty"`
+}
+
 // Settings describing the behavior of checkout for a B2B buyer.
 type BuyerExperienceConfiguration struct {
 	// Whether to checkout to draft order for merchant review.
 	CheckoutToDraft bool `json:"checkoutToDraft"`
+	// The portion required to be paid at checkout.
+	Deposit DepositConfiguration `json:"deposit,omitempty"`
 	// Whether to allow customers to use editable shipping addresses.
 	EditableShippingAddress bool `json:"editableShippingAddress"`
 	// Whether a buyer must pay at checkout or they can also choose to pay
@@ -2243,6 +3132,8 @@ type BuyerExperienceConfigurationInput struct {
 	PaymentTermsTemplateID *string `json:"paymentTermsTemplateId,omitempty,omitempty"`
 	// Whether to allow customers to edit their shipping address at checkout.
 	EditableShippingAddress *bool `json:"editableShippingAddress,omitempty,omitempty"`
+	// The input fields configuring the deposit a B2B buyer.
+	Deposit *DepositInput `json:"deposit,omitempty,omitempty"`
 }
 
 // The input fields for exchange line items on a calculated return.
@@ -2336,17 +3227,17 @@ type CalculatedDiscountAllocation struct {
 
 // An auto-generated type for paginating through multiple CalculatedDiscountApplications.
 type CalculatedDiscountApplicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CalculatedDiscountApplicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CalculatedDiscountApplicationEdge.
+	// A list of nodes that are contained in CalculatedDiscountApplicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CalculatedDiscountApplication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CalculatedDiscountApplication and a cursor during pagination.
 type CalculatedDiscountApplicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CalculatedDiscountApplicationEdge.
 	Node CalculatedDiscountApplication `json:"node"`
@@ -2624,17 +3515,17 @@ type CalculatedLineItem struct {
 
 // An auto-generated type for paginating through multiple CalculatedLineItems.
 type CalculatedLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CalculatedLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CalculatedLineItemEdge.
+	// A list of nodes that are contained in CalculatedLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CalculatedLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CalculatedLineItem and a cursor during pagination.
 type CalculatedLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CalculatedLineItemEdge.
 	Node *CalculatedLineItem `json:"node,omitempty"`
@@ -3004,9 +3895,12 @@ type CartTransform struct {
 	FunctionID string `json:"functionId"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -3016,10 +3910,13 @@ type CartTransform struct {
 
 func (CartTransform) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this CartTransform) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this CartTransform) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -3037,11 +3934,11 @@ func (this CartTransform) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple CartTransforms.
 type CartTransformConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CartTransformEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CartTransformEdge.
+	// A list of nodes that are contained in CartTransformEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CartTransform `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -3117,7 +4014,7 @@ func (this CartTransformDeleteUserError) GetMessage() string { return this.Messa
 
 // An auto-generated type which holds one CartTransform and a cursor during pagination.
 type CartTransformEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CartTransformEdge.
 	Node *CartTransform `json:"node,omitempty"`
@@ -3137,6 +4034,14 @@ type CartTransformEligibleOperations struct {
 type CartTransformFeature struct {
 	// The cart transform operations eligible for the shop.
 	EligibleOperations *CartTransformEligibleOperations `json:"eligibleOperations,omitempty"`
+}
+
+// The rounding adjustment applied to total payment or refund received for an Order involving cash payments.
+type CashRoundingAdjustment struct {
+	// The rounding adjustment that can be applied to totalReceived for an Order involving cash payments in shop and presentment currencies. Could be a positive or negative value. Value is 0 if there's no rounding, or for non-cash payments.
+	PaymentSet *MoneyBag `json:"paymentSet,omitempty"`
+	// The rounding adjustment that can be applied to totalRefunded for an Order involving cash payments in shop and presentment currencies. Could be a positive or negative value. Value is 0 if there's no rounding, or for non-cash refunds.
+	RefundSet *MoneyBag `json:"refundSet,omitempty"`
 }
 
 // Tracks an adjustment to the cash in a cash tracking session for a point of sale device over the course of a shift.
@@ -3160,17 +4065,17 @@ func (this CashTrackingAdjustment) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple CashTrackingAdjustments.
 type CashTrackingAdjustmentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CashTrackingAdjustmentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CashTrackingAdjustmentEdge.
+	// A list of nodes that are contained in CashTrackingAdjustmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CashTrackingAdjustment `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CashTrackingAdjustment and a cursor during pagination.
 type CashTrackingAdjustmentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CashTrackingAdjustmentEdge.
 	Node *CashTrackingAdjustment `json:"node,omitempty"`
@@ -3231,17 +4136,17 @@ func (this CashTrackingSession) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple CashTrackingSessions.
 type CashTrackingSessionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CashTrackingSessionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CashTrackingSessionEdge.
+	// A list of nodes that are contained in CashTrackingSessionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CashTrackingSession `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CashTrackingSession and a cursor during pagination.
 type CashTrackingSessionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CashTrackingSessionEdge.
 	Node *CashTrackingSession `json:"node,omitempty"`
@@ -3249,11 +4154,11 @@ type CashTrackingSessionEdge struct {
 
 // An auto-generated type for paginating through multiple Catalogs.
 type CatalogConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CatalogEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CatalogEdge.
+	// A list of nodes that are contained in CatalogEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Catalog `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -3335,7 +4240,7 @@ type CatalogDeletePayload struct {
 
 // An auto-generated type which holds one Catalog and a cursor during pagination.
 type CatalogEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CatalogEdge.
 	Node Catalog `json:"node"`
@@ -3430,11 +4335,11 @@ func (this Channel) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple Channels.
 type ChannelConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ChannelEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ChannelEdge.
+	// A list of nodes that are contained in ChannelEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Channel `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -3462,7 +4367,7 @@ func (this ChannelDefinition) GetID() string { return this.ID }
 
 // An auto-generated type which holds one Channel and a cursor during pagination.
 type ChannelEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ChannelEdge.
 	Node *Channel `json:"node,omitempty"`
@@ -4614,17 +5519,17 @@ func (this CheckoutProfile) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple CheckoutProfiles.
 type CheckoutProfileConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CheckoutProfileEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CheckoutProfileEdge.
+	// A list of nodes that are contained in CheckoutProfileEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CheckoutProfile `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CheckoutProfile and a cursor during pagination.
 type CheckoutProfileEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CheckoutProfileEdge.
 	Node *CheckoutProfile `json:"node,omitempty"`
@@ -4644,12 +5549,17 @@ type ChildProductRelationInput struct {
 //
 // Collections can also be created for a custom group of products. These are called custom or manual collections.
 type Collection struct {
-	// The number of publications a resource is published to without feedback errors.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	AvailablePublicationsCount *Count `json:"availablePublicationsCount,omitempty,omitempty"`
 	// A single-line, text-only description of the collection, stripped of any HTML tags and formatting that were included in the description.
 	Description string `json:"description"`
 	// The description of the collection, including any HTML tags and formatting. This content is typically displayed to customers, such as on an online store, depending on the theme.
 	DescriptionHTML string `json:"descriptionHtml"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
 	// Information about the collection that's provided through resource feedback.
 	Feedback *ResourceFeedback `json:"feedback,omitempty,omitempty"`
 	// A unique string that identifies the collection. If a handle isn't specified when a collection is created, it's automatically generated from the collection's original title, and typically includes words from the title separated by hyphens. For example, a collection that was created with the title `Summer Catalog 2022` might have the handle `summer-catalog-2022`.
@@ -4666,11 +5576,14 @@ type Collection struct {
 	Image *Image `json:"image,omitempty,omitempty"`
 	// The ID of the corresponding resource in the REST Admin API.
 	LegacyResourceID string `json:"legacyResourceId"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -4680,23 +5593,36 @@ type Collection struct {
 	Products *ProductConnection `json:"products,omitempty"`
 	// The number of products in the collection.
 	ProductsCount *Count `json:"productsCount,omitempty,omitempty"`
-	// The number of publications a resource is published on.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	PublicationCount int `json:"publicationCount"`
 	// The channels where the collection is published.
 	Publications *CollectionPublicationConnection `json:"publications,omitempty"`
-	// Check to see whether the resource is published to a given channel.
+	// Whether the resource is published to a specific channel.
 	PublishedOnChannel bool `json:"publishedOnChannel"`
-	// Check to see whether the resource is published to the calling app's channel.
+	// Whether the resource is published to a
+	// [channel](https://shopify.dev/docs/api/admin-graphql/latest/objects/Channel).
+	// For example, the resource might be published to the online store channel.
 	PublishedOnCurrentChannel bool `json:"publishedOnCurrentChannel"`
-	// Check to see whether the resource is published to the calling app's publication.
+	// Whether the resource is published to the app's
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
+	// For example, the resource might be published to the app's online store channel.
 	PublishedOnCurrentPublication bool `json:"publishedOnCurrentPublication"`
-	// Check to see whether the resource is published to a given publication.
+	// Whether the resource is published to a specified
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	PublishedOnPublication bool `json:"publishedOnPublication"`
-	// The list of resources that are published to a publication.
+	// The list of resources that are published to a
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	ResourcePublications *ResourcePublicationConnection `json:"resourcePublications,omitempty"`
-	// The number of publications a resource is published on.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	ResourcePublicationsCount *Count `json:"resourcePublicationsCount,omitempty,omitempty"`
-	// The list of resources that are either published or staged to be published to a publication.
+	// The list of resources that are either published or staged to be published to a
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	ResourcePublicationsV2 *ResourcePublicationV2Connection `json:"resourcePublicationsV2,omitempty"`
 	// For a smart (automated) collection, specifies the rules that determine whether a product is included.
 	RuleSet *CollectionRuleSet `json:"ruleSet,omitempty,omitempty"`
@@ -4712,15 +5638,21 @@ type Collection struct {
 	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
 	// The name of the collection. It's displayed in the Shopify admin and is typically displayed in sales channels, such as an online store.
 	Title string `json:"title"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 	// The list of channels that the resource is not published to.
 	UnpublishedChannels *ChannelConnection `json:"unpublishedChannels,omitempty"`
-	// The list of publications that the resource is not published to.
+	// The list of [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that the resource isn't published to.
 	UnpublishedPublications *PublicationConnection `json:"unpublishedPublications,omitempty"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the collection was last modified.
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
+func (Collection) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this Collection) GetEvents() *EventConnection { return this.Events }
 
 func (Collection) IsHasMetafieldDefinitions() {}
 
@@ -4731,10 +5663,13 @@ func (this Collection) GetMetafieldDefinitions() *MetafieldDefinitionConnection 
 
 func (Collection) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Collection) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Collection) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -4747,7 +5682,7 @@ func (this Collection) GetPrivateMetafields() *PrivateMetafieldConnection {
 
 func (Collection) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this Collection) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -4766,35 +5701,51 @@ func (this Collection) GetID() string { return this.ID }
 
 func (Collection) IsPublishable() {}
 
-// The number of publications a resource is published to without feedback errors.
+// The number of
+// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that a resource is published to, without
+// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 func (this Collection) GetAvailablePublicationsCount() *Count { return this.AvailablePublicationsCount }
 
-// The number of publications a resource is published on.
+// The number of
+// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that a resource is published to, without
+// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 func (this Collection) GetPublicationCount() int { return this.PublicationCount }
 
-// Check to see whether the resource is published to a given channel.
+// Whether the resource is published to a specific channel.
 func (this Collection) GetPublishedOnChannel() bool { return this.PublishedOnChannel }
 
-// Check to see whether the resource is published to the calling app's channel.
+// Whether the resource is published to a
+// [channel](https://shopify.dev/docs/api/admin-graphql/latest/objects/Channel).
+// For example, the resource might be published to the online store channel.
 func (this Collection) GetPublishedOnCurrentChannel() bool { return this.PublishedOnCurrentChannel }
 
-// Check to see whether the resource is published to the calling app's publication.
+// Whether the resource is published to the app's
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
+// For example, the resource might be published to the app's online store channel.
 func (this Collection) GetPublishedOnCurrentPublication() bool {
 	return this.PublishedOnCurrentPublication
 }
 
-// Check to see whether the resource is published to a given publication.
+// Whether the resource is published to a specified
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 func (this Collection) GetPublishedOnPublication() bool { return this.PublishedOnPublication }
 
-// The list of resources that are published to a publication.
+// The list of resources that are published to a
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 func (this Collection) GetResourcePublications() *ResourcePublicationConnection {
 	return this.ResourcePublications
 }
 
-// The number of publications a resource is published on.
+// The number of
+// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that a resource is published to, without
+// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 func (this Collection) GetResourcePublicationsCount() *Count { return this.ResourcePublicationsCount }
 
-// The list of resources that are either published or staged to be published to a publication.
+// The list of resources that are either published or staged to be published to a
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 func (this Collection) GetResourcePublicationsV2() *ResourcePublicationV2Connection {
 	return this.ResourcePublicationsV2
 }
@@ -4802,7 +5753,8 @@ func (this Collection) GetResourcePublicationsV2() *ResourcePublicationV2Connect
 // The list of channels that the resource is not published to.
 func (this Collection) GetUnpublishedChannels() *ChannelConnection { return this.UnpublishedChannels }
 
-// The list of publications that the resource is not published to.
+// The list of [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that the resource isn't published to.
 func (this Collection) GetUnpublishedPublications() *PublicationConnection {
 	return this.UnpublishedPublications
 }
@@ -4856,11 +5808,11 @@ func (this CollectionAddProductsV2UserError) GetMessage() string { return this.M
 
 // An auto-generated type for paginating through multiple Collections.
 type CollectionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CollectionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CollectionEdge.
+	// A list of nodes that are contained in CollectionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Collection `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -4890,7 +5842,7 @@ type CollectionDeletePayload struct {
 
 // An auto-generated type which holds one Collection and a cursor during pagination.
 type CollectionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CollectionEdge.
 	Node *Collection `json:"node,omitempty"`
@@ -4941,17 +5893,17 @@ type CollectionPublication struct {
 
 // An auto-generated type for paginating through multiple CollectionPublications.
 type CollectionPublicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CollectionPublicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CollectionPublicationEdge.
+	// A list of nodes that are contained in CollectionPublicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CollectionPublication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CollectionPublication and a cursor during pagination.
 type CollectionPublicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CollectionPublicationEdge.
 	Node *CollectionPublication `json:"node,omitempty"`
@@ -5010,6 +5962,14 @@ type CollectionRule struct {
 	// The type of operator that the rule is based on. For example, `equals`, `contains`, or `not_equals`.
 	Relation CollectionRuleRelation `json:"relation"`
 }
+
+// Specifies the taxonomy category to used for the condition.
+type CollectionRuleCategoryCondition struct {
+	// The taxonomy category used as condition.
+	Value *TaxonomyCategory `json:"value,omitempty"`
+}
+
+func (CollectionRuleCategoryCondition) IsCollectionRuleConditionObject() {}
 
 // This object defines all columns and allowed relations that can be used in rules for smart collections to automatically include the matching products.
 type CollectionRuleConditions struct {
@@ -5128,17 +6088,17 @@ type CombinedListingChild struct {
 
 // An auto-generated type for paginating through multiple CombinedListingChildren.
 type CombinedListingChildConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CombinedListingChildEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CombinedListingChildEdge.
+	// A list of nodes that are contained in CombinedListingChildEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CombinedListingChild `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CombinedListingChild and a cursor during pagination.
 type CombinedListingChildEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CombinedListingChildEdge.
 	Node *CombinedListingChild `json:"node,omitempty"`
@@ -5179,9 +6139,147 @@ func (this CombinedListingUpdateUserError) GetField() []string {
 // The error message.
 func (this CombinedListingUpdateUserError) GetMessage() string { return this.Message }
 
+// A comment on an article.
+type Comment struct {
+	// The article associated with the comment.
+	Article *Article `json:"article,omitempty,omitempty"`
+	// The comment’s author.
+	Author *CommentAuthor `json:"author,omitempty"`
+	// The content of the comment.
+	Body string `json:"body"`
+	// The content of the comment, complete with HTML formatting.
+	BodyHTML string `json:"bodyHtml"`
+	// The date and time when the comment was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// The IP address of the commenter.
+	IP *string `json:"ip,omitempty,omitempty"`
+	// Whether or not the comment is published.
+	IsPublished bool `json:"isPublished"`
+	// The date and time when the comment was published.
+	PublishedAt *time.Time `json:"publishedAt,omitempty,omitempty"`
+	// The status of the comment.
+	Status CommentStatus `json:"status"`
+	// The date and time when the comment was last updated.
+	UpdatedAt *time.Time `json:"updatedAt,omitempty,omitempty"`
+	// The user agent of the commenter.
+	UserAgent *string `json:"userAgent,omitempty,omitempty"`
+}
+
+func (Comment) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this Comment) GetEvents() *EventConnection { return this.Events }
+
+func (Comment) IsNode() {}
+
+// A globally-unique ID.
+func (this Comment) GetID() string { return this.ID }
+
+// Return type for `commentApprove` mutation.
+type CommentApprovePayload struct {
+	// The comment that was approved.
+	Comment *Comment `json:"comment,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []CommentApproveUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `CommentApprove`.
+type CommentApproveUserError struct {
+	// The error code.
+	Code *CommentApproveUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (CommentApproveUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this CommentApproveUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this CommentApproveUserError) GetMessage() string { return this.Message }
+
+// The author of a comment.
+type CommentAuthor struct {
+	// The author's email.
+	Email string `json:"email"`
+	// The author’s name.
+	Name string `json:"name"`
+}
+
+// An auto-generated type for paginating through multiple Comments.
+type CommentConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []CommentEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in CommentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []Comment `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// Return type for `commentDelete` mutation.
+type CommentDeletePayload struct {
+	// The ID of the comment that was deleted.
+	DeletedCommentID *string `json:"deletedCommentId,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []CommentDeleteUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `CommentDelete`.
+type CommentDeleteUserError struct {
+	// The error code.
+	Code *CommentDeleteUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (CommentDeleteUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this CommentDeleteUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this CommentDeleteUserError) GetMessage() string { return this.Message }
+
+// An auto-generated type which holds one Comment and a cursor during pagination.
+type CommentEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of CommentEdge.
+	Node *Comment `json:"node,omitempty"`
+}
+
 // Comment events are generated by staff members of a shop.
 // They are created when a staff member adds a comment to the timeline of an order, draft order, customer, or transfer.
 type CommentEvent struct {
+	// The action that occured.
+	Action string `json:"action"`
 	// The name of the app that created the event.
 	AppTitle *string `json:"appTitle,omitempty,omitempty"`
 	// The attachments associated with the comment event.
@@ -5211,10 +6309,13 @@ type CommentEvent struct {
 	// The raw body of the comment event.
 	RawMessage string `json:"rawMessage"`
 	// The parent subject to which the comment event belongs.
-	Subject CommentEventSubject `json:"subject"`
+	Subject CommentEventSubject `json:"subject,omitempty"`
 }
 
 func (CommentEvent) IsEvent() {}
+
+// The action that occured.
+func (this CommentEvent) GetAction() string { return this.Action }
 
 // The name of the app that created the event.
 func (this CommentEvent) GetAppTitle() *string { return this.AppTitle }
@@ -5257,6 +6358,76 @@ type CommentEventAttachment struct {
 	URL string `json:"url"`
 }
 
+// Return type for `commentNotSpam` mutation.
+type CommentNotSpamPayload struct {
+	// The comment that was marked as not spam.
+	Comment *Comment `json:"comment,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []CommentNotSpamUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `CommentNotSpam`.
+type CommentNotSpamUserError struct {
+	// The error code.
+	Code *CommentNotSpamUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (CommentNotSpamUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this CommentNotSpamUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this CommentNotSpamUserError) GetMessage() string { return this.Message }
+
+// Return type for `commentSpam` mutation.
+type CommentSpamPayload struct {
+	// The comment that was marked as spam.
+	Comment *Comment `json:"comment,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []CommentSpamUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `CommentSpam`.
+type CommentSpamUserError struct {
+	// The error code.
+	Code *CommentSpamUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (CommentSpamUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this CommentSpamUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this CommentSpamUserError) GetMessage() string { return this.Message }
+
 // Return type for `companiesDelete` mutation.
 type CompaniesDeletePayload struct {
 	// A list of IDs of the deleted companies.
@@ -5279,7 +6450,7 @@ type Company struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) at which the company became the customer.
 	CustomerSince time.Time `json:"customerSince"`
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	DefaultCursor string `json:"defaultCursor"`
 	// The role proposed by default for a contact at the company.
 	DefaultRole *CompanyContactRole `json:"defaultRole,omitempty,omitempty"`
@@ -5301,11 +6472,14 @@ type Company struct {
 	LocationsCount *Count `json:"locationsCount,omitempty,omitempty"`
 	// The main contact for the company.
 	MainContact *CompanyContact `json:"mainContact,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The name of the company.
 	Name string `json:"name"`
@@ -5347,10 +6521,13 @@ func (this Company) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
 
 func (Company) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Company) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Company) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -5361,7 +6538,7 @@ func (this Company) GetPrivateMetafields() *PrivateMetafieldConnection { return 
 
 func (Company) IsNavigable() {}
 
-// A default cursor that returns the single next record, sorted ascending by ID.
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 func (this Company) GetDefaultCursor() string { return this.DefaultCursor }
 
 func (Company) IsNode() {}
@@ -5470,11 +6647,11 @@ type CompanyAssignMainContactPayload struct {
 
 // An auto-generated type for paginating through multiple Companies.
 type CompanyConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CompanyEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CompanyEdge.
+	// A list of nodes that are contained in CompanyEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Company `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -5529,11 +6706,11 @@ type CompanyContactAssignRolesPayload struct {
 
 // An auto-generated type for paginating through multiple CompanyContacts.
 type CompanyContactConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CompanyContactEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CompanyContactEdge.
+	// A list of nodes that are contained in CompanyContactEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CompanyContact `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -5555,7 +6732,7 @@ type CompanyContactDeletePayload struct {
 
 // An auto-generated type which holds one CompanyContact and a cursor during pagination.
 type CompanyContactEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CompanyContactEdge.
 	Node *CompanyContact `json:"node,omitempty"`
@@ -5650,17 +6827,17 @@ func (this CompanyContactRoleAssignment) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple CompanyContactRoleAssignments.
 type CompanyContactRoleAssignmentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CompanyContactRoleAssignmentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CompanyContactRoleAssignmentEdge.
+	// A list of nodes that are contained in CompanyContactRoleAssignmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CompanyContactRoleAssignment `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CompanyContactRoleAssignment and a cursor during pagination.
 type CompanyContactRoleAssignmentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CompanyContactRoleAssignmentEdge.
 	Node *CompanyContactRoleAssignment `json:"node,omitempty"`
@@ -5668,17 +6845,17 @@ type CompanyContactRoleAssignmentEdge struct {
 
 // An auto-generated type for paginating through multiple CompanyContactRoles.
 type CompanyContactRoleConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CompanyContactRoleEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CompanyContactRoleEdge.
+	// A list of nodes that are contained in CompanyContactRoleEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CompanyContactRole `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CompanyContactRole and a cursor during pagination.
 type CompanyContactRoleEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CompanyContactRoleEdge.
 	Node *CompanyContactRole `json:"node,omitempty"`
@@ -5736,7 +6913,7 @@ type CompanyDeletePayload struct {
 
 // An auto-generated type which holds one Company and a cursor during pagination.
 type CompanyEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CompanyEdge.
 	Node *Company `json:"node,omitempty"`
@@ -5763,7 +6940,7 @@ type CompanyLocation struct {
 	BuyerExperienceConfiguration *BuyerExperienceConfiguration `json:"buyerExperienceConfiguration,omitempty,omitempty"`
 	// The list of catalogs associated with the company location.
 	Catalogs *CatalogConnection `json:"catalogs,omitempty"`
-	// The number of catalogs associated with the company location.
+	// The number of catalogs associated with the company location. Limited to a maximum of 10000.
 	CatalogsCount *Count `json:"catalogsCount,omitempty,omitempty"`
 	// The company that the company location belongs to.
 	Company *Company `json:"company,omitempty"`
@@ -5771,7 +6948,7 @@ type CompanyLocation struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// The location's currency based on the shipping address. If the shipping address is empty, then the value is the shop's primary market.
 	Currency CurrencyCode `json:"currency"`
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	DefaultCursor string `json:"defaultCursor"`
 	// The list of draft orders for the company location.
 	DraftOrders *DraftOrderConnection `json:"draftOrders,omitempty"`
@@ -5789,11 +6966,14 @@ type CompanyLocation struct {
 	Locale *string `json:"locale,omitempty,omitempty"`
 	// The market that includes the location's shipping address. If the shipping address is empty, then the value is the shop's primary market.
 	Market *Market `json:"market,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The name of the company location.
 	Name string `json:"name"`
@@ -5815,6 +6995,8 @@ type CompanyLocation struct {
 	RoleAssignments *CompanyContactRoleAssignmentConnection `json:"roleAssignments,omitempty"`
 	// The address used as shipping address for the location.
 	ShippingAddress *CompanyAddress `json:"shippingAddress,omitempty,omitempty"`
+	// The list of staff members assigned to the company location.
+	StaffMemberAssignments *CompanyLocationStaffMemberAssignmentConnection `json:"staffMemberAssignments,omitempty"`
 	// The list of tax exemptions applied to the location.
 	TaxExemptions []TaxExemption `json:"taxExemptions,omitempty"`
 	// The tax registration ID for the company location.
@@ -5847,10 +7029,13 @@ func (this CompanyLocation) GetMetafieldDefinitions() *MetafieldDefinitionConnec
 
 func (CompanyLocation) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this CompanyLocation) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this CompanyLocation) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -5863,7 +7048,7 @@ func (this CompanyLocation) GetPrivateMetafields() *PrivateMetafieldConnection {
 
 func (CompanyLocation) IsNavigable() {}
 
-// A default cursor that returns the single next record, sorted ascending by ID.
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 func (this CompanyLocation) GetDefaultCursor() string { return this.DefaultCursor }
 
 func (CompanyLocation) IsNode() {}
@@ -5884,6 +7069,14 @@ type CompanyLocationAssignAddressPayload struct {
 type CompanyLocationAssignRolesPayload struct {
 	// A list of newly created assignments of company contacts to a company location.
 	RoleAssignments []CompanyContactRoleAssignment `json:"roleAssignments,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []BusinessCustomerUserError `json:"userErrors,omitempty"`
+}
+
+// Return type for `companyLocationAssignStaffMembers` mutation.
+type CompanyLocationAssignStaffMembersPayload struct {
+	// The list of created staff member assignments.
+	CompanyLocationStaffMemberAssignments []CompanyLocationStaffMemberAssignment `json:"companyLocationStaffMemberAssignments,omitempty,omitempty"`
 	// The list of errors that occurred from executing the mutation.
 	UserErrors []BusinessCustomerUserError `json:"userErrors,omitempty"`
 }
@@ -5951,11 +7144,11 @@ func (CompanyLocationCatalog) IsNode() {}
 
 // An auto-generated type for paginating through multiple CompanyLocations.
 type CompanyLocationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CompanyLocationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CompanyLocationEdge.
+	// A list of nodes that are contained in CompanyLocationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CompanyLocation `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -5985,7 +7178,7 @@ type CompanyLocationDeletePayload struct {
 
 // An auto-generated type which holds one CompanyLocation and a cursor during pagination.
 type CompanyLocationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CompanyLocationEdge.
 	Node *CompanyLocation `json:"node,omitempty"`
@@ -6015,6 +7208,14 @@ type CompanyLocationInput struct {
 	TaxRegistrationID *string `json:"taxRegistrationId,omitempty,omitempty"`
 	// The list of tax exemptions to apply to the company location.
 	TaxExemptions []TaxExemption `json:"taxExemptions,omitempty,omitempty"`
+}
+
+// Return type for `companyLocationRemoveStaffMembers` mutation.
+type CompanyLocationRemoveStaffMembersPayload struct {
+	// The list of IDs of the deleted staff member assignment.
+	DeletedCompanyLocationStaffMemberAssignmentIds []string `json:"deletedCompanyLocationStaffMemberAssignmentIds,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []BusinessCustomerUserError `json:"userErrors,omitempty"`
 }
 
 // Return type for `companyLocationRevokeRoles` mutation.
@@ -6047,6 +7248,39 @@ type CompanyLocationRoleAssign struct {
 	CompanyContactRoleID string `json:"companyContactRoleId"`
 	// The company contact ID..
 	CompanyContactID string `json:"companyContactId"`
+}
+
+// A representation of store's staff member who is assigned to a [company location](https://shopify.dev/api/admin-graphql/latest/objects/CompanyLocation) of the shop. The staff member's actions will be limited to objects associated with the assigned company location.
+type CompanyLocationStaffMemberAssignment struct {
+	// The company location the staff member is assigned to.
+	CompanyLocation *CompanyLocation `json:"companyLocation,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// Represents the data of a staff member who's assigned to a company location.
+	StaffMember *StaffMember `json:"staffMember,omitempty"`
+}
+
+func (CompanyLocationStaffMemberAssignment) IsNode() {}
+
+// A globally-unique ID.
+func (this CompanyLocationStaffMemberAssignment) GetID() string { return this.ID }
+
+// An auto-generated type for paginating through multiple CompanyLocationStaffMemberAssignments.
+type CompanyLocationStaffMemberAssignmentConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []CompanyLocationStaffMemberAssignmentEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in CompanyLocationStaffMemberAssignmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []CompanyLocationStaffMemberAssignment `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one CompanyLocationStaffMemberAssignment and a cursor during pagination.
+type CompanyLocationStaffMemberAssignmentEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of CompanyLocationStaffMemberAssignmentEdge.
+	Node *CompanyLocationStaffMemberAssignment `json:"node,omitempty"`
 }
 
 // The input fields for company location when creating or updating a company location.
@@ -6117,7 +7351,7 @@ type ContextualPublicationContext struct {
 type Count struct {
 	// The count of elements.
 	Count int `json:"count"`
-	// The count's precision, or how exact the value is.
+	// The count's precision, or the exactness of the value.
 	Precision CountPrecision `json:"precision"`
 }
 
@@ -6139,17 +7373,17 @@ type CountryHarmonizedSystemCode struct {
 
 // An auto-generated type for paginating through multiple CountryHarmonizedSystemCodes.
 type CountryHarmonizedSystemCodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CountryHarmonizedSystemCodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CountryHarmonizedSystemCodeEdge.
+	// A list of nodes that are contained in CountryHarmonizedSystemCodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CountryHarmonizedSystemCode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CountryHarmonizedSystemCode and a cursor during pagination.
 type CountryHarmonizedSystemCodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CountryHarmonizedSystemCodeEdge.
 	Node *CountryHarmonizedSystemCode `json:"node,omitempty"`
@@ -6199,17 +7433,17 @@ type CurrencySetting struct {
 
 // An auto-generated type for paginating through multiple CurrencySettings.
 type CurrencySettingConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CurrencySettingEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CurrencySettingEdge.
+	// A list of nodes that are contained in CurrencySettingEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CurrencySetting `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CurrencySetting and a cursor during pagination.
 type CurrencySettingEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CurrencySettingEdge.
 	Node *CurrencySetting `json:"node,omitempty"`
@@ -6236,6 +7470,8 @@ type CustomShippingPackageInput struct {
 type Customer struct {
 	// A list of addresses associated with the customer.
 	Addresses []MailingAddress `json:"addresses,omitempty"`
+	// The addresses associated with the customer.
+	AddressesV2 *MailingAddressConnection `json:"addressesV2,omitempty"`
 	// The total amount that the customer has spent on orders in their lifetime.
 	AmountSpent *MoneyV2 `json:"amountSpent,omitempty"`
 	// Whether the merchant can delete the customer from their store.
@@ -6285,11 +7521,14 @@ type Customer struct {
 	Market *Market `json:"market,omitempty,omitempty"`
 	// Whether the customer can be merged with another customer.
 	Mergeable *CustomerMergeable `json:"mergeable,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// A unique identifier for the customer that's used with Multipass login.
 	MultipassIdentifier *string `json:"multipassIdentifier,omitempty,omitempty"`
@@ -6367,10 +7606,13 @@ func (this Customer) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
 
 func (Customer) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Customer) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Customer) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -6402,6 +7644,96 @@ func (Customer) IsMetafieldReference() {}
 func (Customer) IsMetafieldReferencer() {}
 
 func (Customer) IsPurchasingEntity() {}
+
+// An app extension page for the customer account navigation menu.
+type CustomerAccountAppExtensionPage struct {
+	// The UUID of the app extension.
+	AppExtensionUUID *string `json:"appExtensionUuid,omitempty,omitempty"`
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+	DefaultCursor string `json:"defaultCursor"`
+	// A unique, human-friendly string for the customer account page.
+	Handle string `json:"handle"`
+	// The unique ID for the customer account page.
+	ID string `json:"id"`
+	// The title of the customer account page.
+	Title string `json:"title"`
+}
+
+func (CustomerAccountAppExtensionPage) IsCustomerAccountPage() {}
+
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+func (this CustomerAccountAppExtensionPage) GetDefaultCursor() string { return this.DefaultCursor }
+
+// A unique, human-friendly string for the customer account page.
+func (this CustomerAccountAppExtensionPage) GetHandle() string { return this.Handle }
+
+// The unique ID for the customer account page.
+func (this CustomerAccountAppExtensionPage) GetID() string { return this.ID }
+
+// The title of the customer account page.
+func (this CustomerAccountAppExtensionPage) GetTitle() string { return this.Title }
+
+func (CustomerAccountAppExtensionPage) IsNavigable() {}
+
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+
+func (CustomerAccountAppExtensionPage) IsNode() {}
+
+// A globally-unique ID.
+
+// A native page for the customer account navigation menu.
+type CustomerAccountNativePage struct {
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+	DefaultCursor string `json:"defaultCursor"`
+	// A unique, human-friendly string for the customer account page.
+	Handle string `json:"handle"`
+	// The unique ID for the customer account page.
+	ID string `json:"id"`
+	// The type of customer account native page.
+	PageType CustomerAccountNativePagePageType `json:"pageType"`
+	// The title of the customer account page.
+	Title string `json:"title"`
+}
+
+func (CustomerAccountNativePage) IsCustomerAccountPage() {}
+
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+func (this CustomerAccountNativePage) GetDefaultCursor() string { return this.DefaultCursor }
+
+// A unique, human-friendly string for the customer account page.
+func (this CustomerAccountNativePage) GetHandle() string { return this.Handle }
+
+// The unique ID for the customer account page.
+func (this CustomerAccountNativePage) GetID() string { return this.ID }
+
+// The title of the customer account page.
+func (this CustomerAccountNativePage) GetTitle() string { return this.Title }
+
+func (CustomerAccountNativePage) IsNavigable() {}
+
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+
+func (CustomerAccountNativePage) IsNode() {}
+
+// A globally-unique ID.
+
+// An auto-generated type for paginating through multiple CustomerAccountPages.
+type CustomerAccountPageConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []CustomerAccountPageEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in CustomerAccountPageEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []CustomerAccountPage `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one CustomerAccountPage and a cursor during pagination.
+type CustomerAccountPageEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of CustomerAccountPageEdge.
+	Node CustomerAccountPage `json:"node"`
+}
 
 // Information about the shop's customer accounts.
 type CustomerAccountsV2 struct {
@@ -6460,11 +7792,11 @@ func (this CustomerCancelDataErasureUserError) GetMessage() string { return this
 
 // An auto-generated type for paginating through multiple Customers.
 type CustomerConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CustomerEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CustomerEdge.
+	// A list of nodes that are contained in CustomerEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Customer `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -6548,7 +7880,7 @@ type CustomerDeletePayload struct {
 
 // An auto-generated type which holds one Customer and a cursor during pagination.
 type CustomerEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CustomerEdge.
 	Node *Customer `json:"node,omitempty"`
@@ -6883,17 +8215,17 @@ type CustomerMergeable struct {
 
 // An auto-generated type for paginating through multiple CustomerMoments.
 type CustomerMomentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CustomerMomentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CustomerMomentEdge.
+	// A list of nodes that are contained in CustomerMomentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CustomerMoment `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CustomerMoment and a cursor during pagination.
 type CustomerMomentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CustomerMomentEdge.
 	Node CustomerMoment `json:"node"`
@@ -6944,11 +8276,11 @@ func (this CustomerPaymentMethod) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple CustomerPaymentMethods.
 type CustomerPaymentMethodConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CustomerPaymentMethodEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CustomerPaymentMethodEdge.
+	// A list of nodes that are contained in CustomerPaymentMethodEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CustomerPaymentMethod `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -7011,7 +8343,7 @@ type CustomerPaymentMethodCreditCardUpdatePayload struct {
 
 // An auto-generated type which holds one CustomerPaymentMethod and a cursor during pagination.
 type CustomerPaymentMethodEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CustomerPaymentMethodEdge.
 	Node *CustomerPaymentMethod `json:"node,omitempty"`
@@ -7294,9 +8626,12 @@ type CustomerSegmentMember struct {
 	LastOrderID *string `json:"lastOrderId,omitempty,omitempty"`
 	// Whether the customer can be merged with another customer.
 	Mergeable *CustomerMergeable `json:"mergeable,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// A note about the member.
 	Note *string `json:"note,omitempty,omitempty"`
@@ -7310,10 +8645,13 @@ type CustomerSegmentMember struct {
 
 func (CustomerSegmentMember) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this CustomerSegmentMember) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this CustomerSegmentMember) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -7330,7 +8668,7 @@ func (this CustomerSegmentMember) GetPrivateMetafields() *PrivateMetafieldConnec
 type CustomerSegmentMemberConnection struct {
 	// A list of edges.
 	Edges []CustomerSegmentMemberEdge `json:"edges,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 	// The statistics for a given segment.
 	Statistics *SegmentStatistics `json:"statistics,omitempty"`
@@ -7340,7 +8678,7 @@ type CustomerSegmentMemberConnection struct {
 
 // An auto-generated type which holds one CustomerSegmentMember and a cursor during pagination.
 type CustomerSegmentMemberEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CustomerSegmentMemberEdge.
 	Node *CustomerSegmentMember `json:"node,omitempty"`
@@ -7414,6 +8752,41 @@ func (this CustomerSegmentMembersQueryUserError) GetField() []string {
 
 // The error message.
 func (this CustomerSegmentMembersQueryUserError) GetMessage() string { return this.Message }
+
+// Return type for `customerSendAccountInviteEmail` mutation.
+type CustomerSendAccountInviteEmailPayload struct {
+	// The customer to whom an account invite email was sent.
+	Customer *Customer `json:"customer,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []CustomerSendAccountInviteEmailUserError `json:"userErrors,omitempty"`
+}
+
+// Defines errors for customerSendAccountInviteEmail mutation.
+type CustomerSendAccountInviteEmailUserError struct {
+	// The error code.
+	Code *CustomerSendAccountInviteEmailUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (CustomerSendAccountInviteEmailUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this CustomerSendAccountInviteEmailUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this CustomerSendAccountInviteEmailUserError) GetMessage() string { return this.Message }
 
 // Represents a Shop Pay card instrument for customer payment method.
 type CustomerShopPayAgreement struct {
@@ -7587,17 +8960,17 @@ type CustomerVisitProductInfo struct {
 
 // An auto-generated type for paginating through multiple CustomerVisitProductInfos.
 type CustomerVisitProductInfoConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []CustomerVisitProductInfoEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in CustomerVisitProductInfoEdge.
+	// A list of nodes that are contained in CustomerVisitProductInfoEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []CustomerVisitProductInfo `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one CustomerVisitProductInfo and a cursor during pagination.
 type CustomerVisitProductInfoEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of CustomerVisitProductInfoEdge.
 	Node *CustomerVisitProductInfo `json:"node,omitempty"`
@@ -7641,8 +9014,7 @@ func (this DataSaleOptOutUserError) GetMessage() string { return this.Message }
 // A token that delegates a set of scopes from the original permission.
 //
 // To learn more about creating delegate access tokens, refer to
-// [Delegate OAuth access tokens to subsystems]
-// (https://shopify.dev/apps/auth/oauth/delegate-access-tokens).
+// [Delegate OAuth access tokens to subsystems](https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/use-delegate-tokens).
 type DelegateAccessToken struct {
 	// The list of permissions associated with the token.
 	AccessScopes []string `json:"accessScopes,omitempty"`
@@ -7748,17 +9120,17 @@ type DeletionEvent struct {
 
 // An auto-generated type for paginating through multiple DeletionEvents.
 type DeletionEventConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeletionEventEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeletionEventEdge.
+	// A list of nodes that are contained in DeletionEventEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeletionEvent `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DeletionEvent and a cursor during pagination.
 type DeletionEventEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeletionEventEdge.
 	Node *DeletionEvent `json:"node,omitempty"`
@@ -7980,11 +9352,11 @@ type DeliveryCarrierServiceAndLocations struct {
 
 // An auto-generated type for paginating through multiple DeliveryCarrierServices.
 type DeliveryCarrierServiceConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeliveryCarrierServiceEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeliveryCarrierServiceEdge.
+	// A list of nodes that are contained in DeliveryCarrierServiceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeliveryCarrierService `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -8002,7 +9374,7 @@ type DeliveryCarrierServiceCreateInput struct {
 
 // An auto-generated type which holds one DeliveryCarrierService and a cursor during pagination.
 type DeliveryCarrierServiceEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeliveryCarrierServiceEdge.
 	Node *DeliveryCarrierService `json:"node,omitempty"`
@@ -8107,11 +9479,14 @@ type DeliveryCustomization struct {
 	FunctionID string `json:"functionId"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -8132,10 +9507,13 @@ func (this DeliveryCustomization) GetMetafieldDefinitions() *MetafieldDefinition
 
 func (DeliveryCustomization) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this DeliveryCustomization) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this DeliveryCustomization) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -8165,11 +9543,11 @@ type DeliveryCustomizationActivationPayload struct {
 
 // An auto-generated type for paginating through multiple DeliveryCustomizations.
 type DeliveryCustomizationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeliveryCustomizationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeliveryCustomizationEdge.
+	// A list of nodes that are contained in DeliveryCustomizationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeliveryCustomization `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -8191,7 +9569,7 @@ type DeliveryCustomizationDeletePayload struct {
 
 // An auto-generated type which holds one DeliveryCustomization and a cursor during pagination.
 type DeliveryCustomizationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeliveryCustomizationEdge.
 	Node *DeliveryCustomization `json:"node,omitempty"`
@@ -8288,17 +9666,17 @@ type DeliveryLocationGroupZone struct {
 
 // An auto-generated type for paginating through multiple DeliveryLocationGroupZones.
 type DeliveryLocationGroupZoneConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeliveryLocationGroupZoneEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeliveryLocationGroupZoneEdge.
+	// A list of nodes that are contained in DeliveryLocationGroupZoneEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeliveryLocationGroupZone `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DeliveryLocationGroupZone and a cursor during pagination.
 type DeliveryLocationGroupZoneEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeliveryLocationGroupZoneEdge.
 	Node *DeliveryLocationGroupZone `json:"node,omitempty"`
@@ -8369,6 +9747,8 @@ type DeliveryMethod struct {
 	MethodType DeliveryMethodType `json:"methodType"`
 	// The earliest delivery date and time when the fulfillment is expected to arrive at the buyer's location.
 	MinDeliveryDateTime *time.Time `json:"minDeliveryDateTime,omitempty,omitempty"`
+	// The name of the delivery option that was presented to the buyer during checkout.
+	PresentedName *string `json:"presentedName,omitempty,omitempty"`
 	// A reference to the shipping method.
 	ServiceCode *string `json:"serviceCode,omitempty,omitempty"`
 	// Source reference is promise provider specific data associated with delivery promise.
@@ -8412,11 +9792,11 @@ func (this DeliveryMethodDefinition) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple DeliveryMethodDefinitions.
 type DeliveryMethodDefinitionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeliveryMethodDefinitionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeliveryMethodDefinitionEdge.
+	// A list of nodes that are contained in DeliveryMethodDefinitionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeliveryMethodDefinition `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -8430,7 +9810,7 @@ type DeliveryMethodDefinitionCounts struct {
 
 // An auto-generated type which holds one DeliveryMethodDefinition and a cursor during pagination.
 type DeliveryMethodDefinitionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeliveryMethodDefinitionEdge.
 	Node *DeliveryMethodDefinition `json:"node,omitempty"`
@@ -8530,7 +9910,7 @@ type DeliveryProductVariantsCount struct {
 	Count int `json:"count"`
 }
 
-// A shipping profile. In Shopify, a shipping profile is a set of shipping rates scoped to a set of products or variants that can be shipped from selected locations to zones.
+// A shipping profile. In Shopify, a shipping profile is a set of shipping rates scoped to a set of products or variants that can be shipped from selected locations to zones. Learn more about [building with delivery profiles](https://shopify.dev/apps/build/purchase-options/deferred/delivery-and-deferment/build-delivery-profiles).
 type DeliveryProfile struct {
 	// The number of active shipping rates for the profile.
 	ActiveMethodDefinitionsCount int `json:"activeMethodDefinitionsCount"`
@@ -8571,11 +9951,11 @@ func (this DeliveryProfile) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple DeliveryProfiles.
 type DeliveryProfileConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeliveryProfileEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeliveryProfileEdge.
+	// A list of nodes that are contained in DeliveryProfileEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeliveryProfile `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -8589,7 +9969,7 @@ type DeliveryProfileCreatePayload struct {
 
 // An auto-generated type which holds one DeliveryProfile and a cursor during pagination.
 type DeliveryProfileEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeliveryProfileEdge.
 	Node *DeliveryProfile `json:"node,omitempty"`
@@ -8645,17 +10025,17 @@ func (this DeliveryProfileItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple DeliveryProfileItems.
 type DeliveryProfileItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DeliveryProfileItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DeliveryProfileItemEdge.
+	// A list of nodes that are contained in DeliveryProfileItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DeliveryProfileItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DeliveryProfileItem and a cursor during pagination.
 type DeliveryProfileItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DeliveryProfileItemEdge.
 	Node *DeliveryProfileItem `json:"node,omitempty"`
@@ -8878,6 +10258,20 @@ func (DeliveryZone) IsNode() {}
 // A globally-unique ID.
 func (this DeliveryZone) GetID() string { return this.ID }
 
+// The input fields configuring the deposit for a B2B buyer.
+type DepositInput struct {
+	// The percentage of the order total that should be paid as a deposit.
+	Percentage float64 `json:"percentage"`
+}
+
+// A percentage deposit.
+type DepositPercentage struct {
+	// The percentage value of the deposit.
+	Percentage float64 `json:"percentage"`
+}
+
+func (DepositPercentage) IsDepositConfiguration() {}
+
 // An amount that's allocated to a line based on an associated discount application.
 type DiscountAllocation struct {
 	// The money amount that's allocated to a line based on the associated discount application.
@@ -8886,6 +10280,24 @@ type DiscountAllocation struct {
 	AllocatedAmountSet *MoneyBag `json:"allocatedAmountSet,omitempty"`
 	// The discount application that the allocated amount originated from.
 	DiscountApplication DiscountApplication `json:"discountApplication"`
+}
+
+// An auto-generated type for paginating through multiple DiscountAllocations.
+type DiscountAllocationConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []DiscountAllocationEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in DiscountAllocationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []DiscountAllocation `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one DiscountAllocation and a cursor during pagination.
+type DiscountAllocationEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of DiscountAllocationEdge.
+	Node *DiscountAllocation `json:"node,omitempty"`
 }
 
 // The fixed amount value of a discount, and whether the amount is applied to each entitled item or spread evenly across the entitled items.
@@ -8910,17 +10322,17 @@ type DiscountAmountInput struct {
 
 // An auto-generated type for paginating through multiple DiscountApplications.
 type DiscountApplicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountApplicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountApplicationEdge.
+	// A list of nodes that are contained in DiscountApplicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountApplication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DiscountApplication and a cursor during pagination.
 type DiscountApplicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountApplicationEdge.
 	Node DiscountApplication `json:"node"`
@@ -8938,6 +10350,8 @@ type DiscountAutomaticActivatePayload struct {
 type DiscountAutomaticApp struct {
 	// The app discount type providing the discount type.
 	AppDiscountType *AppDiscountType `json:"appDiscountType,omitempty"`
+	// Whether the discount applies on subscription items.
+	AppliesOnSubscription bool `json:"appliesOnSubscription"`
 	// The number of times the discount has been used. This value is updated asynchronously and can be different than the actual usage count.
 	AsyncUsageCount int `json:"asyncUsageCount"`
 	// Determines which discount classes the discount can combine with.
@@ -8952,6 +10366,8 @@ type DiscountAutomaticApp struct {
 	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// The error history on the most recent version of the app discount.
 	ErrorHistory *FunctionsErrorHistory `json:"errorHistory,omitempty,omitempty"`
+	// The number of times a discount applies on recurring purchases (subscriptions).        0 will apply infinitely whereas 1 will only apply to the first checkout.
+	RecurringCycleLimit int `json:"recurringCycleLimit"`
 	// The date and time when the discount starts.
 	StartsAt time.Time `json:"startsAt"`
 	// The status of the discount.
@@ -8988,6 +10404,10 @@ type DiscountAutomaticAppInput struct {
 	EndsAt *time.Time `json:"endsAt,omitempty,omitempty"`
 	// Additional metafields to associate to the discount.
 	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// Whether the discount applies on subscription items.
+	AppliesOnSubscription *bool `json:"appliesOnSubscription,omitempty,omitempty"`
+	// The number of times a discount applies on recurring purchases (subscriptions).         0 will apply infinitely whereas 1 will only apply to the first checkout.
+	RecurringCycleLimit *int `json:"recurringCycleLimit,omitempty,omitempty"`
 }
 
 // Return type for `discountAutomaticAppUpdate` mutation.
@@ -9164,11 +10584,11 @@ type DiscountAutomaticBxgyUpdatePayload struct {
 
 // An auto-generated type for paginating through multiple DiscountAutomatics.
 type DiscountAutomaticConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountAutomaticEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountAutomaticEdge.
+	// A list of nodes that are contained in DiscountAutomaticEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountAutomatic `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -9190,7 +10610,7 @@ type DiscountAutomaticDeletePayload struct {
 
 // An auto-generated type which holds one DiscountAutomatic and a cursor during pagination.
 type DiscountAutomaticEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountAutomaticEdge.
 	Node DiscountAutomatic `json:"node"`
@@ -9290,11 +10710,14 @@ type DiscountAutomaticNode struct {
 	Events *EventConnection `json:"events,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -9316,10 +10739,13 @@ func (this DiscountAutomaticNode) GetMetafieldDefinitions() *MetafieldDefinition
 
 func (DiscountAutomaticNode) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this DiscountAutomaticNode) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this DiscountAutomaticNode) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -9341,17 +10767,17 @@ func (DiscountAutomaticNode) IsMetafieldReferencer() {}
 
 // An auto-generated type for paginating through multiple DiscountAutomaticNodes.
 type DiscountAutomaticNodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountAutomaticNodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountAutomaticNodeEdge.
+	// A list of nodes that are contained in DiscountAutomaticNodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountAutomaticNode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DiscountAutomaticNode and a cursor during pagination.
 type DiscountAutomaticNodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountAutomaticNodeEdge.
 	Node *DiscountAutomaticNode `json:"node,omitempty"`
@@ -9839,11 +11265,14 @@ type DiscountCodeNode struct {
 	Events *EventConnection `json:"events,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -9865,10 +11294,13 @@ func (this DiscountCodeNode) GetMetafieldDefinitions() *MetafieldDefinitionConne
 
 func (DiscountCodeNode) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this DiscountCodeNode) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this DiscountCodeNode) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -9888,17 +11320,17 @@ func (DiscountCodeNode) IsMetafieldReferencer() {}
 
 // An auto-generated type for paginating through multiple DiscountCodeNodes.
 type DiscountCodeNodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountCodeNodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountCodeNodeEdge.
+	// A list of nodes that are contained in DiscountCodeNodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountCodeNode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DiscountCodeNode and a cursor during pagination.
 type DiscountCodeNodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountCodeNodeEdge.
 	Node *DiscountCodeNode `json:"node,omitempty"`
@@ -10146,11 +11578,14 @@ type DiscountNode struct {
 	Events *EventConnection `json:"events,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -10172,10 +11607,13 @@ func (this DiscountNode) GetMetafieldDefinitions() *MetafieldDefinitionConnectio
 
 func (DiscountNode) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this DiscountNode) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this DiscountNode) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -10195,17 +11633,17 @@ func (DiscountNode) IsMetafieldReferencer() {}
 
 // An auto-generated type for paginating through multiple DiscountNodes.
 type DiscountNodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountNodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountNodeEdge.
+	// A list of nodes that are contained in DiscountNodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountNode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DiscountNode and a cursor during pagination.
 type DiscountNodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountNodeEdge.
 	Node *DiscountNode `json:"node,omitempty"`
@@ -10336,17 +11774,17 @@ type DiscountRedeemCodeBulkCreationCode struct {
 
 // An auto-generated type for paginating through multiple DiscountRedeemCodeBulkCreationCodes.
 type DiscountRedeemCodeBulkCreationCodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountRedeemCodeBulkCreationCodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountRedeemCodeBulkCreationCodeEdge.
+	// A list of nodes that are contained in DiscountRedeemCodeBulkCreationCodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountRedeemCodeBulkCreationCode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DiscountRedeemCodeBulkCreationCode and a cursor during pagination.
 type DiscountRedeemCodeBulkCreationCodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountRedeemCodeBulkCreationCodeEdge.
 	Node *DiscountRedeemCodeBulkCreationCode `json:"node,omitempty"`
@@ -10354,17 +11792,17 @@ type DiscountRedeemCodeBulkCreationCodeEdge struct {
 
 // An auto-generated type for paginating through multiple DiscountRedeemCodes.
 type DiscountRedeemCodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DiscountRedeemCodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DiscountRedeemCodeEdge.
+	// A list of nodes that are contained in DiscountRedeemCodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DiscountRedeemCode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DiscountRedeemCode and a cursor during pagination.
 type DiscountRedeemCodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DiscountRedeemCodeEdge.
 	Node *DiscountRedeemCode `json:"node,omitempty"`
@@ -10528,7 +11966,7 @@ type DraftOrder struct {
 	CustomAttributes []Attribute `json:"customAttributes,omitempty"`
 	// The customer who will be sent an invoice.
 	Customer *Customer `json:"customer,omitempty,omitempty"`
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	DefaultCursor string `json:"defaultCursor"`
 	// All discount codes applied.
 	DiscountCodes []string `json:"discountCodes,omitempty"`
@@ -10559,9 +11997,12 @@ type DraftOrder struct {
 	MarketName string `json:"marketName"`
 	// The selected country code that determines the pricing.
 	MarketRegionCountryCode CountryCode `json:"marketRegionCountryCode"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The identifier for the draft order, which is unique within the store. For example, _#D1223_.
 	Name string `json:"name"`
@@ -10668,10 +12109,13 @@ func (this DraftOrder) GetLocalizationExtensions() *LocalizationExtensionConnect
 
 func (DraftOrder) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this DraftOrder) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this DraftOrder) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -10689,7 +12133,7 @@ func (this DraftOrder) GetLegacyResourceID() string { return this.LegacyResource
 
 func (DraftOrder) IsNavigable() {}
 
-// A default cursor that returns the single next record, sorted ascending by ID.
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 func (this DraftOrder) GetDefaultCursor() string { return this.DefaultCursor }
 
 func (DraftOrder) IsNode() {}
@@ -10796,11 +12240,11 @@ type DraftOrderCompletePayload struct {
 
 // An auto-generated type for paginating through multiple DraftOrders.
 type DraftOrderConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DraftOrderEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DraftOrderEdge.
+	// A list of nodes that are contained in DraftOrderEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DraftOrder `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -10877,7 +12321,7 @@ type DraftOrderDuplicatePayload struct {
 
 // An auto-generated type which holds one DraftOrder and a cursor during pagination.
 type DraftOrderEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DraftOrderEdge.
 	Node *DraftOrder `json:"node,omitempty"`
@@ -10930,8 +12374,6 @@ type DraftOrderInput struct {
 	ReserveInventoryUntil *time.Time `json:"reserveInventoryUntil,omitempty,omitempty"`
 	// The payment currency of the customer for this draft order.
 	PresentmentCurrencyCode *CurrencyCode `json:"presentmentCurrencyCode,omitempty,omitempty"`
-	// The selected country code that determines the pricing of the draft order.
-	MarketRegionCountryCode *CountryCode `json:"marketRegionCountryCode,omitempty,omitempty"`
 	// The customer's phone number.
 	Phone *string `json:"phone,omitempty,omitempty"`
 	// The fields used to create payment terms.
@@ -11067,17 +12509,17 @@ func (DraftOrderLineItem) IsDraftOrderPlatformDiscountAllocationTarget() {}
 
 // An auto-generated type for paginating through multiple DraftOrderLineItems.
 type DraftOrderLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []DraftOrderLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in DraftOrderLineItemEdge.
+	// A list of nodes that are contained in DraftOrderLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []DraftOrderLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one DraftOrderLineItem and a cursor during pagination.
 type DraftOrderLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of DraftOrderLineItemEdge.
 	Node *DraftOrderLineItem `json:"node,omitempty"`
@@ -11090,25 +12532,25 @@ type DraftOrderLineItemInput struct {
 	// A generic custom attribute using a key value pair.
 	CustomAttributes []AttributeInput `json:"customAttributes,omitempty,omitempty"`
 	// The price in presentment currency, without any discounts applied, for a custom line item.
-	// If this value is provided, `original_unit_price` will be ignored. This field is ignored when `variantId` is provided..
+	// If this value is provided, `original_unit_price` will be ignored. This field is ignored when `variantId` is provided.
 	// Note: All presentment currencies for a single draft should be the same and match the
 	// presentment currency of the draft order.
 	OriginalUnitPriceWithCurrency *MoneyInput `json:"originalUnitPriceWithCurrency,omitempty,omitempty"`
 	// The line item quantity.
 	Quantity int `json:"quantity"`
-	// Whether physical shipping is required for a custom line item. This field is ignored when `variantId` is provided..
+	// Whether physical shipping is required for a custom line item. This field is ignored when `variantId` is provided.
 	RequiresShipping *bool `json:"requiresShipping,omitempty,omitempty"`
-	// The SKU number for custom line items only. This field is ignored when `variantId` is provided..
+	// The SKU number for custom line items only. This field is ignored when `variantId` is provided.
 	Sku *string `json:"sku,omitempty,omitempty"`
-	// Whether the custom line item is taxable. This field is ignored when `variantId` is provided..
+	// Whether the custom line item is taxable. This field is ignored when `variantId` is provided.
 	Taxable *bool `json:"taxable,omitempty,omitempty"`
-	// Title of the line item. This field is ignored when `variantId` is provided..
+	// Title of the line item. This field is ignored when `variantId` is provided.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The ID of the product variant corresponding to the line item.
 	// Must be null for custom line items, otherwise required.
 	VariantID *string `json:"variantId,omitempty,omitempty"`
 	// The weight unit and value inputs for custom line items only.
-	// This field is ignored when `variantId` is provided..
+	// This field is ignored when `variantId` is provided.
 	Weight *WeightInput `json:"weight,omitempty,omitempty"`
 	// The UUID of the draft order line item. Must be unique and consistent across requests.
 	// This field is mandatory in order to manipulate drafts with bundles.
@@ -11371,7 +12813,7 @@ type EventBridgeWebhookSubscriptionInput struct {
 	Format *WebhookSubscriptionFormat `json:"format,omitempty,omitempty"`
 	// The list of fields to be included in the webhook subscription.
 	IncludeFields []string `json:"includeFields,omitempty,omitempty"`
-	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted.
+	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted. See our [guide on filters](https://shopify.dev/docs/apps/build/webhooks/customize/filters) for more details.
 	Filter *string `json:"filter,omitempty,omitempty"`
 	// The list of namespaces for any metafields that should be included in the webhook subscription.
 	MetafieldNamespaces []string `json:"metafieldNamespaces,omitempty,omitempty"`
@@ -11387,17 +12829,17 @@ type EventBridgeWebhookSubscriptionUpdatePayload struct {
 
 // An auto-generated type for paginating through multiple Events.
 type EventConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []EventEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in EventEdge.
+	// A list of nodes that are contained in EventEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Event `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one Event and a cursor during pagination.
 type EventEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of EventEdge.
 	Node Event `json:"node"`
@@ -11435,17 +12877,17 @@ type ExchangeLineItemAppliedDiscountValueInput struct {
 
 // An auto-generated type for paginating through multiple ExchangeLineItems.
 type ExchangeLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ExchangeLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ExchangeLineItemEdge.
+	// A list of nodes that are contained in ExchangeLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ExchangeLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ExchangeLineItem and a cursor during pagination.
 type ExchangeLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ExchangeLineItemEdge.
 	Node *ExchangeLineItem `json:"node,omitempty"`
@@ -11510,17 +12952,17 @@ type ExchangeV2Additions struct {
 
 // An auto-generated type for paginating through multiple ExchangeV2s.
 type ExchangeV2Connection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ExchangeV2Edge `json:"edges,omitempty"`
-	// A list of the nodes contained in ExchangeV2Edge.
+	// A list of nodes that are contained in ExchangeV2Edge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ExchangeV2 `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ExchangeV2 and a cursor during pagination.
 type ExchangeV2Edge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ExchangeV2Edge.
 	Node *ExchangeV2 `json:"node,omitempty"`
@@ -11788,11 +13230,11 @@ type FileAcknowledgeUpdateFailedPayload struct {
 
 // An auto-generated type for paginating through multiple Files.
 type FileConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FileEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FileEdge.
+	// A list of nodes that are contained in FileEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []File `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -11830,7 +13272,7 @@ type FileDeletePayload struct {
 
 // An auto-generated type which holds one File and a cursor during pagination.
 type FileEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FileEdge.
 	Node File `json:"node"`
@@ -11845,6 +13287,24 @@ type FileError struct {
 	Details *string `json:"details,omitempty,omitempty"`
 	// Translated error message.
 	Message string `json:"message"`
+}
+
+// The input fields required to create or update a file object.
+type FileSetInput struct {
+	// When provided, the file will be created with the given filename,
+	// otherwise the filename in the originalSource will be used.
+	Filename *string `json:"filename,omitempty,omitempty"`
+	// The file content type. If omitted, then Shopify will attempt to determine the content type during file processing.
+	ContentType *FileContentType `json:"contentType,omitempty,omitempty"`
+	// The alternative text description of the file.
+	Alt *string `json:"alt,omitempty,omitempty"`
+	// How to handle if filename is already in use.
+	DuplicateResolutionMode *FileCreateInputDuplicateResolutionMode `json:"duplicateResolutionMode,omitempty,omitempty"`
+	// The ID of an existing file.
+	ID *string `json:"id,omitempty,omitempty"`
+	// An external URL (for images only) or a
+	// [staged upload URL](https://shopify.dev/api/admin-graphql/latest/mutations/stageduploadscreate).
+	OriginalSource *string `json:"originalSource,omitempty,omitempty"`
 }
 
 // The input fields that are required to update a file object.
@@ -12016,23 +13476,28 @@ type FulfillmentCancelPayload struct {
 
 // An auto-generated type for paginating through multiple Fulfillments.
 type FulfillmentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentEdge.
+	// A list of nodes that are contained in FulfillmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Fulfillment `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // A fulfillment constraint rule.
 type FulfillmentConstraintRule struct {
+	// Delivery method types that the function is associated with.
+	DeliveryMethodTypes []DeliveryMethodType `json:"deliveryMethodTypes,omitempty"`
 	// The ID for the fulfillment constraint function.
 	Function *ShopifyFunction `json:"function,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -12042,10 +13507,13 @@ type FulfillmentConstraintRule struct {
 
 func (FulfillmentConstraintRule) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this FulfillmentConstraintRule) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this FulfillmentConstraintRule) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -12133,6 +13601,49 @@ func (this FulfillmentConstraintRuleDeleteUserError) GetField() []string {
 // The error message.
 func (this FulfillmentConstraintRuleDeleteUserError) GetMessage() string { return this.Message }
 
+// Return type for `fulfillmentConstraintRuleUpdate` mutation.
+type FulfillmentConstraintRuleUpdatePayload struct {
+	// The updated fulfillment constraint rule.
+	FulfillmentConstraintRule *FulfillmentConstraintRule `json:"fulfillmentConstraintRule,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []FulfillmentConstraintRuleUpdateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `FulfillmentConstraintRuleUpdate`.
+type FulfillmentConstraintRuleUpdateUserError struct {
+	// The error code.
+	Code *FulfillmentConstraintRuleUpdateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (FulfillmentConstraintRuleUpdateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this FulfillmentConstraintRuleUpdateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this FulfillmentConstraintRuleUpdateUserError) GetMessage() string { return this.Message }
+
+// Return type for `fulfillmentCreate` mutation.
+type FulfillmentCreatePayload struct {
+	// The created fulfillment.
+	Fulfillment *Fulfillment `json:"fulfillment,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []UserError `json:"userErrors,omitempty"`
+}
+
 // Return type for `fulfillmentCreateV2` mutation.
 type FulfillmentCreateV2Payload struct {
 	// The created fulfillment.
@@ -12143,7 +13654,7 @@ type FulfillmentCreateV2Payload struct {
 
 // An auto-generated type which holds one Fulfillment and a cursor during pagination.
 type FulfillmentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentEdge.
 	Node *Fulfillment `json:"node,omitempty"`
@@ -12186,11 +13697,11 @@ func (this FulfillmentEvent) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple FulfillmentEvents.
 type FulfillmentEventConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentEventEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentEventEdge.
+	// A list of nodes that are contained in FulfillmentEventEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []FulfillmentEvent `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -12204,7 +13715,7 @@ type FulfillmentEventCreatePayload struct {
 
 // An auto-generated type which holds one FulfillmentEvent and a cursor during pagination.
 type FulfillmentEventEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentEventEdge.
 	Node *FulfillmentEvent `json:"node,omitempty"`
@@ -12240,12 +13751,40 @@ type FulfillmentEventInput struct {
 
 // A fulfillment hold currently applied on a fulfillment order.
 type FulfillmentHold struct {
+	// The localized reason for the fulfillment hold for display purposes.
+	DisplayReason string `json:"displayReason"`
 	// The name of the app or service that applied the fulfillment hold.
 	HeldBy *string `json:"heldBy,omitempty,omitempty"`
+	// A boolean value that indicates whether the requesting app created the fulfillment hold.
+	HeldByRequestingApp bool `json:"heldByRequestingApp"`
+	// A globally-unique ID.
+	ID string `json:"id"`
 	// The reason for the fulfillment hold.
 	Reason FulfillmentHoldReason `json:"reason"`
 	// Additional information about the fulfillment hold reason.
 	ReasonNotes *string `json:"reasonNotes,omitempty,omitempty"`
+}
+
+func (FulfillmentHold) IsNode() {}
+
+// A globally-unique ID.
+func (this FulfillmentHold) GetID() string { return this.ID }
+
+// The input fields used to create a fulfillment from fulfillment orders.
+type FulfillmentInput struct {
+	// The fulfillment's tracking information, including a tracking URL, a tracking number,
+	// and the company associated with the fulfillment.
+	TrackingInfo *FulfillmentTrackingInput `json:"trackingInfo,omitempty,omitempty"`
+	// Whether the customer is notified.
+	// If `true`, then a notification is sent when the fulfillment is created. The default value is `false`.
+	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
+	// Pairs of `fulfillment_order_id` and `fulfillment_order_line_items` that represent the fulfillment
+	// order line items that have to be fulfilled for each fulfillment order.  For any given pair, if the
+	// fulfillment order line items are left blank then all the fulfillment order line items of the
+	// associated fulfillment order ID will be fulfilled.
+	LineItemsByFulfillmentOrder []FulfillmentOrderLineItemsInput `json:"lineItemsByFulfillmentOrder,omitempty"`
+	// Address information about the location from which the order was fulfilled.
+	OriginAddress *FulfillmentOriginAddressInput `json:"originAddress,omitempty,omitempty"`
 }
 
 // Represents a line item from an order that's included in a fulfillment.
@@ -12273,17 +13812,17 @@ func (this FulfillmentLineItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple FulfillmentLineItems.
 type FulfillmentLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentLineItemEdge.
+	// A list of nodes that are contained in FulfillmentLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []FulfillmentLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one FulfillmentLineItem and a cursor during pagination.
 type FulfillmentLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentLineItemEdge.
 	Node *FulfillmentLineItem `json:"node,omitempty"`
@@ -12392,11 +13931,11 @@ type FulfillmentLineItemEdge struct {
 //
 // Once a fulfillment service accepts a fulfillment request,
 // then after they are ready to pack items and send them for delivery, they create fulfillments with the
-// [fulfillmentCreateV2](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentCreateV2)
+// [fulfillmentCreate](https://shopify.dev/api/admin-graphql/unstable/mutations/fulfillmentCreate)
 // mutation.
 // They can provide tracking information right away or create fulfillments without it and then
 // update the tracking information for fulfillments with the
-// [fulfillmentTrackingInfoUpdateV2](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentTrackingInfoUpdateV2)
+// [fulfillmentTrackingInfoUpdate](https://shopify.dev/api/admin-graphql/unstable/mutations/fulfillmentTrackingInfoUpdate)
 // mutation.
 //
 // [Learn about managing fulfillment orders as a fulfillment service](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments).
@@ -12617,11 +14156,11 @@ type FulfillmentOrderClosePayload struct {
 
 // An auto-generated type for paginating through multiple FulfillmentOrders.
 type FulfillmentOrderConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentOrderEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentOrderEdge.
+	// A list of nodes that are contained in FulfillmentOrderEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []FulfillmentOrder `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -12645,6 +14184,8 @@ type FulfillmentOrderDestination struct {
 	ID string `json:"id"`
 	// The last name of the customer at the destination.
 	LastName *string `json:"lastName,omitempty,omitempty"`
+	// The location designated for the pick-up of the fulfillment order.
+	Location *Location `json:"location,omitempty,omitempty"`
 	// The phone number of the customer at the destination.
 	Phone *string `json:"phone,omitempty,omitempty"`
 	// The province of the destination.
@@ -12660,7 +14201,7 @@ func (this FulfillmentOrderDestination) GetID() string { return this.ID }
 
 // An auto-generated type which holds one FulfillmentOrder and a cursor during pagination.
 type FulfillmentOrderEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentOrderEdge.
 	Node *FulfillmentOrder `json:"node,omitempty"`
@@ -12683,6 +14224,8 @@ type FulfillmentOrderHoldInput struct {
 
 // Return type for `fulfillmentOrderHold` mutation.
 type FulfillmentOrderHoldPayload struct {
+	// The fulfillment hold created for the fulfillment order. Null if no hold was created.
+	FulfillmentHold *FulfillmentHold `json:"fulfillmentHold,omitempty,omitempty"`
 	// The fulfillment order on which a fulfillment hold was applied.
 	FulfillmentOrder *FulfillmentOrder `json:"fulfillmentOrder,omitempty,omitempty"`
 	// The remaining fulfillment order containing the line items to which the hold wasn't applied,
@@ -12768,17 +14311,17 @@ func (this FulfillmentOrderLineItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple FulfillmentOrderLineItems.
 type FulfillmentOrderLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentOrderLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentOrderLineItemEdge.
+	// A list of nodes that are contained in FulfillmentOrderLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []FulfillmentOrderLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one FulfillmentOrderLineItem and a cursor during pagination.
 type FulfillmentOrderLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentOrderLineItemEdge.
 	Node *FulfillmentOrderLineItem `json:"node,omitempty"`
@@ -12885,17 +14428,17 @@ type FulfillmentOrderLocationForMove struct {
 
 // An auto-generated type for paginating through multiple FulfillmentOrderLocationForMoves.
 type FulfillmentOrderLocationForMoveConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentOrderLocationForMoveEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentOrderLocationForMoveEdge.
+	// A list of nodes that are contained in FulfillmentOrderLocationForMoveEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []FulfillmentOrderLocationForMove `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one FulfillmentOrderLocationForMove and a cursor during pagination.
 type FulfillmentOrderLocationForMoveEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentOrderLocationForMoveEdge.
 	Node *FulfillmentOrderLocationForMove `json:"node,omitempty"`
@@ -12915,7 +14458,7 @@ type FulfillmentOrderMerchantRequest struct {
 	// Additional options requested by the merchant. These depend on the `kind` of the request.
 	// For example, for a `FULFILLMENT_REQUEST`, one option is `notify_customer`, which indicates whether the
 	// merchant intends to notify the customer upon fulfillment. The fulfillment service can then set
-	// `notifyCustomer` when making calls to `FulfillmentCreateV2`.
+	// `notifyCustomer` when making calls to `FulfillmentCreate`.
 	RequestOptions *string `json:"requestOptions,omitempty,omitempty"`
 	// The response from the fulfillment service.
 	ResponseData *string `json:"responseData,omitempty,omitempty"`
@@ -12930,17 +14473,17 @@ func (this FulfillmentOrderMerchantRequest) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple FulfillmentOrderMerchantRequests.
 type FulfillmentOrderMerchantRequestConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []FulfillmentOrderMerchantRequestEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in FulfillmentOrderMerchantRequestEdge.
+	// A list of nodes that are contained in FulfillmentOrderMerchantRequestEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []FulfillmentOrderMerchantRequest `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one FulfillmentOrderMerchantRequest and a cursor during pagination.
 type FulfillmentOrderMerchantRequestEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of FulfillmentOrderMerchantRequestEdge.
 	Node *FulfillmentOrderMerchantRequest `json:"node,omitempty"`
@@ -13203,41 +14746,6 @@ type FulfillmentOrderSupportedAction struct {
 	ExternalURL *string `json:"externalUrl,omitempty,omitempty"`
 }
 
-// Return type for `fulfillmentOrdersReleaseHolds` mutation.
-type FulfillmentOrdersReleaseHoldsPayload struct {
-	// The asynchronous job that will release the fulfillment holds.
-	Job *Job `json:"job,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []FulfillmentOrdersReleaseHoldsUserError `json:"userErrors,omitempty"`
-}
-
-// An error that occurs during the execution of `FulfillmentOrdersReleaseHolds`.
-type FulfillmentOrdersReleaseHoldsUserError struct {
-	// The error code.
-	Code *FulfillmentOrdersReleaseHoldsUserErrorCode `json:"code,omitempty,omitempty"`
-	// The path to the input field that caused the error.
-	Field []string `json:"field,omitempty,omitempty"`
-	// The error message.
-	Message string `json:"message"`
-}
-
-func (FulfillmentOrdersReleaseHoldsUserError) IsDisplayableError() {}
-
-// The path to the input field that caused the error.
-func (this FulfillmentOrdersReleaseHoldsUserError) GetField() []string {
-	if this.Field == nil {
-		return nil
-	}
-	interfaceSlice := make([]string, 0, len(this.Field))
-	for _, concrete := range this.Field {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-// The error message.
-func (this FulfillmentOrdersReleaseHoldsUserError) GetMessage() string { return this.Message }
-
 // Return type for `fulfillmentOrdersSetFulfillmentDeadline` mutation.
 type FulfillmentOrdersSetFulfillmentDeadlinePayload struct {
 	// Whether the fulfillment deadline was successfully set.
@@ -13332,13 +14840,7 @@ type FulfillmentOriginAddressInput struct {
 // mutation.
 //
 //   - Shopify sends POST requests to the `<callbackUrl>/fulfillment_order_notification` endpoint
-//     to notify the fulfillment service about fulfillment requests and fulfillment cancellation requests,
-//     if `fulfillment_orders_opt_in` is set to `true`.
-//
-//     [As of the 2022-07 API version](https://shopify.dev/changelog/legacy-fulfillment-api-deprecation),
-//     it's mandatory for a fulfillment service to follow a fulfillment order based workflow by
-//     having `fulfillment_orders_opt_in` set to `true`,
-//     hosting the `<callbackUrl>/fulfillment_order_notification` endpoint, and acting on fulfillment requests and cancellations.
+//     to notify the fulfillment service about fulfillment requests and fulfillment cancellation requests.
 //
 //     For more information, refer to
 //     [Receive fulfillment requests and cancellations](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#step-2-receive-fulfillment-requests-and-cancellations).
@@ -13350,7 +14852,7 @@ type FulfillmentOriginAddressInput struct {
 //     [Enable tracking support](https://shopify.dev/apps/fulfillment/fulfillment-service-apps/manage-fulfillments#step-8-enable-tracking-support-optional).
 //
 //     Fulfillment services can also update tracking information with the
-//     [fulfillmentTrackingInfoUpdateV2](https://shopify.dev/api/admin-graphql/latest/mutations/fulfillmentTrackingInfoUpdateV2) mutation,
+//     [fulfillmentTrackingInfoUpdate](https://shopify.dev/api/admin-graphql/unstable/mutations/fulfillmentTrackingInfoUpdate) mutation,
 //     rather than waiting for Shopify to ask for tracking numbers.
 //
 //   - Shopify sends GET requests to the `<callbackUrl>/fetch_stock` endpoint to retrieve inventory levels,
@@ -13405,8 +14907,6 @@ type FulfillmentService struct {
 	PermitsSkuSharing bool `json:"permitsSkuSharing"`
 	// The name of the fulfillment service as seen by merchants.
 	ServiceName string `json:"serviceName"`
-	// Shipping methods associated with the fulfillment service provider. Applies only to Fulfill By Amazon fulfillment service.
-	ShippingMethods []ShippingMethod `json:"shippingMethods,omitempty"`
 	// Whether the fulfillment service implemented the /fetch_tracking_numbers endpoint.
 	TrackingSupport bool `json:"trackingSupport"`
 	// Type associated with the fulfillment service.
@@ -13455,8 +14955,8 @@ type FulfillmentTrackingInfo struct {
 	//
 	//   * 4PX
 	//   * AGS
+	//   * Amazon
 	//   * Amazon Logistics UK
-	//   * Amazon Logistics US
 	//   * An Post
 	//   * Anjun Logistics
 	//   * APC
@@ -13608,6 +15108,14 @@ type FulfillmentTrackingInfo struct {
 	// The tracking URL is displayed in the shipping confirmation email, which can optionally be sent to the customer.
 	// When accounts are enabled, it's also displayed in the customer's order history.
 	URL *string `json:"url,omitempty,omitempty"`
+}
+
+// Return type for `fulfillmentTrackingInfoUpdate` mutation.
+type FulfillmentTrackingInfoUpdatePayload struct {
+	// The updated fulfillment with tracking information.
+	Fulfillment *Fulfillment `json:"fulfillment,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
 // Return type for `fulfillmentTrackingInfoUpdateV2` mutation.
@@ -13821,8 +15329,8 @@ type GiftCard struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// The customer who will receive the gift card.
 	Customer *Customer `json:"customer,omitempty,omitempty"`
-	// The date and time at which the gift card was disabled.
-	DisabledAt *time.Time `json:"disabledAt,omitempty,omitempty"`
+	// The date and time at which the gift card was deactivated.
+	DeactivatedAt *time.Time `json:"deactivatedAt,omitempty,omitempty"`
 	// Whether the gift card is enabled.
 	Enabled bool `json:"enabled"`
 	// The date at which the gift card will expire.
@@ -13839,6 +15347,14 @@ type GiftCard struct {
 	Note *string `json:"note,omitempty,omitempty"`
 	// The order associated with the gift card. This value is `null` if the gift card was issued manually.
 	Order *Order `json:"order,omitempty,omitempty"`
+	// The recipient who will receive the gift card.
+	RecipientAttributes *GiftCardRecipient `json:"recipientAttributes,omitempty,omitempty"`
+	// The theme template used to render the gift card online.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The transaction history of the gift card.
+	Transactions *GiftCardTransactionConnection `json:"transactions,omitempty,omitempty"`
+	// The date and time at which the gift card was updated.
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (GiftCard) IsNode() {}
@@ -13848,11 +15364,11 @@ func (this GiftCard) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple GiftCards.
 type GiftCardConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []GiftCardEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in GiftCardEdge.
+	// A list of nodes that are contained in GiftCardEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []GiftCard `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -13869,6 +15385,8 @@ type GiftCardCreateInput struct {
 	ExpiresOn *string `json:"expiresOn,omitempty,omitempty"`
 	// The note associated with the gift card, which isn't visible to the customer.
 	Note *string `json:"note,omitempty,omitempty"`
+	// The recipient attributes of the gift card.
+	RecipientAttributes *GiftCardRecipientInput `json:"recipientAttributes,omitempty,omitempty"`
 	// The suffix of the Liquid template that's used to render the gift card online.
 	// For example, if the value is `birthday`, then the gift card is rendered using the template `gift_card.birthday.liquid`.
 	// If not provided, then the default `gift_card.liquid` template is used.
@@ -13885,20 +15403,263 @@ type GiftCardCreatePayload struct {
 	UserErrors []GiftCardUserError `json:"userErrors,omitempty"`
 }
 
-// Return type for `giftCardDisable` mutation.
-type GiftCardDisablePayload struct {
-	// The disabled gift card.
+// The input fields for a gift card credit transaction.
+type GiftCardCreditInput struct {
+	// The amount to credit the gift card.
+	CreditAmount *MoneyInput `json:"creditAmount,omitempty"`
+	// A note about the credit.
+	Note *string `json:"note,omitempty,omitempty"`
+	// The date and time the credit was processed. Defaults to current date and time.
+	ProcessedAt *time.Time `json:"processedAt,omitempty,omitempty"`
+}
+
+// Return type for `giftCardCredit` mutation.
+type GiftCardCreditPayload struct {
+	// The gift card credit transaction that was created.
+	GiftCardCreditTransaction *GiftCardCreditTransaction `json:"giftCardCreditTransaction,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []GiftCardTransactionUserError `json:"userErrors,omitempty"`
+}
+
+// A credit transaction which increases the gift card balance.
+type GiftCardCreditTransaction struct {
+	// The amount of the transaction.
+	Amount *MoneyV2 `json:"amount,omitempty"`
+	// The gift card that the transaction belongs to.
+	GiftCard *GiftCard `json:"giftCard,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
+	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
+	Metafields *MetafieldConnection `json:"metafields,omitempty"`
+	// A note about the transaction.
+	Note *string `json:"note,omitempty,omitempty"`
+	// Returns a private metafield by namespace and key that belongs to the resource.
+	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
+	// List of private metafields that belong to the resource.
+	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
+	// The date and time when the transaction was processed.
+	ProcessedAt time.Time `json:"processedAt"`
+}
+
+func (GiftCardCreditTransaction) IsGiftCardTransaction() {}
+
+// The amount of the transaction.
+func (this GiftCardCreditTransaction) GetAmount() *MoneyV2 { return this.Amount }
+
+// The gift card that the transaction belongs to.
+func (this GiftCardCreditTransaction) GetGiftCard() *GiftCard { return this.GiftCard }
+
+// The unique ID for the transaction.
+func (this GiftCardCreditTransaction) GetID() string { return this.ID }
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+func (this GiftCardCreditTransaction) GetMetafield() *Metafield { return this.Metafield }
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+func (this GiftCardCreditTransaction) GetMetafields() *MetafieldConnection { return this.Metafields }
+
+// A note about the transaction.
+func (this GiftCardCreditTransaction) GetNote() *string { return this.Note }
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+func (this GiftCardCreditTransaction) GetPrivateMetafield() *PrivateMetafield {
+	return this.PrivateMetafield
+}
+
+// List of private metafields that belong to the resource.
+func (this GiftCardCreditTransaction) GetPrivateMetafields() *PrivateMetafieldConnection {
+	return this.PrivateMetafields
+}
+
+// The date and time when the transaction was processed.
+func (this GiftCardCreditTransaction) GetProcessedAt() time.Time { return this.ProcessedAt }
+
+func (GiftCardCreditTransaction) IsHasMetafields() {}
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+
+// List of private metafields that belong to the resource.
+
+func (GiftCardCreditTransaction) IsNode() {}
+
+// A globally-unique ID.
+
+// Return type for `giftCardDeactivate` mutation.
+type GiftCardDeactivatePayload struct {
+	// The deactivated gift card.
 	GiftCard *GiftCard `json:"giftCard,omitempty,omitempty"`
 	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
+	UserErrors []GiftCardDeactivateUserError `json:"userErrors,omitempty"`
 }
+
+// An error that occurs during the execution of `GiftCardDeactivate`.
+type GiftCardDeactivateUserError struct {
+	// The error code.
+	Code *GiftCardDeactivateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (GiftCardDeactivateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this GiftCardDeactivateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this GiftCardDeactivateUserError) GetMessage() string { return this.Message }
+
+// The input fields for a gift card debit transaction.
+type GiftCardDebitInput struct {
+	// The amount to debit the gift card.
+	DebitAmount *MoneyInput `json:"debitAmount,omitempty"`
+	// A note about the debit.
+	Note *string `json:"note,omitempty,omitempty"`
+	// The date and time the debit was processed. Defaults to current date and time.
+	ProcessedAt *time.Time `json:"processedAt,omitempty,omitempty"`
+}
+
+// Return type for `giftCardDebit` mutation.
+type GiftCardDebitPayload struct {
+	// The gift card debit transaction that was created.
+	GiftCardDebitTransaction *GiftCardDebitTransaction `json:"giftCardDebitTransaction,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []GiftCardTransactionUserError `json:"userErrors,omitempty"`
+}
+
+// A debit transaction which decreases the gift card balance.
+type GiftCardDebitTransaction struct {
+	// The amount of the transaction.
+	Amount *MoneyV2 `json:"amount,omitempty"`
+	// The gift card that the transaction belongs to.
+	GiftCard *GiftCard `json:"giftCard,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
+	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
+	Metafields *MetafieldConnection `json:"metafields,omitempty"`
+	// A note about the transaction.
+	Note *string `json:"note,omitempty,omitempty"`
+	// Returns a private metafield by namespace and key that belongs to the resource.
+	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
+	// List of private metafields that belong to the resource.
+	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
+	// The date and time when the transaction was processed.
+	ProcessedAt time.Time `json:"processedAt"`
+}
+
+func (GiftCardDebitTransaction) IsGiftCardTransaction() {}
+
+// The amount of the transaction.
+func (this GiftCardDebitTransaction) GetAmount() *MoneyV2 { return this.Amount }
+
+// The gift card that the transaction belongs to.
+func (this GiftCardDebitTransaction) GetGiftCard() *GiftCard { return this.GiftCard }
+
+// The unique ID for the transaction.
+func (this GiftCardDebitTransaction) GetID() string { return this.ID }
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+func (this GiftCardDebitTransaction) GetMetafield() *Metafield { return this.Metafield }
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+func (this GiftCardDebitTransaction) GetMetafields() *MetafieldConnection { return this.Metafields }
+
+// A note about the transaction.
+func (this GiftCardDebitTransaction) GetNote() *string { return this.Note }
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+func (this GiftCardDebitTransaction) GetPrivateMetafield() *PrivateMetafield {
+	return this.PrivateMetafield
+}
+
+// List of private metafields that belong to the resource.
+func (this GiftCardDebitTransaction) GetPrivateMetafields() *PrivateMetafieldConnection {
+	return this.PrivateMetafields
+}
+
+// The date and time when the transaction was processed.
+func (this GiftCardDebitTransaction) GetProcessedAt() time.Time { return this.ProcessedAt }
+
+func (GiftCardDebitTransaction) IsHasMetafields() {}
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+
+// List of private metafields that belong to the resource.
+
+func (GiftCardDebitTransaction) IsNode() {}
+
+// A globally-unique ID.
 
 // An auto-generated type which holds one GiftCard and a cursor during pagination.
 type GiftCardEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of GiftCardEdge.
 	Node *GiftCard `json:"node,omitempty"`
+}
+
+// Represents a recipient who will receive the issued gift card.
+type GiftCardRecipient struct {
+	// The message sent with the gift card.
+	Message *string `json:"message,omitempty,omitempty"`
+	// The preferred name of the recipient who will receive the gift card.
+	PreferredName *string `json:"preferredName,omitempty,omitempty"`
+	// The recipient who will receive the gift card.
+	Recipient *Customer `json:"recipient,omitempty"`
+	// The scheduled datetime on which the gift card will be sent to the recipient. The gift card will be sent within an hour of the specified datetime.
+	SendNotificationAt *time.Time `json:"sendNotificationAt,omitempty,omitempty"`
+}
+
+// The input fields to add a recipient to a gift card.
+type GiftCardRecipientInput struct {
+	// The ID of the customer who will be the recipient of the gift card. Requires `write_customers` access_scope.
+	ID string `json:"id"`
+	// The preferred name of the recipient.
+	PreferredName *string `json:"preferredName,omitempty,omitempty"`
+	// The personalized message intended for the recipient.
+	Message *string `json:"message,omitempty,omitempty"`
+	// The scheduled datetime on which the gift card will be sent to the recipient. The gift card will be sent within an hour of the specified datetime.
+	SendNotificationAt *time.Time `json:"sendNotificationAt,omitempty,omitempty"`
 }
 
 // A sale associated with a gift card.
@@ -13967,6 +15728,121 @@ func (this GiftCardSale) GetTotalDiscountAmountBeforeTaxes() *MoneyBag {
 // The total amount of taxes for the sale.
 func (this GiftCardSale) GetTotalTaxAmount() *MoneyBag { return this.TotalTaxAmount }
 
+// Return type for `giftCardSendNotificationToCustomer` mutation.
+type GiftCardSendNotificationToCustomerPayload struct {
+	// The gift card that was sent.
+	GiftCard *GiftCard `json:"giftCard,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []GiftCardSendNotificationToCustomerUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `GiftCardSendNotificationToCustomer`.
+type GiftCardSendNotificationToCustomerUserError struct {
+	// The error code.
+	Code *GiftCardSendNotificationToCustomerUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (GiftCardSendNotificationToCustomerUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this GiftCardSendNotificationToCustomerUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this GiftCardSendNotificationToCustomerUserError) GetMessage() string { return this.Message }
+
+// Return type for `giftCardSendNotificationToRecipient` mutation.
+type GiftCardSendNotificationToRecipientPayload struct {
+	// The gift card that was sent.
+	GiftCard *GiftCard `json:"giftCard,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []GiftCardSendNotificationToRecipientUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `GiftCardSendNotificationToRecipient`.
+type GiftCardSendNotificationToRecipientUserError struct {
+	// The error code.
+	Code *GiftCardSendNotificationToRecipientUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (GiftCardSendNotificationToRecipientUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this GiftCardSendNotificationToRecipientUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this GiftCardSendNotificationToRecipientUserError) GetMessage() string { return this.Message }
+
+// An auto-generated type for paginating through multiple GiftCardTransactions.
+type GiftCardTransactionConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []GiftCardTransactionEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in GiftCardTransactionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []GiftCardTransaction `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one GiftCardTransaction and a cursor during pagination.
+type GiftCardTransactionEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of GiftCardTransactionEdge.
+	Node GiftCardTransaction `json:"node"`
+}
+
+// Represents an error that happens during the execution of a gift card transaction mutation.
+type GiftCardTransactionUserError struct {
+	// The error code.
+	Code *GiftCardTransactionUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (GiftCardTransactionUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this GiftCardTransactionUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this GiftCardTransactionUserError) GetMessage() string { return this.Message }
+
 // The input fields to update a gift card.
 type GiftCardUpdateInput struct {
 	// The note associated with the gift card, which isn't visible to the customer.
@@ -13975,6 +15851,8 @@ type GiftCardUpdateInput struct {
 	ExpiresOn *string `json:"expiresOn,omitempty,omitempty"`
 	// The ID of the customer who will receive the gift card. The ID can't be changed if the gift card already has an assigned customer ID.
 	CustomerID *string `json:"customerId,omitempty,omitempty"`
+	// The recipient attributes of the gift card.
+	RecipientAttributes *GiftCardRecipientInput `json:"recipientAttributes,omitempty,omitempty"`
 	// The suffix of the Liquid template that's used to render the gift card online.
 	// For example, if the value is `birthday`, then the gift card is rendered using the template `gift_card.birthday.liquid`.
 	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
@@ -14023,9 +15901,12 @@ type Image struct {
 	Height *int `json:"height,omitempty,omitempty"`
 	// A unique ID for the image.
 	ID *string `json:"id,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The location of the original image as a URL.
 	//
@@ -14056,10 +15937,13 @@ type Image struct {
 
 func (Image) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Image) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Image) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -14070,17 +15954,17 @@ func (this Image) GetPrivateMetafields() *PrivateMetafieldConnection { return th
 
 // An auto-generated type for paginating through multiple Images.
 type ImageConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ImageEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ImageEdge.
+	// A list of nodes that are contained in ImageEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Image `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one Image and a cursor during pagination.
 type ImageEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ImageEdge.
 	Node *Image `json:"node,omitempty"`
@@ -14367,17 +16251,17 @@ func (this InventoryItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple InventoryItems.
 type InventoryItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []InventoryItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in InventoryItemEdge.
+	// A list of nodes that are contained in InventoryItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []InventoryItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one InventoryItem and a cursor during pagination.
 type InventoryItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of InventoryItemEdge.
 	Node *InventoryItem `json:"node,omitempty"`
@@ -14461,17 +16345,17 @@ func (this InventoryLevel) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple InventoryLevels.
 type InventoryLevelConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []InventoryLevelEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in InventoryLevelEdge.
+	// A list of nodes that are contained in InventoryLevelEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []InventoryLevel `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one InventoryLevel and a cursor during pagination.
 type InventoryLevelEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of InventoryLevelEdge.
 	Node *InventoryLevel `json:"node,omitempty"`
@@ -14637,17 +16521,17 @@ type InventoryScheduledChange struct {
 
 // An auto-generated type for paginating through multiple InventoryScheduledChanges.
 type InventoryScheduledChangeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []InventoryScheduledChangeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in InventoryScheduledChangeEdge.
+	// A list of nodes that are contained in InventoryScheduledChangeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []InventoryScheduledChange `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one InventoryScheduledChange and a cursor during pagination.
 type InventoryScheduledChangeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of InventoryScheduledChangeEdge.
 	Node *InventoryScheduledChange `json:"node,omitempty"`
@@ -14977,17 +16861,17 @@ func (this LineItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple LineItems.
 type LineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []LineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in LineItemEdge.
+	// A list of nodes that are contained in LineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []LineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one LineItem and a cursor during pagination.
 type LineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of LineItemEdge.
 	Node *LineItem `json:"node,omitempty"`
@@ -15014,116 +16898,6 @@ func (LineItemGroup) IsNode() {}
 // A globally-unique ID.
 func (this LineItemGroup) GetID() string { return this.ID }
 
-// Represents a single line item on an order.
-type LineItemMutable struct {
-	// Whether the line item can be restocked.
-	CanRestock bool `json:"canRestock"`
-	// A list of attributes that represent custom features or special requests.
-	CustomAttributes []Attribute `json:"customAttributes,omitempty"`
-	// The discounts that have been allocated onto the line item by discount applications.
-	DiscountAllocations []DiscountAllocation `json:"discountAllocations,omitempty"`
-	// The total line price after discounts are applied, in shop currency.
-	DiscountedTotal decimal.Decimal `json:"discountedTotal"`
-	// The total line price after discounts are applied, in shop and presentment currencies.
-	DiscountedTotalSet *MoneyBag `json:"discountedTotalSet,omitempty"`
-	// The approximate split price of a line item unit, in shop currency. This value doesn't include discounts applied to the entire order.
-	DiscountedUnitPrice decimal.Decimal `json:"discountedUnitPrice"`
-	// The approximate split price of a line item unit, in shop and presentment currencies. This value doesn't include discounts applied to the entire order.
-	DiscountedUnitPriceSet *MoneyBag `json:"discountedUnitPriceSet,omitempty"`
-	// The total number of units to fulfill.
-	FulfillableQuantity int `json:"fulfillableQuantity"`
-	// The service provider that fulfills the line item.
-	//
-	// Deleted fulfillment services will return null.
-	FulfillmentService *FulfillmentService `json:"fulfillmentService,omitempty,omitempty"`
-	// The line item's fulfillment status. Returns 'fulfilled' if fulfillableQuantity >= quantity,
-	// 'partial' if  fulfillableQuantity > 0, and 'unfulfilled' otherwise.
-	FulfillmentStatus string `json:"fulfillmentStatus"`
-	// A globally-unique ID.
-	ID string `json:"id"`
-	// The image associated to the line item's variant.
-	Image *Image `json:"image,omitempty,omitempty"`
-	// Whether the line item represents the purchase of a gift card.
-	IsGiftCard bool `json:"isGiftCard"`
-	// Whether the line item can be edited or not.
-	MerchantEditable bool `json:"merchantEditable"`
-	// The name of the product.
-	Name string `json:"name"`
-	// The total number of units that can't be fulfilled. For example, if items have been refunded, or the item isn't something that can be fulfilled, like a tip.
-	NonFulfillableQuantity int `json:"nonFulfillableQuantity"`
-	// The total price without any discounts applied, in shop currency. ""This value is based on the unit price of the variant x quantity.
-	OriginalTotal decimal.Decimal `json:"originalTotal"`
-	// The total price in shop and presentment currencies, without discounts applied. This value is based on the unit price of the variant x quantity.
-	OriginalTotalSet *MoneyBag `json:"originalTotalSet,omitempty"`
-	// The variant unit price without discounts applied, in shop currency.
-	OriginalUnitPrice decimal.Decimal `json:"originalUnitPrice"`
-	// The variant unit price without discounts applied, in shop and presentment currencies.
-	OriginalUnitPriceSet *MoneyBag `json:"originalUnitPriceSet,omitempty"`
-	// The Product object associated with this line item's variant.
-	Product *Product `json:"product,omitempty,omitempty"`
-	// The number of variant units ordered.
-	Quantity int `json:"quantity"`
-	// The line item's quantity, minus the refunded quantity.
-	RefundableQuantity int `json:"refundableQuantity"`
-	// Whether physical shipping is required for the variant.
-	RequiresShipping bool `json:"requiresShipping"`
-	// Whether the line item can be restocked.
-	Restockable bool `json:"restockable"`
-	// The variant SKU number.
-	Sku *string `json:"sku,omitempty,omitempty"`
-	// Staff attributed to the line item.
-	StaffMember *StaffMember `json:"staffMember,omitempty,omitempty"`
-	// The TaxLine object connected to this line item.
-	TaxLines []TaxLine `json:"taxLines,omitempty"`
-	// Whether the variant is taxable.
-	Taxable bool `json:"taxable"`
-	// The title of the product.
-	Title string `json:"title"`
-	// The total amount of the discount allocated to the line item in the shop currency. This field must be explicitly set using draft orders, Shopify scripts, or the API. Instead of using this field, Shopify recommends using `discountAllocations`, which provides the same information.
-	TotalDiscount decimal.Decimal `json:"totalDiscount"`
-	// The total amount of the discount allocated to the line item in the presentment currency. This field must be explicitly set using draft orders, Shopify scripts, or the API. Instead of using this field, Shopify recommends using `discountAllocations`, which provides the same information.
-	TotalDiscountSet *MoneyBag `json:"totalDiscountSet,omitempty"`
-	// The total discounted value of unfulfilled units, in shop currency.
-	UnfulfilledDiscountedTotal decimal.Decimal `json:"unfulfilledDiscountedTotal"`
-	// The total discounted value of unfulfilled units, in shop and presentment currencies.
-	UnfulfilledDiscountedTotalSet *MoneyBag `json:"unfulfilledDiscountedTotalSet,omitempty"`
-	// The total price without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop currency.
-	UnfulfilledOriginalTotal decimal.Decimal `json:"unfulfilledOriginalTotal"`
-	// The total price without any discounts applied. This value is based on the unit price of the variant x quantity of all unfulfilled units, in shop and presentment currencies.
-	UnfulfilledOriginalTotalSet *MoneyBag `json:"unfulfilledOriginalTotalSet,omitempty"`
-	// The number of units not yet fulfilled.
-	UnfulfilledQuantity int `json:"unfulfilledQuantity"`
-	// The Variant object associated with this line item.
-	Variant *ProductVariant `json:"variant,omitempty,omitempty"`
-	// The name of the variant.
-	VariantTitle *string `json:"variantTitle,omitempty,omitempty"`
-	// The name of the vendor who made the variant.
-	Vendor *string `json:"vendor,omitempty,omitempty"`
-}
-
-func (LineItemMutable) IsNode() {}
-
-// A globally-unique ID.
-func (this LineItemMutable) GetID() string { return this.ID }
-
-// An auto-generated type for paginating through multiple LineItemMutables.
-type LineItemMutableConnection struct {
-	// A list of edges.
-	Edges []LineItemMutableEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in LineItemMutableEdge.
-	Nodes []LineItemMutable `json:"nodes,omitempty"`
-	// Information to aid in pagination.
-	PageInfo *PageInfo `json:"pageInfo,omitempty"`
-}
-
-// An auto-generated type which holds one LineItemMutable and a cursor during pagination.
-type LineItemMutableEdge struct {
-	// A cursor for use in pagination.
-	Cursor string `json:"cursor"`
-	// The item at the end of LineItemMutableEdge.
-	Node *LineItemMutable `json:"node,omitempty"`
-}
-
 // Represents the selling plan for a line item.
 type LineItemSellingPlan struct {
 	// The name of the selling plan for display purposes.
@@ -15136,7 +16910,7 @@ type LineItemSellingPlan struct {
 type Link struct {
 	// A context-sensitive label for the link.
 	Label string `json:"label"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 	// The URL that the link visits.
 	URL string `json:"url"`
@@ -15144,7 +16918,7 @@ type Link struct {
 
 func (Link) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this Link) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -15196,6 +16970,23 @@ type LinkedMetafieldUpdateInput struct {
 	Key string `json:"key"`
 }
 
+// Local payment methods payment details related to a transaction.
+type LocalPaymentMethodsPaymentDetails struct {
+	// The descriptor by the payment provider. Only available for Amazon Pay and Buy with Prime.
+	PaymentDescriptor *string `json:"paymentDescriptor,omitempty,omitempty"`
+	// The name of payment method used by the buyer.
+	PaymentMethodName *string `json:"paymentMethodName,omitempty,omitempty"`
+}
+
+func (LocalPaymentMethodsPaymentDetails) IsBasePaymentDetails() {}
+
+// The name of payment method used by the buyer.
+func (this LocalPaymentMethodsPaymentDetails) GetPaymentMethodName() *string {
+	return this.PaymentMethodName
+}
+
+func (LocalPaymentMethodsPaymentDetails) IsPaymentDetails() {}
+
 // A locale.
 type Locale struct {
 	// Locale ISO code.
@@ -15220,17 +17011,17 @@ type LocalizationExtension struct {
 
 // An auto-generated type for paginating through multiple LocalizationExtensions.
 type LocalizationExtensionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []LocalizationExtensionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in LocalizationExtensionEdge.
+	// A list of nodes that are contained in LocalizationExtensionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []LocalizationExtension `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one LocalizationExtension and a cursor during pagination.
 type LocalizationExtensionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of LocalizationExtensionEdge.
 	Node *LocalizationExtension `json:"node,omitempty"`
@@ -15244,9 +17035,13 @@ type LocalizationExtensionInput struct {
 	Value string `json:"value"`
 }
 
-// Represents the location where the physical good resides.
+// Represents the location where the physical good resides. You can stock inventory at active locations. Active
+// locations that have `fulfills_online_orders: true` and are configured with a shipping rate, pickup enabled or
+// local delivery will be able to sell from their storefront.
 type Location struct {
-	// Whether this location can be reactivated.
+	// Whether the location can be reactivated. If `false`, then trying to activate the location with the
+	// [`LocationActivate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/locationActivate)
+	// mutation will return an error that describes why the location can't be activated.
 	Activatable bool `json:"activatable"`
 	// The address of this location.
 	Address *LocationAddress `json:"address,omitempty"`
@@ -15254,7 +17049,10 @@ type Location struct {
 	AddressVerified bool `json:"addressVerified"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) that the location was added to a shop.
 	CreatedAt time.Time `json:"createdAt"`
-	// Whether this location can be deactivated.
+	// Whether this location can be deactivated. If `true`, then the location can be deactivated by calling the
+	// [`LocationDeactivate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/locationDeactivate)
+	// mutation. If `false`, then calling the mutation to deactivate it will return an error that describes why the
+	// location can't be deactivated.
 	Deactivatable bool `json:"deactivatable"`
 	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) that the location was deactivated at. For example, 3:30 pm on September 7, 2019 in the time zone of UTC (Universal Time Coordinated) is represented as `"2019-09-07T15:50:00Z`".
 	DeactivatedAt *string `json:"deactivatedAt,omitempty,omitempty"`
@@ -15274,7 +17072,10 @@ type Location struct {
 	InventoryLevel *InventoryLevel `json:"inventoryLevel,omitempty,omitempty"`
 	// A list of the quantities of the inventory items that can be stocked at this location.
 	InventoryLevels *InventoryLevelConnection `json:"inventoryLevels,omitempty"`
-	// Whether the location is active.
+	// Whether the location is active. A deactivated location can be activated (change `isActive: true`) if it has
+	// `activatable` set to `true` by calling the
+	// [`locationActivate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/locationActivate)
+	// mutation.
 	IsActive bool `json:"isActive"`
 	// Whether this location is a fulfillment service.
 	IsFulfillmentService bool `json:"isFulfillmentService"`
@@ -15284,11 +17085,14 @@ type Location struct {
 	LegacyResourceID string `json:"legacyResourceId"`
 	// Local pickup settings for the location.
 	LocalPickupSettingsV2 *DeliveryLocalPickupSettings `json:"localPickupSettingsV2,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The name of the location.
 	Name string `json:"name"`
@@ -15313,10 +17117,13 @@ func (this Location) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
 
 func (Location) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Location) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Location) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -15470,11 +17277,11 @@ type LocationAddress struct {
 
 // An auto-generated type for paginating through multiple Locations.
 type LocationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []LocationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in LocationEdge.
+	// A list of nodes that are contained in LocationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Location `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -15550,7 +17357,7 @@ func (this LocationDeleteUserError) GetMessage() string { return this.Message }
 
 // An auto-generated type which holds one Location and a cursor during pagination.
 type LocationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of LocationEdge.
 	Node *Location `json:"node,omitempty"`
@@ -15725,17 +17532,17 @@ func (this MailingAddress) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple MailingAddresses.
 type MailingAddressConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MailingAddressEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MailingAddressEdge.
+	// A list of nodes that are contained in MailingAddressEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MailingAddress `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MailingAddress and a cursor during pagination.
 type MailingAddressEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MailingAddressEdge.
 	Node *MailingAddress `json:"node,omitempty"`
@@ -15833,11 +17640,14 @@ type Market struct {
 	Handle string `json:"handle"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The name of the market. Not shown to customers.
 	Name string `json:"name"`
@@ -15879,10 +17689,13 @@ func (this Market) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
 
 func (Market) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Market) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Market) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -15951,17 +17764,17 @@ func (MarketCatalog) IsNode() {}
 
 // An auto-generated type for paginating through multiple MarketCatalogs.
 type MarketCatalogConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketCatalogEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketCatalogEdge.
+	// A list of nodes that are contained in MarketCatalogEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MarketCatalog `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MarketCatalog and a cursor during pagination.
 type MarketCatalogEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketCatalogEdge.
 	Node *MarketCatalog `json:"node,omitempty"`
@@ -15969,11 +17782,11 @@ type MarketCatalogEdge struct {
 
 // An auto-generated type for paginating through multiple Markets.
 type MarketConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketEdge.
+	// A list of nodes that are contained in MarketEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Market `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -16075,7 +17888,7 @@ type MarketDeletePayload struct {
 
 // An auto-generated type which holds one Market and a cursor during pagination.
 type MarketEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketEdge.
 	Node *Market `json:"node,omitempty"`
@@ -16103,17 +17916,17 @@ type MarketLocalizableResource struct {
 
 // An auto-generated type for paginating through multiple MarketLocalizableResources.
 type MarketLocalizableResourceConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketLocalizableResourceEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketLocalizableResourceEdge.
+	// A list of nodes that are contained in MarketLocalizableResourceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MarketLocalizableResource `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MarketLocalizableResource and a cursor during pagination.
 type MarketLocalizableResourceEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketLocalizableResourceEdge.
 	Node *MarketLocalizableResource `json:"node,omitempty"`
@@ -16163,11 +17976,11 @@ type MarketLocalizationsRemovePayload struct {
 
 // An auto-generated type for paginating through multiple MarketRegions.
 type MarketRegionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketRegionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketRegionEdge.
+	// A list of nodes that are contained in MarketRegionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MarketRegion `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -16213,7 +18026,7 @@ type MarketRegionDeletePayload struct {
 
 // An auto-generated type which holds one MarketRegion and a cursor during pagination.
 type MarketRegionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketRegionEdge.
 	Node MarketRegion `json:"node"`
@@ -16323,11 +18136,11 @@ func (this MarketWebPresence) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple MarketWebPresences.
 type MarketWebPresenceConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketWebPresenceEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketWebPresenceEdge.
+	// A list of nodes that are contained in MarketWebPresenceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MarketWebPresence `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -16365,7 +18178,7 @@ type MarketWebPresenceDeletePayload struct {
 
 // An auto-generated type which holds one MarketWebPresence and a cursor during pagination.
 type MarketWebPresenceEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketWebPresenceEdge.
 	Node *MarketWebPresence `json:"node,omitempty"`
@@ -16491,11 +18304,11 @@ type MarketingActivityBudgetInput struct {
 
 // An auto-generated type for paginating through multiple MarketingActivities.
 type MarketingActivityConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketingActivityEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketingActivityEdge.
+	// A list of nodes that are contained in MarketingActivityEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MarketingActivity `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -16594,7 +18407,7 @@ type MarketingActivityDeleteExternalPayload struct {
 
 // An auto-generated type which holds one MarketingActivity and a cursor during pagination.
 type MarketingActivityEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketingActivityEdge.
 	Node *MarketingActivity `json:"node,omitempty"`
@@ -16946,17 +18759,17 @@ func (this MarketingEvent) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple MarketingEvents.
 type MarketingEventConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MarketingEventEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MarketingEventEdge.
+	// A list of nodes that are contained in MarketingEventEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MarketingEvent `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MarketingEvent and a cursor during pagination.
 type MarketingEventEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MarketingEventEdge.
 	Node *MarketingEvent `json:"node,omitempty"`
@@ -16964,17 +18777,17 @@ type MarketingEventEdge struct {
 
 // An auto-generated type for paginating through multiple Media.
 type MediaConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MediaEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MediaEdge.
+	// A list of nodes that are contained in MediaEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Media `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one Media and a cursor during pagination.
 type MediaEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MediaEdge.
 	Node Media `json:"node"`
@@ -17011,9 +18824,12 @@ type MediaImage struct {
 	MediaErrors []MediaError `json:"mediaErrors,omitempty"`
 	// The warnings attached to the media.
 	MediaWarnings []MediaWarning `json:"mediaWarnings,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The MIME type of the image.
 	MimeType *string `json:"mimeType,omitempty,omitempty"`
@@ -17065,10 +18881,13 @@ func (this MediaImage) GetUpdatedAt() time.Time { return this.UpdatedAt }
 
 func (MediaImage) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this MediaImage) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this MediaImage) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -17187,13 +19006,13 @@ type Menu struct {
 	Items []MenuItem `json:"items,omitempty"`
 	// The menu's title.
 	Title string `json:"title"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 }
 
 func (Menu) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this Menu) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -17212,11 +19031,11 @@ func (this Menu) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple Menus.
 type MenuConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MenuEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MenuEdge.
+	// A list of nodes that are contained in MenuEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Menu `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -17292,7 +19111,7 @@ func (this MenuDeleteUserError) GetMessage() string { return this.Message }
 
 // An auto-generated type which holds one Menu and a cursor during pagination.
 type MenuEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MenuEdge.
 	Node *Menu `json:"node,omitempty"`
@@ -17464,6 +19283,8 @@ type MetafieldAccess struct {
 }
 
 // An explicit access grant for the metafields under this definition.
+//
+// Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
 type MetafieldAccessGrant struct {
 	// The level of access the grantee has.
 	Access MetafieldGrantAccessLevel `json:"access"`
@@ -17478,6 +19299,8 @@ type MetafieldAccessGrantDeleteInput struct {
 }
 
 // The input fields for an explicit access grant to be created or updated for the metafields under this definition.
+//
+// Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
 type MetafieldAccessGrantInput struct {
 	// The grantee being granted access.
 	Grantee string `json:"grantee"`
@@ -17486,10 +19309,16 @@ type MetafieldAccessGrantInput struct {
 }
 
 // The input fields for possible operations for modifying access grants. Exactly one option is required.
+//
+// Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
 type MetafieldAccessGrantOperationInput struct {
 	// The input fields for an explicit access grant to be created or updated for the metafields under this definition.
+	//
+	// Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
 	Create *MetafieldAccessGrantInput `json:"create,omitempty,omitempty"`
 	// The input fields for an explicit access grant to be created or updated for the metafields under this definition.
+	//
+	// Explicit grants are [deprecated](https://shopify.dev/changelog/deprecating-explicit-access-grants-for-app-owned-metafields).
 	Update *MetafieldAccessGrantInput `json:"update,omitempty,omitempty"`
 	// The input fields for an explicit access grant to be deleted for the metafields under this definition.
 	Delete *MetafieldAccessGrantDeleteInput `json:"delete,omitempty,omitempty"`
@@ -17503,8 +19332,6 @@ type MetafieldAccessInput struct {
 	Storefront *MetafieldStorefrontAccessInput `json:"storefront,omitempty,omitempty"`
 	// The Customer Account API access setting to use for the metafields under this definition.
 	CustomerAccount *MetafieldCustomerAccountAccessInput `json:"customerAccount,omitempty,omitempty"`
-	// The list of explicit grants to grant for the metafields under this definition.
-	Grants []MetafieldAccessGrantInput `json:"grants,omitempty,omitempty"`
 }
 
 // The input fields for the access settings for the metafields under the definition.
@@ -17515,17 +19342,69 @@ type MetafieldAccessUpdateInput struct {
 	Storefront *MetafieldStorefrontAccessInput `json:"storefront,omitempty,omitempty"`
 	// The Customer Account API access setting to use for the metafields under this definition.
 	CustomerAccount *MetafieldCustomerAccountAccessInput `json:"customerAccount,omitempty,omitempty"`
-	// The set of grant operations to perform.
-	Grants []MetafieldAccessGrantOperationInput `json:"grants,omitempty,omitempty"`
+}
+
+// Provides the capabilities of a metafield definition.
+type MetafieldCapabilities struct {
+	// Indicate whether a metafield definition is configured for filtering.
+	AdminFilterable *MetafieldCapabilityAdminFilterable `json:"adminFilterable,omitempty"`
+	// Indicate whether a metafield definition can be used as a smart collection condition.
+	SmartCollectionCondition *MetafieldCapabilitySmartCollectionCondition `json:"smartCollectionCondition,omitempty"`
+}
+
+// Information about the admin filterable capability on a metafield definition.
+type MetafieldCapabilityAdminFilterable struct {
+	// Indicates if the definition is eligible to have the capability.
+	Eligible bool `json:"eligible"`
+	// Indicates if the capability is enabled.
+	Enabled bool `json:"enabled"`
+	// Determines the metafield definition's filter status for use in admin filtering.
+	Status MetafieldDefinitionAdminFilterStatus `json:"status"`
+}
+
+// The input fields for enabling and disabling the admin filterable capability.
+type MetafieldCapabilityAdminFilterableInput struct {
+	// Indicates whether the capability should be enabled or disabled.
+	Enabled bool `json:"enabled"`
+}
+
+// The input fields for creating a metafield capability.
+type MetafieldCapabilityCreateInput struct {
+	// The input for updating the smart collection condition capability.
+	SmartCollectionCondition *MetafieldCapabilitySmartCollectionConditionInput `json:"smartCollectionCondition,omitempty,omitempty"`
+	// The input for updating the admin filterable capability.
+	AdminFilterable *MetafieldCapabilityAdminFilterableInput `json:"adminFilterable,omitempty,omitempty"`
+}
+
+// Information about the smart collection condition capability on a metafield definition.
+type MetafieldCapabilitySmartCollectionCondition struct {
+	// Indicates if the definition is eligible to have the capability.
+	Eligible bool `json:"eligible"`
+	// Indicates if the capability is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// The input fields for enabling and disabling the smart collection condition capability.
+type MetafieldCapabilitySmartCollectionConditionInput struct {
+	// Indicates whether the capability should be enabled or disabled.
+	Enabled bool `json:"enabled"`
+}
+
+// The input fields for updating a metafield capability.
+type MetafieldCapabilityUpdateInput struct {
+	// The input for updating the smart collection condition capability.
+	SmartCollectionCondition *MetafieldCapabilitySmartCollectionConditionInput `json:"smartCollectionCondition,omitempty,omitempty"`
+	// The input for updating the admin filterable capability.
+	AdminFilterable *MetafieldCapabilityAdminFilterableInput `json:"adminFilterable,omitempty,omitempty"`
 }
 
 // An auto-generated type for paginating through multiple Metafields.
 type MetafieldConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetafieldEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetafieldEdge.
+	// A list of nodes that are contained in MetafieldEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Metafield `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -17534,6 +19413,8 @@ type MetafieldConnection struct {
 type MetafieldDefinition struct {
 	// The access settings associated with the metafield definition.
 	Access *MetafieldAccess `json:"access,omitempty"`
+	// The capabilities of the metafield definition.
+	Capabilities *MetafieldCapabilities `json:"capabilities,omitempty"`
 	// The constraints that determine what subtypes of resources a metafield definition applies to.
 	Constraints *MetafieldDefinitionConstraints `json:"constraints,omitempty,omitempty"`
 	// The description of the metafield definition.
@@ -17579,11 +19460,11 @@ func (this MetafieldDefinition) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple MetafieldDefinitions.
 type MetafieldDefinitionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetafieldDefinitionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetafieldDefinitionEdge.
+	// A list of nodes that are contained in MetafieldDefinitionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MetafieldDefinition `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -17603,17 +19484,17 @@ type MetafieldDefinitionConstraintValue struct {
 
 // An auto-generated type for paginating through multiple MetafieldDefinitionConstraintValues.
 type MetafieldDefinitionConstraintValueConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetafieldDefinitionConstraintValueEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetafieldDefinitionConstraintValueEdge.
+	// A list of nodes that are contained in MetafieldDefinitionConstraintValueEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MetafieldDefinitionConstraintValue `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MetafieldDefinitionConstraintValue and a cursor during pagination.
 type MetafieldDefinitionConstraintValueEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetafieldDefinitionConstraintValueEdge.
 	Node *MetafieldDefinitionConstraintValue `json:"node,omitempty"`
@@ -17701,7 +19582,7 @@ func (this MetafieldDefinitionDeleteUserError) GetMessage() string { return this
 
 // An auto-generated type which holds one MetafieldDefinition and a cursor during pagination.
 type MetafieldDefinitionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetafieldDefinitionEdge.
 	Node *MetafieldDefinition `json:"node,omitempty"`
@@ -17732,13 +19613,13 @@ type MetafieldDefinitionInput struct {
 	// type `date`, you can set a minimum date validation so that each of the metafields that belong to it can only
 	// store dates after the specified minimum.
 	Validations []MetafieldDefinitionValidationInput `json:"validations,omitempty,omitempty"`
-	// Whether the metafield definition can be used as a collection condition.
-	UseAsCollectionCondition *bool `json:"useAsCollectionCondition,omitempty,omitempty"`
 	// Whether to [pin](https://help.shopify.com/manual/custom-data/metafields/pinning-metafield-definitions)
 	// the metafield definition.
 	Pin *bool `json:"pin,omitempty,omitempty"`
 	// The access settings that apply to each of the metafields that belong to the metafield definition.
 	Access *MetafieldAccessInput `json:"access,omitempty,omitempty"`
+	// The capabilities of the metafield definition.
+	Capabilities *MetafieldCapabilityCreateInput `json:"capabilities,omitempty,omitempty"`
 }
 
 // Return type for `metafieldDefinitionPin` mutation.
@@ -17859,10 +19740,10 @@ type MetafieldDefinitionUpdateInput struct {
 	Validations []MetafieldDefinitionValidationInput `json:"validations,omitempty,omitempty"`
 	// Whether to pin the metafield definition.
 	Pin *bool `json:"pin,omitempty,omitempty"`
-	// Whether the metafield definition can be used as a collection condition.
-	UseAsCollectionCondition *bool `json:"useAsCollectionCondition,omitempty,omitempty"`
 	// The access settings that apply to each of the metafields that belong to the metafield definition.
 	Access *MetafieldAccessUpdateInput `json:"access,omitempty,omitempty"`
+	// The capabilities of the metafield definition.
+	Capabilities *MetafieldCapabilityUpdateInput `json:"capabilities,omitempty,omitempty"`
 }
 
 // Return type for `metafieldDefinitionUpdate` mutation.
@@ -17948,7 +19829,7 @@ type MetafieldDeletePayload struct {
 
 // An auto-generated type which holds one Metafield and a cursor during pagination.
 type MetafieldEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetafieldEdge.
 	Node *Metafield `json:"node,omitempty"`
@@ -17978,10 +19859,6 @@ type MetafieldIdentifierInput struct {
 // An alternative way to create or update a metafield is by using the
 // [metafieldsSet](https://shopify.dev/api/admin-graphql/latest/mutations/metafieldsSet) mutation.
 type MetafieldInput struct {
-	// The unique ID of the metafield.
-	//
-	// Required when updating a metafield, but shouldn't be included when creating as it's created automatically.
-	ID *string `json:"id,omitempty,omitempty"`
 	// The container for a group of metafields that the metafield is or will be associated with. Used in tandem with
 	// `key` to lookup a metafield on a resource, preventing conflicts with other metafields with the same `key`.
 	//
@@ -18002,23 +19879,23 @@ type MetafieldInput struct {
 	// The type of data that is stored in the metafield.
 	// Refer to the list of [supported types](https://shopify.dev/apps/metafields/types).
 	//
-	// Required when creating a metafield, but optional when updating.
+	// Required when creating or updating a metafield without a definition.
 	Type *string `json:"type,omitempty,omitempty"`
 }
 
 // An auto-generated type for paginating through multiple MetafieldReferences.
 type MetafieldReferenceConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetafieldReferenceEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetafieldReferenceEdge.
+	// A list of nodes that are contained in MetafieldReferenceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MetafieldReference `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MetafieldReference and a cursor during pagination.
 type MetafieldReferenceEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetafieldReferenceEdge.
 	Node MetafieldReference `json:"node,omitempty"`
@@ -18042,17 +19919,17 @@ type MetafieldRelation struct {
 
 // An auto-generated type for paginating through multiple MetafieldRelations.
 type MetafieldRelationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetafieldRelationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetafieldRelationEdge.
+	// A list of nodes that are contained in MetafieldRelationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MetafieldRelation `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one MetafieldRelation and a cursor during pagination.
 type MetafieldRelationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetafieldRelationEdge.
 	Node *MetafieldRelation `json:"node,omitempty"`
@@ -18094,11 +19971,11 @@ func (this MetafieldStorefrontVisibility) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple MetafieldStorefrontVisibilities.
 type MetafieldStorefrontVisibilityConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetafieldStorefrontVisibilityEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetafieldStorefrontVisibilityEdge.
+	// A list of nodes that are contained in MetafieldStorefrontVisibilityEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MetafieldStorefrontVisibility `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -18120,7 +19997,7 @@ type MetafieldStorefrontVisibilityDeletePayload struct {
 
 // An auto-generated type which holds one MetafieldStorefrontVisibility and a cursor during pagination.
 type MetafieldStorefrontVisibilityEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetafieldStorefrontVisibilityEdge.
 	Node *MetafieldStorefrontVisibility `json:"node,omitempty"`
@@ -18449,11 +20326,11 @@ type MetaobjectCapabilityUpdateInput struct {
 
 // An auto-generated type for paginating through multiple Metaobjects.
 type MetaobjectConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetaobjectEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetaobjectEdge.
+	// A list of nodes that are contained in MetaobjectEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Metaobject `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -18514,11 +20391,11 @@ func (this MetaobjectDefinition) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple MetaobjectDefinitions.
 type MetaobjectDefinitionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MetaobjectDefinitionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MetaobjectDefinitionEdge.
+	// A list of nodes that are contained in MetaobjectDefinitionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MetaobjectDefinition `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -18560,7 +20437,7 @@ type MetaobjectDefinitionDeletePayload struct {
 
 // An auto-generated type which holds one MetaobjectDefinition and a cursor during pagination.
 type MetaobjectDefinitionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetaobjectDefinitionEdge.
 	Node *MetaobjectDefinition `json:"node,omitempty"`
@@ -18604,7 +20481,7 @@ type MetaobjectDeletePayload struct {
 
 // An auto-generated type which holds one Metaobject and a cursor during pagination.
 type MetaobjectEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MetaobjectEdge.
 	Node *Metaobject `json:"node,omitempty"`
@@ -18791,11 +20668,11 @@ func (this MetaobjectUserError) GetMessage() string { return this.Message }
 
 // An auto-generated type for paginating through multiple MobilePlatformApplications.
 type MobilePlatformApplicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []MobilePlatformApplicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in MobilePlatformApplicationEdge.
+	// A list of nodes that are contained in MobilePlatformApplicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []MobilePlatformApplication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -18849,7 +20726,7 @@ type MobilePlatformApplicationDeletePayload struct {
 
 // An auto-generated type which holds one MobilePlatformApplication and a cursor during pagination.
 type MobilePlatformApplicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of MobilePlatformApplicationEdge.
 	Node MobilePlatformApplication `json:"node"`
@@ -19065,6 +20942,15 @@ type MoneyBag struct {
 	ShopMoney *MoneyV2 `json:"shopMoney,omitempty"`
 }
 
+// An input collection of monetary values in their respective currencies.
+// Represents an amount in the shop's currency and the amount as converted to the customer's currency of choice (the presentment currency).
+type MoneyBagInput struct {
+	// Amount in shop currency.
+	ShopMoney *MoneyInput `json:"shopMoney,omitempty"`
+	// Amount in presentment currency. If this isn't given then we assume that the presentment currency is the same as the shop's currency.
+	PresentmentMoney *MoneyInput `json:"presentmentMoney,omitempty,omitempty"`
+}
+
 // The input fields for a monetary value with currency.
 type MoneyInput struct {
 	// Decimal money amount.
@@ -19144,213 +21030,200 @@ type OnlineStore struct {
 	PasswordProtection *OnlineStorePasswordProtection `json:"passwordProtection,omitempty"`
 }
 
-// An article in the blogging system.
-type OnlineStoreArticle struct {
-	// A default cursor that returns the single next record, sorted ascending by ID.
-	DefaultCursor string `json:"defaultCursor"`
-	// A globally-unique ID.
-	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
-	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafield definitions.
-	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
-	Metafields *MetafieldConnection `json:"metafields,omitempty"`
-	// Returns a private metafield by namespace and key that belongs to the resource.
-	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
-	// List of private metafields that belong to the resource.
-	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
-	// The translations associated with the resource.
-	Translations []Translation `json:"translations,omitempty"`
-}
-
-func (OnlineStoreArticle) IsMetafieldReferencer() {}
-
-func (OnlineStoreArticle) IsHasMetafieldDefinitions() {}
-
-// List of metafield definitions.
-func (this OnlineStoreArticle) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
-	return this.MetafieldDefinitions
-}
-
-func (OnlineStoreArticle) IsHasMetafields() {}
-
-// Returns a metafield by namespace and key that belongs to the resource.
-func (this OnlineStoreArticle) GetMetafield() *Metafield { return this.Metafield }
-
-// List of metafields that belong to the resource.
-func (this OnlineStoreArticle) GetMetafields() *MetafieldConnection { return this.Metafields }
-
-// Returns a private metafield by namespace and key that belongs to the resource.
-func (this OnlineStoreArticle) GetPrivateMetafield() *PrivateMetafield { return this.PrivateMetafield }
-
-// List of private metafields that belong to the resource.
-func (this OnlineStoreArticle) GetPrivateMetafields() *PrivateMetafieldConnection {
-	return this.PrivateMetafields
-}
-
-func (OnlineStoreArticle) IsHasPublishedTranslations() {}
-
-// The translations associated with the resource.
-func (this OnlineStoreArticle) GetTranslations() []Translation {
-	if this.Translations == nil {
-		return nil
-	}
-	interfaceSlice := make([]Translation, 0, len(this.Translations))
-	for _, concrete := range this.Translations {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-func (OnlineStoreArticle) IsNavigable() {}
-
-// A default cursor that returns the single next record, sorted ascending by ID.
-func (this OnlineStoreArticle) GetDefaultCursor() string { return this.DefaultCursor }
-
-func (OnlineStoreArticle) IsNode() {}
-
-// A globally-unique ID.
-func (this OnlineStoreArticle) GetID() string { return this.ID }
-
-// Shopify stores come with a built-in blogging engine, allowing a shop to have one or more blogs.  Blogs are meant
-// to be used as a type of magazine or newsletter for the shop, with content that changes over time.
-type OnlineStoreBlog struct {
-	// A globally-unique ID.
-	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
-	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafield definitions.
-	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
-	Metafields *MetafieldConnection `json:"metafields,omitempty"`
-	// Returns a private metafield by namespace and key that belongs to the resource.
-	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
-	// List of private metafields that belong to the resource.
-	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
-	// The translations associated with the resource.
-	Translations []Translation `json:"translations,omitempty"`
-}
-
-func (OnlineStoreBlog) IsMetafieldReferencer() {}
-
-func (OnlineStoreBlog) IsHasMetafieldDefinitions() {}
-
-// List of metafield definitions.
-func (this OnlineStoreBlog) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
-	return this.MetafieldDefinitions
-}
-
-func (OnlineStoreBlog) IsHasMetafields() {}
-
-// Returns a metafield by namespace and key that belongs to the resource.
-func (this OnlineStoreBlog) GetMetafield() *Metafield { return this.Metafield }
-
-// List of metafields that belong to the resource.
-func (this OnlineStoreBlog) GetMetafields() *MetafieldConnection { return this.Metafields }
-
-// Returns a private metafield by namespace and key that belongs to the resource.
-func (this OnlineStoreBlog) GetPrivateMetafield() *PrivateMetafield { return this.PrivateMetafield }
-
-// List of private metafields that belong to the resource.
-func (this OnlineStoreBlog) GetPrivateMetafields() *PrivateMetafieldConnection {
-	return this.PrivateMetafields
-}
-
-func (OnlineStoreBlog) IsHasPublishedTranslations() {}
-
-// The translations associated with the resource.
-func (this OnlineStoreBlog) GetTranslations() []Translation {
-	if this.Translations == nil {
-		return nil
-	}
-	interfaceSlice := make([]Translation, 0, len(this.Translations))
-	for _, concrete := range this.Translations {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-func (OnlineStoreBlog) IsNode() {}
-
-// A globally-unique ID.
-func (this OnlineStoreBlog) GetID() string { return this.ID }
-
-// A page on the Online Store.
-type OnlineStorePage struct {
-	// A default cursor that returns the single next record, sorted ascending by ID.
-	DefaultCursor string `json:"defaultCursor"`
-	// A globally-unique ID.
-	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
-	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafield definitions.
-	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
-	Metafields *MetafieldConnection `json:"metafields,omitempty"`
-	// Returns a private metafield by namespace and key that belongs to the resource.
-	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
-	// List of private metafields that belong to the resource.
-	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
-	// The translations associated with the resource.
-	Translations []Translation `json:"translations,omitempty"`
-}
-
-func (OnlineStorePage) IsMetafieldReference() {}
-
-func (OnlineStorePage) IsMetafieldReferencer() {}
-
-func (OnlineStorePage) IsHasMetafieldDefinitions() {}
-
-// List of metafield definitions.
-func (this OnlineStorePage) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
-	return this.MetafieldDefinitions
-}
-
-func (OnlineStorePage) IsHasMetafields() {}
-
-// Returns a metafield by namespace and key that belongs to the resource.
-func (this OnlineStorePage) GetMetafield() *Metafield { return this.Metafield }
-
-// List of metafields that belong to the resource.
-func (this OnlineStorePage) GetMetafields() *MetafieldConnection { return this.Metafields }
-
-// Returns a private metafield by namespace and key that belongs to the resource.
-func (this OnlineStorePage) GetPrivateMetafield() *PrivateMetafield { return this.PrivateMetafield }
-
-// List of private metafields that belong to the resource.
-func (this OnlineStorePage) GetPrivateMetafields() *PrivateMetafieldConnection {
-	return this.PrivateMetafields
-}
-
-func (OnlineStorePage) IsHasPublishedTranslations() {}
-
-// The translations associated with the resource.
-func (this OnlineStorePage) GetTranslations() []Translation {
-	if this.Translations == nil {
-		return nil
-	}
-	interfaceSlice := make([]Translation, 0, len(this.Translations))
-	for _, concrete := range this.Translations {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-func (OnlineStorePage) IsNavigable() {}
-
-// A default cursor that returns the single next record, sorted ascending by ID.
-func (this OnlineStorePage) GetDefaultCursor() string { return this.DefaultCursor }
-
-func (OnlineStorePage) IsNode() {}
-
-// A globally-unique ID.
-func (this OnlineStorePage) GetID() string { return this.ID }
-
 // Storefront password information.
 type OnlineStorePasswordProtection struct {
 	// Whether the storefront password is enabled.
 	Enabled bool `json:"enabled"`
+}
+
+// A theme for display on the storefront.
+type OnlineStoreTheme struct {
+	// The date and time when the theme was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// The files in the theme.
+	Files *OnlineStoreThemeFileConnection `json:"files,omitempty,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// The name of the theme, set by the merchant.
+	Name string `json:"name"`
+	// The prefix of the theme.
+	Prefix string `json:"prefix"`
+	// Whether the theme is processing.
+	Processing bool `json:"processing"`
+	// Whether the theme processing failed.
+	ProcessingFailed bool `json:"processingFailed"`
+	// The role of the theme.
+	Role ThemeRole `json:"role"`
+	// The theme store ID.
+	ThemeStoreID *int `json:"themeStoreId,omitempty,omitempty"`
+	// The published translations associated with the resource.
+	Translations []Translation `json:"translations,omitempty"`
+	// The date and time when the theme was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (OnlineStoreTheme) IsHasPublishedTranslations() {}
+
+// The published translations associated with the resource.
+func (this OnlineStoreTheme) GetTranslations() []Translation {
+	if this.Translations == nil {
+		return nil
+	}
+	interfaceSlice := make([]Translation, 0, len(this.Translations))
+	for _, concrete := range this.Translations {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (OnlineStoreTheme) IsNode() {}
+
+// A globally-unique ID.
+func (this OnlineStoreTheme) GetID() string { return this.ID }
+
+// An auto-generated type for paginating through multiple OnlineStoreThemes.
+type OnlineStoreThemeConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []OnlineStoreThemeEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in OnlineStoreThemeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []OnlineStoreTheme `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one OnlineStoreTheme and a cursor during pagination.
+type OnlineStoreThemeEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of OnlineStoreThemeEdge.
+	Node *OnlineStoreTheme `json:"node,omitempty"`
+}
+
+// Represents a theme file.
+type OnlineStoreThemeFile struct {
+	// The body of the theme file.
+	Body OnlineStoreThemeFileBody `json:"body"`
+	// The md5 digest of the theme file for data integrity.
+	ChecksumMd5 *string `json:"checksumMd5,omitempty,omitempty"`
+	// The content type of the theme file.
+	ContentType string `json:"contentType"`
+	// The date and time when the theme file was created.
+	CreatedAt time.Time `json:"createdAt"`
+	// The unique identifier of the theme file.
+	Filename string `json:"filename"`
+	// The size of the theme file in bytes.
+	Size string `json:"size"`
+	// The date and time when the theme file was last updated.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// Represents the base64 encoded body of a theme file.
+type OnlineStoreThemeFileBodyBase64 struct {
+	// The body of the theme file, base64 encoded.
+	ContentBase64 string `json:"contentBase64"`
+}
+
+func (OnlineStoreThemeFileBodyBase64) IsOnlineStoreThemeFileBody() {}
+
+// The input fields for the theme file body.
+type OnlineStoreThemeFileBodyInput struct {
+	// The input type of the theme file body.
+	Type OnlineStoreThemeFileBodyInputType `json:"type"`
+	// The body of the theme file.
+	Value string `json:"value"`
+}
+
+// Represents the body of a theme file.
+type OnlineStoreThemeFileBodyText struct {
+	// The body of the theme file.
+	Content string `json:"content"`
+}
+
+func (OnlineStoreThemeFileBodyText) IsOnlineStoreThemeFileBody() {}
+
+// Represents the url of the body of a theme file.
+type OnlineStoreThemeFileBodyURL struct {
+	// The url for the body of the theme file.
+	URL string `json:"url"`
+}
+
+func (OnlineStoreThemeFileBodyURL) IsOnlineStoreThemeFileBody() {}
+
+// An auto-generated type for paginating through multiple OnlineStoreThemeFiles.
+type OnlineStoreThemeFileConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []OnlineStoreThemeFileEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in OnlineStoreThemeFileEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []OnlineStoreThemeFile `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+	// List of errors that occurred during the request.
+	UserErrors []OnlineStoreThemeFileReadResult `json:"userErrors,omitempty"`
+}
+
+// An auto-generated type which holds one OnlineStoreThemeFile and a cursor during pagination.
+type OnlineStoreThemeFileEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of OnlineStoreThemeFileEdge.
+	Node *OnlineStoreThemeFile `json:"node,omitempty"`
+}
+
+// Represents the result of a copy, delete, or write operation performed on a theme file.
+type OnlineStoreThemeFileOperationResult struct {
+	// Unique identifier of the theme file.
+	Filename string `json:"filename"`
+}
+
+// Represents the result of a read operation performed on a theme asset.
+type OnlineStoreThemeFileReadResult struct {
+	// Type that indicates the result of the operation.
+	Code OnlineStoreThemeFileResultType `json:"code"`
+	// Unique identifier associated with the operation and the theme file.
+	Filename string `json:"filename"`
+}
+
+// The input fields for the file to create or update.
+type OnlineStoreThemeFilesUpsertFileInput struct {
+	// The filename of the theme file.
+	Filename string `json:"filename"`
+	// The body of the theme file.
+	Body *OnlineStoreThemeFileBodyInput `json:"body,omitempty"`
+}
+
+// User errors for theme file operations.
+type OnlineStoreThemeFilesUserErrors struct {
+	// The error code.
+	Code *OnlineStoreThemeFilesUserErrorsCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The filename of the theme file.
+	Filename *string `json:"filename,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (OnlineStoreThemeFilesUserErrors) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this OnlineStoreThemeFilesUserErrors) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this OnlineStoreThemeFilesUserErrors) GetMessage() string { return this.Message }
+
+// The input fields for Theme attributes to update.
+type OnlineStoreThemeInput struct {
+	// The new name of the theme.
+	Name *string `json:"name,omitempty,omitempty"`
 }
 
 // The input fields for the options and values of the combined listing.
@@ -19397,6 +21270,8 @@ type OptionSetInput struct {
 	Position *int `json:"position,omitempty,omitempty"`
 	// Value associated with an option.
 	Values []OptionValueSetInput `json:"values,omitempty,omitempty"`
+	// Specifies the metafield the option is linked to.
+	LinkedMetafield *LinkedMetafieldCreateInput `json:"linkedMetafield,omitempty,omitempty"`
 }
 
 // The input fields for updating a product option.
@@ -19509,6 +21384,8 @@ type Order struct {
 	CurrencyCode CurrencyCode `json:"currencyCode"`
 	// The current order-level discount amount after all order updates, in shop and presentment currencies.
 	CurrentCartDiscountAmountSet *MoneyBag `json:"currentCartDiscountAmountSet,omitempty"`
+	// The current shipping price after applying refunds and discounts. If the parent `order.taxesIncluded` field is true, then this price includes taxes. Otherwise, this field is the pre-tax price.
+	CurrentShippingPriceSet *MoneyBag `json:"currentShippingPriceSet,omitempty"`
 	// The sum of the quantities for all line items that contribute to the order's current subtotal price.
 	CurrentSubtotalLineItemsQuantity int `json:"currentSubtotalLineItemsQuantity"`
 	// The sum of the prices for all line items after discounts and returns, in shop and presentment currencies.
@@ -19563,6 +21440,8 @@ type Order struct {
 	DisplayFulfillmentStatus OrderDisplayFulfillmentStatus `json:"displayFulfillmentStatus"`
 	// A list of the disputes associated with the order.
 	Disputes []OrderDisputeSummary `json:"disputes,omitempty"`
+	// Whether duties are included in the subtotal price of the order.
+	DutiesIncluded bool `json:"dutiesIncluded"`
 	// Whether the order has had any edits applied.
 	Edited bool `json:"edited"`
 	// The email address associated with the customer.
@@ -19605,21 +21484,24 @@ type Order struct {
 	LegacyResourceID string `json:"legacyResourceId"`
 	// A list of the order's line items.
 	LineItems *LineItemConnection `json:"lineItems,omitempty"`
-	// A list of the order's line items.
-	LineItemsMutable *LineItemMutableConnection `json:"lineItemsMutable,omitempty"`
 	// List of localization extensions for the resource.
 	LocalizationExtensions *LocalizationExtensionConnection `json:"localizationExtensions,omitempty"`
+	// The merchant's business entity associated with the order.
+	MerchantBusinessEntity *BusinessEntity `json:"merchantBusinessEntity,omitempty"`
 	// Whether the order can be edited by the merchant. For example, canceled orders can’t be edited.
 	MerchantEditable bool `json:"merchantEditable"`
 	// A list of reasons why the order can't be edited. For example, "Canceled orders can't be edited".
 	MerchantEditableErrors []string `json:"merchantEditableErrors,omitempty"`
 	// The application acting as the Merchant of Record for the order.
 	MerchantOfRecordApp *OrderApp `json:"merchantOfRecordApp,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The unique identifier for the order that appears on the order page in the Shopify admin and the <b>Order status</b> page.
 	// For example, "#1001", "EN1001", or "1001-A".
@@ -19635,10 +21517,10 @@ type Order struct {
 	NonFulfillableLineItems *LineItemConnection `json:"nonFulfillableLineItems,omitempty"`
 	// The contents of the note associated with the order.
 	Note *string `json:"note,omitempty,omitempty"`
-	// The total amount of additional fees after returns, in shop and presentment currencies.
-	// Returns `null` if there are no additional fees for the order.
+	// The total amount of additional fees at the time of order creation, in shop and presentment currencies.
+	// Returns `null` if additional fees aren't applicable.
 	OriginalTotalAdditionalFeesSet *MoneyBag `json:"originalTotalAdditionalFeesSet,omitempty,omitempty"`
-	// The total amount of duties before returns, in shop and presentment currencies.
+	// The total amount of duties at the time of order creation, in shop and presentment currencies.
 	// Returns `null` if duties aren't applicable.
 	OriginalTotalDutiesSet *MoneyBag `json:"originalTotalDutiesSet,omitempty,omitempty"`
 	// The total price of the order at the time of order creation, in shop and presentment currencies.
@@ -19719,6 +21601,8 @@ type Order struct {
 	SourceName *string `json:"sourceName,omitempty,omitempty"`
 	// The staff member associated with the order.
 	StaffMember *StaffMember `json:"staffMember,omitempty,omitempty"`
+	// The URL where the customer can check the order's current status.
+	StatusPageURL string `json:"statusPageUrl"`
 	// The sum of the quantities for all line items that contribute to the order's subtotal price.
 	SubtotalLineItemsQuantity int `json:"subtotalLineItemsQuantity"`
 	// The sum of the prices for all line items after discounts and before returns, in shop currency.
@@ -19751,6 +21635,8 @@ type Order struct {
 	// The authorized amount that's uncaptured or undercaptured, in shop and presentment currencies.
 	// This amount isn't adjusted for returns.
 	TotalCapturableSet *MoneyBag `json:"totalCapturableSet,omitempty"`
+	// The total rounding adjustment applied to payments or refunds for an Order involving cash payments. Applies to some countries where cash transactions are rounded to the nearest currency denomination.
+	TotalCashRoundingAdjustment *CashRoundingAdjustment `json:"totalCashRoundingAdjustment,omitempty"`
 	// The total amount discounted on the order before returns, in shop currency.
 	// This includes both order and line level discounts.
 	TotalDiscounts *decimal.Decimal `json:"totalDiscounts,omitempty,omitempty"`
@@ -19835,10 +21721,13 @@ func (this Order) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
 
 func (Order) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Order) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Order) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -19855,6 +21744,41 @@ func (this Order) GetLegacyResourceID() string { return this.LegacyResourceID }
 func (Order) IsNode() {}
 
 // A globally-unique ID.
+
+// An order adjustment accounts for the difference between a calculated and actual refund amount.
+type OrderAdjustment struct {
+	// The amount of the order adjustment in shop and presentment currencies.
+	AmountSet *MoneyBag `json:"amountSet,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// An optional reason that explains a discrepancy between calculated and actual refund amounts.
+	Reason *OrderAdjustmentDiscrepancyReason `json:"reason,omitempty,omitempty"`
+	// The tax amount of the order adjustment in shop and presentment currencies.
+	TaxAmountSet *MoneyBag `json:"taxAmountSet,omitempty"`
+}
+
+func (OrderAdjustment) IsNode() {}
+
+// A globally-unique ID.
+func (this OrderAdjustment) GetID() string { return this.ID }
+
+// An auto-generated type for paginating through multiple OrderAdjustments.
+type OrderAdjustmentConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []OrderAdjustmentEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in OrderAdjustmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []OrderAdjustment `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// An auto-generated type which holds one OrderAdjustment and a cursor during pagination.
+type OrderAdjustmentEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of OrderAdjustmentEdge.
+	Node *OrderAdjustment `json:"node,omitempty"`
+}
 
 // An agreement associated with an order placement.
 type OrderAgreement struct {
@@ -19992,12 +21916,138 @@ type OrderClosePayload struct {
 
 // An auto-generated type for paginating through multiple Orders.
 type OrderConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []OrderEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in OrderEdge.
+	// A list of nodes that are contained in OrderEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Order `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// The input fields for a note attribute for an order.
+type OrderCreateCustomAttributeInput struct {
+	// The key or name of the custom attribute.
+	Key string `json:"key"`
+	// The value of the custom attribute.
+	Value string `json:"value"`
+}
+
+// The input fields for a discount code to apply to an order. Only one type of discount can be applied to an order.
+type OrderCreateDiscountCodeInput struct {
+	// A percentage discount code applied to the line items on the order.
+	ItemPercentageDiscountCode *OrderCreatePercentageDiscountCodeAttributesInput `json:"itemPercentageDiscountCode,omitempty,omitempty"`
+	// A fixed amount discount code applied to the line items on the order.
+	ItemFixedDiscountCode *OrderCreateFixedDiscountCodeAttributesInput `json:"itemFixedDiscountCode,omitempty,omitempty"`
+	// A free shipping discount code applied to the shipping on an order.
+	FreeShippingDiscountCode *OrderCreateFreeShippingDiscountCodeAttributesInput `json:"freeShippingDiscountCode,omitempty,omitempty"`
+}
+
+// The input fields for a fixed amount discount code to apply to an order.
+type OrderCreateFixedDiscountCodeAttributesInput struct {
+	// The discount code that was entered at checkout.
+	Code string `json:"code"`
+	// The amount that's deducted from the order total. When you create an order, this value is the monetary amount to deduct.
+	AmountSet *MoneyBagInput `json:"amountSet,omitempty,omitempty"`
+}
+
+// The input fields for a free shipping discount code to apply to an order.
+type OrderCreateFreeShippingDiscountCodeAttributesInput struct {
+	// The discount code that was entered at checkout.
+	Code string `json:"code"`
+}
+
+// The input fields for a fulfillment to create for an order.
+type OrderCreateFulfillmentInput struct {
+	// The ID of the location to fulfill the order from.
+	LocationID string `json:"locationId"`
+	// The address at which the fulfillment occurred.
+	OriginAddress *FulfillmentOriginAddressInput `json:"originAddress,omitempty,omitempty"`
+	// Whether the customer should be notified of changes with the fulfillment.
+	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
+	// The status of the shipment.
+	ShipmentStatus *FulfillmentEventStatus `json:"shipmentStatus,omitempty,omitempty"`
+	// The tracking number of the fulfillment.
+	//
+	// The tracking number will be clickable in the interface if one of the following applies
+	// (the highest in the list has the highest priority):
+	//
+	// * [Shopify-known tracking company name](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)
+	//   specified in the `company` field.
+	//   Shopify will build the tracking URL automatically based on the tracking number specified.
+	// * The tracking number has a Shopify-known format.
+	//   Shopify will guess the tracking provider and build the tracking url based on the tracking number format.
+	//   Not all tracking carriers are supported, and multiple tracking carriers may use similarly formatted tracking numbers.
+	//   This can result in an invalid tracking URL.
+	TrackingNumber *string `json:"trackingNumber,omitempty,omitempty"`
+	// The name of the tracking company.
+	//
+	// If you specify a tracking company name from
+	// [the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies),
+	// Shopify will automatically build tracking URLs for all provided tracking numbers,
+	// which will make the tracking numbers clickable in the interface.
+	// The same tracking company will be applied to all tracking numbers specified.
+	//
+	// Additionally, for the tracking companies listed on the
+	// [Shipping Carriers help page](https://help.shopify.com/manual/shipping/understanding-shipping/shipping-carriers#integrated-shipping-carriers)
+	// Shopify will automatically update the fulfillment's `shipment_status` field during the fulfillment process.
+	//
+	// > Note:
+	// > Send the tracking company name exactly as written in
+	// > [the list](https://shopify.dev/api/admin-graphql/latest/objects/FulfillmentTrackingInfo#supported-tracking-companies)
+	// > (capitalization matters).
+	TrackingCompany *string `json:"trackingCompany,omitempty,omitempty"`
+}
+
+// The input fields for a line item to create for an order.
+type OrderCreateLineItemInput struct {
+	// The handle of a fulfillment service that stocks the product variant belonging to a line item.
+	//
+	//               This is a third-party fulfillment service in the following scenarios:
+	//
+	//               **Scenario 1**
+	//               - The product variant is stocked by a single fulfillment service.
+	//               - The [FulfillmentService](/api/admin-graphql/latest/objects/FulfillmentService) is a third-party fulfillment service. Third-party fulfillment services don't have a handle with the value `manual`.
+	//
+	//               **Scenario 2**
+	//               - Multiple fulfillment services stock the product variant.
+	//               - The last time that the line item was unfulfilled, it was awaiting fulfillment by a third-party fulfillment service. Third-party fulfillment services don't have a handle with the value `manual`.
+	//
+	//               If none of the above conditions are met, then the fulfillment service has the `manual` handle.
+	FulfillmentService *string `json:"fulfillmentService,omitempty,omitempty"`
+	// Whether the item is a gift card. If true, then the item is not taxed or considered for shipping charges.
+	GiftCard *bool `json:"giftCard,omitempty,omitempty"`
+	// The price of the item before discounts have been applied in the shop currency.
+	PriceSet *MoneyBagInput `json:"priceSet,omitempty,omitempty"`
+	// The ID of the product that the line item belongs to. Can be `null` if the original product associated with the order is deleted at a later date.
+	ProductID *string `json:"productId,omitempty,omitempty"`
+	// An array of custom information for the item that has been added to the cart. Often used to provide product customization options.
+	Properties []OrderCreateLineItemPropertyInput `json:"properties,omitempty,omitempty"`
+	// The number of items that were purchased.
+	Quantity int `json:"quantity"`
+	// Whether the item requires shipping.
+	RequiresShipping *bool `json:"requiresShipping,omitempty,omitempty"`
+	// The item's SKU (stock keeping unit).
+	Sku *string `json:"sku,omitempty,omitempty"`
+	// A list of tax line objects, each of which details a tax applied to the item.
+	TaxLines []OrderCreateTaxLineInput `json:"taxLines,omitempty,omitempty"`
+	// Whether the item was taxable.
+	Taxable *bool `json:"taxable,omitempty,omitempty"`
+	// The title of the product.
+	Title *string `json:"title,omitempty,omitempty"`
+	// The ID of the product variant.
+	VariantID *string `json:"variantId,omitempty,omitempty"`
+	// The title of the product variant.
+	VariantTitle *string `json:"variantTitle,omitempty,omitempty"`
+	// The name of the item's supplier.
+	Vendor *string `json:"vendor,omitempty,omitempty"`
+}
+
+// The input fields for a line item property for an order.
+type OrderCreateLineItemPropertyInput struct {
+	// The name of the line item property.
+	Name string `json:"name"`
+	// The value of the line item property.
+	Value string `json:"value"`
 }
 
 // Return type for `orderCreateMandatePayment` mutation.
@@ -20036,6 +22086,194 @@ func (this OrderCreateMandatePaymentUserError) GetField() []string {
 
 // The error message.
 func (this OrderCreateMandatePaymentUserError) GetMessage() string { return this.Message }
+
+// The input fields which control certain side affects.
+type OrderCreateOptionsInput struct {
+	// The behaviour to use when updating inventory.
+	InventoryBehaviour *OrderCreateInputsInventoryBehavior `json:"inventoryBehaviour,omitempty,omitempty"`
+	// Whether to send an order confirmation to the customer.
+	SendReceipt *bool `json:"sendReceipt,omitempty,omitempty"`
+	// Whether to send a shipping confirmation to the customer.
+	SendFulfillmentReceipt *bool `json:"sendFulfillmentReceipt,omitempty,omitempty"`
+}
+
+// The input fields for creating an order.
+type OrderCreateOrderInput struct {
+	// The mailing address associated with the payment method. This address is an optional field that won't be
+	//                available on orders that don't require a payment method.
+	//
+	//               > Note:
+	//               > If a customer is provided, this field or `shipping_address` (which has precedence) will be set as the
+	//               > customer's default address. Additionally, if the provided customer is new or hasn't created an order yet
+	//               > then their name will be set to the first/last name from this address (if provided).
+	BillingAddress *MailingAddressInput `json:"billingAddress,omitempty,omitempty"`
+	// Whether the customer consented to receive email updates from the shop.
+	BuyerAcceptsMarketing *bool `json:"buyerAcceptsMarketing,omitempty,omitempty"`
+	// The date and time ([ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format) when the order was closed. Returns null if the order isn't closed.
+	ClosedAt *time.Time `json:"closedAt,omitempty,omitempty"`
+	// The ID of the purchasing company's location for the order.
+	CompanyLocationID *string `json:"companyLocationId,omitempty,omitempty"`
+	// The shop-facing currency for the order. If not specified, then the shop's default currency is used.
+	Currency *CurrencyCode `json:"currency,omitempty,omitempty"`
+	// A list of extra information that's added to the order. Appears in the **Additional details** section of an order details page.
+	CustomAttributes []OrderCreateCustomAttributeInput `json:"customAttributes,omitempty,omitempty"`
+	// A discount code applied to the order.
+	DiscountCode *OrderCreateDiscountCodeInput `json:"discountCode,omitempty,omitempty"`
+	// A new customer email address for the order.
+	//
+	//               > Note:
+	//               > If a customer is provided, and no email is provided, the customer's email will be set to this field.
+	Email *string `json:"email,omitempty,omitempty"`
+	// The financial status of the order. If not specified, then this will be derived through the given transactions. Note that it's possible to specify a status that doesn't match the given transactions and it will persist, but if an operation later occurs on the order, the status may then be recalculated to match the current state of transactions.
+	FinancialStatus *OrderCreateFinancialStatus `json:"financialStatus,omitempty,omitempty"`
+	// The fulfillment to create for the order. This will apply to all line items.
+	Fulfillment *OrderCreateFulfillmentInput `json:"fulfillment,omitempty,omitempty"`
+	// The fulfillment status of the order. Will default to `unfulfilled` if not included.
+	FulfillmentStatus *OrderCreateFulfillmentStatus `json:"fulfillmentStatus,omitempty,omitempty"`
+	// The line items to create for the order.
+	LineItems []OrderCreateLineItemInput `json:"lineItems,omitempty,omitempty"`
+	// A list of metafields to add to the order.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// The order name, generated by combining the `order_number` property with the order prefix and suffix that are set in the merchant's [general settings](https://www.shopify.com/admin/settings/general). This is different from the `id` property, which is the ID of the order used by the API. This field can also be set by the API to be any string value.
+	Name *string `json:"name,omitempty,omitempty"`
+	// The new contents for the note associated with the order.
+	Note *string `json:"note,omitempty,omitempty"`
+	// A new customer phone number for the order.
+	Phone *string `json:"phone,omitempty,omitempty"`
+	// The purchase order number associated to this order.
+	PoNumber *string `json:"poNumber,omitempty,omitempty"`
+	// The presentment currency that was used to display prices to the customer. This must be specified if any presentment currencies are used in the order.
+	PresentmentCurrency *CurrencyCode `json:"presentmentCurrency,omitempty,omitempty"`
+	// The date and time ([ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) format) when an order was processed. This value is the date that appears on your orders and that's used in the analytic reports. If you're importing orders from an app or another platform, then you can set processed_at to a date and time in the past to match when the original order was created.
+	ProcessedAt *time.Time `json:"processedAt,omitempty,omitempty"`
+	// The website where the customer clicked a link to the shop.
+	ReferringSite *string `json:"referringSite,omitempty,omitempty"`
+	// The mailing address to where the order will be shipped.
+	//
+	//               > Note:
+	//               > If a customer is provided, this field (which has precedence) or `billing_address` will be set as the
+	//               > customer's default address. Additionally, if the provided customer doesn't have a first or last name
+	//               > then it will be set to the first/last name from this address (if provided).
+	ShippingAddress *MailingAddressInput `json:"shippingAddress,omitempty,omitempty"`
+	// An array of objects, each of which details a shipping method used.
+	ShippingLines []OrderCreateShippingLineInput `json:"shippingLines,omitempty,omitempty"`
+	// The ID of the order placed on the originating platform. This value doesn't correspond to the Shopify ID that's generated from a completed draft.
+	SourceIdentifier *string `json:"sourceIdentifier,omitempty,omitempty"`
+	// The source of the checkout. To use this field for sales attribution, you must register the channels that your app is managing. You can register the channels that your app is managing by completing [this Google Form](https://docs.google.com/forms/d/e/1FAIpQLScmVTZRQNjOJ7RD738mL1lGeFjqKVe_FM2tO9xsm21QEo5Ozg/viewform?usp=sf_link). After you've submited your request, you need to wait for your request to be processed by Shopify. You can find a list of your channels in the Partner Dashboard, in your app's Marketplace extension. You can specify a handle as the source_name value in your request.
+	SourceName *string `json:"sourceName,omitempty,omitempty"`
+	// A valid URL to the original order on the originating surface. This URL is displayed to merchants on the Order Details page. If the URL is invalid, then it won't be displayed.
+	SourceURL *string `json:"sourceUrl,omitempty,omitempty"`
+	// A comma separated list of tags that have been added to the draft order.
+	Tags []string `json:"tags,omitempty,omitempty"`
+	// Whether taxes are included in the order subtotal.
+	TaxesIncluded *bool `json:"taxesIncluded,omitempty,omitempty"`
+	// An array of tax line objects, each of which details a tax applicable to the order. When creating an order through the API, tax lines can be specified on the order or the line items but not both. Tax lines specified on the order are split across the _taxable_ line items in the created order.
+	TaxLines []OrderCreateTaxLineInput `json:"taxLines,omitempty,omitempty"`
+	// Whether this is a test order.
+	Test *bool `json:"test,omitempty,omitempty"`
+	// The payment transactions to create for the order.
+	Transactions []OrderCreateOrderTransactionInput `json:"transactions,omitempty,omitempty"`
+	// The ID of the user logged into Shopify POS who processed the order, if applicable.
+	UserID *string `json:"userId,omitempty,omitempty"`
+}
+
+// The input fields for a transaction to create for an order.
+type OrderCreateOrderTransactionInput struct {
+	// The amount of the transaction.
+	AmountSet *MoneyBagInput `json:"amountSet,omitempty"`
+	// The authorization code associated with the transaction.
+	AuthorizationCode *string `json:"authorizationCode,omitempty,omitempty"`
+	// The ID of the device used to process the transaction.
+	DeviceID *string `json:"deviceId,omitempty,omitempty"`
+	// The name of the gateway the transaction was issued through.
+	Gateway *string `json:"gateway,omitempty,omitempty"`
+	// The ID of the gift card used for this transaction.
+	GiftCardID *string `json:"giftCardId,omitempty,omitempty"`
+	// The kind of transaction.
+	Kind *OrderTransactionKind `json:"kind,omitempty,omitempty"`
+	// The ID of the location where the transaction was processed.
+	LocationID *string `json:"locationId,omitempty,omitempty"`
+	// The date and time when the transaction was processed.
+	ProcessedAt *time.Time `json:"processedAt,omitempty,omitempty"`
+	// The transaction receipt that the payment gateway attaches to the transaction.
+	// The value of this field depends on which payment gateway processed the transaction.
+	ReceiptJSON *string `json:"receiptJson,omitempty,omitempty"`
+	// The status of the transaction.
+	Status *OrderTransactionStatus `json:"status,omitempty,omitempty"`
+	// Whether the transaction is a test transaction.
+	Test *bool `json:"test,omitempty,omitempty"`
+	// The ID of the user who processed the transaction.
+	UserID *string `json:"userId,omitempty,omitempty"`
+}
+
+// Return type for `orderCreate` mutation.
+type OrderCreatePayload struct {
+	// The order that was created.
+	Order *Order `json:"order,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []OrderCreateUserError `json:"userErrors,omitempty"`
+}
+
+// The input fields for a percentage discount code to apply to an order.
+type OrderCreatePercentageDiscountCodeAttributesInput struct {
+	// The discount code that was entered at checkout.
+	Code string `json:"code"`
+	// The amount that's deducted from the order total. When you create an order, this value is the percentage to deduct.
+	Percentage *float64 `json:"percentage,omitempty,omitempty"`
+}
+
+// The input fields for a shipping line to create for an order.
+type OrderCreateShippingLineInput struct {
+	// A reference to the shipping method.
+	Code *string `json:"code,omitempty,omitempty"`
+	// The price of this shipping method in the shop currency. Can't be negative.
+	PriceSet *MoneyBagInput `json:"priceSet,omitempty"`
+	// The source of the shipping method.
+	Source *string `json:"source,omitempty,omitempty"`
+	// A list of tax line objects, each of which details a tax applicable to this shipping line.
+	TaxLines []OrderCreateTaxLineInput `json:"taxLines,omitempty,omitempty"`
+	// The title of the shipping method.
+	Title string `json:"title"`
+}
+
+// The input fields for a tax line to create for an order.
+type OrderCreateTaxLineInput struct {
+	// Whether the channel that submitted the tax line is liable for remitting. A value of `null` indicates unknown liability for the tax line.
+	ChannelLiable *bool `json:"channelLiable,omitempty,omitempty"`
+	// The amount of tax to be charged on the item.
+	PriceSet *MoneyBagInput `json:"priceSet,omitempty,omitempty"`
+	// The proportion of the item price that the tax represents as a decimal.
+	Rate decimal.Decimal `json:"rate"`
+	// The name of the tax line to create.
+	Title string `json:"title"`
+}
+
+// An error that occurs during the execution of `OrderCreate`.
+type OrderCreateUserError struct {
+	// The error code.
+	Code *OrderCreateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (OrderCreateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this OrderCreateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this OrderCreateUserError) GetMessage() string { return this.Message }
 
 // Return type for `orderDelete` mutation.
 type OrderDeletePayload struct {
@@ -20089,7 +22327,7 @@ func (this OrderDisputeSummary) GetID() string { return this.ID }
 
 // An auto-generated type which holds one Order and a cursor during pagination.
 type OrderEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of OrderEdge.
 	Node *Order `json:"node,omitempty"`
@@ -20653,11 +22891,11 @@ func (OrderStagedChangeAddVariant) IsOrderStagedChange() {}
 
 // An auto-generated type for paginating through multiple OrderStagedChanges.
 type OrderStagedChangeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []OrderStagedChangeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in OrderStagedChangeEdge.
+	// A list of nodes that are contained in OrderStagedChangeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []OrderStagedChange `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -20675,7 +22913,7 @@ func (OrderStagedChangeDecrementItem) IsOrderStagedChange() {}
 
 // An auto-generated type which holds one OrderStagedChange and a cursor during pagination.
 type OrderStagedChangeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of OrderStagedChangeEdge.
 	Node OrderStagedChange `json:"node"`
@@ -20705,6 +22943,8 @@ type OrderTransaction struct {
 	AccountNumber *string `json:"accountNumber,omitempty,omitempty"`
 	// The amount of money.
 	Amount decimal.Decimal `json:"amount"`
+	// The rounding adjustment applied on the cash amount in shop and presentment currencies.
+	AmountRoundingSet *MoneyBag `json:"amountRoundingSet,omitempty,omitempty"`
 	// The amount and currency of the transaction in shop and presentment currencies.
 	AmountSet *MoneyBag `json:"amountSet,omitempty"`
 	// The amount and currency of the transaction.
@@ -20784,17 +23024,17 @@ func (this OrderTransaction) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple OrderTransactions.
 type OrderTransactionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []OrderTransactionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in OrderTransactionEdge.
+	// A list of nodes that are contained in OrderTransactionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []OrderTransaction `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one OrderTransaction and a cursor during pagination.
 type OrderTransactionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of OrderTransactionEdge.
 	Node *OrderTransaction `json:"node,omitempty"`
@@ -20822,6 +23062,216 @@ type OrderUpdatePayload struct {
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
+// A page on the Online Store.
+type Page struct {
+	// The text content of the page, complete with HTML markup.
+	Body string `json:"body"`
+	// The first 150 characters of the page body. If the page body contains more than 150 characters, additional characters are truncated by ellipses.
+	BodySummary string `json:"bodySummary"`
+	// The date and time (ISO 8601 format) of the page creation.
+	CreatedAt time.Time `json:"createdAt"`
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+	DefaultCursor string `json:"defaultCursor"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
+	// A unique, human-friendly string for the page.
+	// In themes, the Liquid templating language refers to a page by its handle.
+	Handle string `json:"handle"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// Whether or not the page is visible.
+	IsPublished bool `json:"isPublished"`
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
+	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
+	// List of metafield definitions.
+	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
+	Metafields *MetafieldConnection `json:"metafields,omitempty"`
+	// Returns a private metafield by namespace and key that belongs to the resource.
+	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
+	// List of private metafields that belong to the resource.
+	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
+	// The date and time (ISO 8601 format) when the page became or will become visible.
+	// Returns null when the page isn't visible.
+	PublishedAt *time.Time `json:"publishedAt,omitempty,omitempty"`
+	// The suffix of the template that's used to render the page.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// Title of the page.
+	Title string `json:"title"`
+	// The published translations associated with the resource.
+	Translations []Translation `json:"translations,omitempty"`
+	// The date and time (ISO 8601 format) of the latest page update.
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+func (Page) IsMetafieldReference() {}
+
+func (Page) IsMetafieldReferencer() {}
+
+func (Page) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this Page) GetEvents() *EventConnection { return this.Events }
+
+func (Page) IsHasMetafieldDefinitions() {}
+
+// List of metafield definitions.
+func (this Page) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
+	return this.MetafieldDefinitions
+}
+
+func (Page) IsHasMetafields() {}
+
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
+func (this Page) GetMetafield() *Metafield { return this.Metafield }
+
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
+func (this Page) GetMetafields() *MetafieldConnection { return this.Metafields }
+
+// Returns a private metafield by namespace and key that belongs to the resource.
+func (this Page) GetPrivateMetafield() *PrivateMetafield { return this.PrivateMetafield }
+
+// List of private metafields that belong to the resource.
+func (this Page) GetPrivateMetafields() *PrivateMetafieldConnection { return this.PrivateMetafields }
+
+func (Page) IsHasPublishedTranslations() {}
+
+// The published translations associated with the resource.
+func (this Page) GetTranslations() []Translation {
+	if this.Translations == nil {
+		return nil
+	}
+	interfaceSlice := make([]Translation, 0, len(this.Translations))
+	for _, concrete := range this.Translations {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+func (Page) IsNavigable() {}
+
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
+func (this Page) GetDefaultCursor() string { return this.DefaultCursor }
+
+func (Page) IsNode() {}
+
+// A globally-unique ID.
+func (this Page) GetID() string { return this.ID }
+
+// An auto-generated type for paginating through multiple Pages.
+type PageConnection struct {
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
+	Edges []PageEdge `json:"edges,omitempty"`
+	// A list of nodes that are contained in PageEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
+	Nodes []Page `json:"nodes,omitempty"`
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
+	PageInfo *PageInfo `json:"pageInfo,omitempty"`
+}
+
+// The input fields to create a page.
+type PageCreateInput struct {
+	// A unique, human-friendly string for the page. If no handle is specified, a handle will be generated automatically from the page title.
+	// In themes, the Liquid templating language refers to a page by its handle.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The text content of the page, complete with HTML markup.
+	Body *string `json:"body,omitempty,omitempty"`
+	// Whether or not the page should be visible. Defaults to `true` if no publish date is specified.
+	IsPublished *bool `json:"isPublished,omitempty,omitempty"`
+	// The date and time (ISO 8601 format) when the page should become visible.
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
+	// The suffix of the template that's used to render the page.
+	// If the value is an empty string or `null`, then the default page template is used.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The input fields to create or update a metafield.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// The title of the page.
+	Title string `json:"title"`
+}
+
+// Return type for `pageCreate` mutation.
+type PageCreatePayload struct {
+	// The page that was created.
+	Page *Page `json:"page,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []PageCreateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `PageCreate`.
+type PageCreateUserError struct {
+	// The error code.
+	Code *PageCreateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (PageCreateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this PageCreateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this PageCreateUserError) GetMessage() string { return this.Message }
+
+// Return type for `pageDelete` mutation.
+type PageDeletePayload struct {
+	// The ID of the deleted page.
+	DeletedPageID *string `json:"deletedPageId,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []PageDeleteUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `PageDelete`.
+type PageDeleteUserError struct {
+	// The error code.
+	Code *PageDeleteUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (PageDeleteUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this PageDeleteUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this PageDeleteUserError) GetMessage() string { return this.Message }
+
+// An auto-generated type which holds one Page and a cursor during pagination.
+type PageEdge struct {
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
+	Cursor string `json:"cursor"`
+	// The item at the end of PageEdge.
+	Node *Page `json:"node,omitempty"`
+}
+
 // Returns information about pagination in a connection, in accordance with the
 // [Relay specification](https://relay.dev/graphql/connections.htm#sec-undefined.PageInfo).
 // For more information, please read our [GraphQL Pagination Usage Guide](https://shopify.dev/api/usage/pagination-graphql).
@@ -20836,6 +23286,64 @@ type PageInfo struct {
 	StartCursor *string `json:"startCursor,omitempty,omitempty"`
 }
 
+// The input fields to update a page.
+type PageUpdateInput struct {
+	// A unique, human-friendly string for the page. If no handle is specified, a handle will be generated automatically from the page title.
+	// In themes, the Liquid templating language refers to a page by its handle.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The text content of the page, complete with HTML markup.
+	Body *string `json:"body,omitempty,omitempty"`
+	// Whether or not the page should be visible. Defaults to `true` if no publish date is specified.
+	IsPublished *bool `json:"isPublished,omitempty,omitempty"`
+	// The date and time (ISO 8601 format) when the page should become visible.
+	PublishDate *time.Time `json:"publishDate,omitempty,omitempty"`
+	// The suffix of the template that's used to render the page.
+	// If the value is an empty string or `null`, then the default page template is used.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The input fields to create or update a metafield.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// The title of the page.
+	Title *string `json:"title,omitempty,omitempty"`
+	// Whether a redirect is required after a new handle has been provided.
+	// If `true`, then the old handle is redirected to the new one automatically.
+	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
+}
+
+// Return type for `pageUpdate` mutation.
+type PageUpdatePayload struct {
+	// The page that was updated.
+	Page *Page `json:"page,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []PageUpdateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `PageUpdate`.
+type PageUpdateUserError struct {
+	// The error code.
+	Code *PageUpdateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (PageUpdateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this PageUpdateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this PageUpdateUserError) GetMessage() string { return this.Message }
+
 // A payment customization.
 type PaymentCustomization struct {
 	// The enabled status of the payment customization.
@@ -20846,11 +23354,14 @@ type PaymentCustomization struct {
 	FunctionID string `json:"functionId"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -20873,10 +23384,13 @@ func (this PaymentCustomization) GetMetafieldDefinitions() *MetafieldDefinitionC
 
 func (PaymentCustomization) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this PaymentCustomization) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this PaymentCustomization) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -20904,11 +23418,11 @@ type PaymentCustomizationActivationPayload struct {
 
 // An auto-generated type for paginating through multiple PaymentCustomizations.
 type PaymentCustomizationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PaymentCustomizationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PaymentCustomizationEdge.
+	// A list of nodes that are contained in PaymentCustomizationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []PaymentCustomization `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -20930,7 +23444,7 @@ type PaymentCustomizationDeletePayload struct {
 
 // An auto-generated type which holds one PaymentCustomization and a cursor during pagination.
 type PaymentCustomizationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PaymentCustomizationEdge.
 	Node *PaymentCustomization `json:"node,omitempty"`
@@ -21055,17 +23569,17 @@ func (this PaymentSchedule) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple PaymentSchedules.
 type PaymentScheduleConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PaymentScheduleEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PaymentScheduleEdge.
+	// A list of nodes that are contained in PaymentScheduleEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []PaymentSchedule `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one PaymentSchedule and a cursor during pagination.
 type PaymentScheduleEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PaymentScheduleEdge.
 	Node *PaymentSchedule `json:"node,omitempty"`
@@ -21352,11 +23866,11 @@ type PriceListAdjustmentSettingsInput struct {
 
 // An auto-generated type for paginating through multiple PriceLists.
 type PriceListConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PriceListEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PriceListEdge.
+	// A list of nodes that are contained in PriceListEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []PriceList `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -21390,7 +23904,7 @@ type PriceListDeletePayload struct {
 
 // An auto-generated type which holds one PriceList and a cursor during pagination.
 type PriceListEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PriceListEdge.
 	Node *PriceList `json:"node,omitempty"`
@@ -21511,17 +24025,17 @@ type PriceListPrice struct {
 
 // An auto-generated type for paginating through multiple PriceListPrices.
 type PriceListPriceConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PriceListPriceEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PriceListPriceEdge.
+	// A list of nodes that are contained in PriceListPriceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []PriceListPrice `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one PriceListPrice and a cursor during pagination.
 type PriceListPriceEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PriceListPriceEdge.
 	Node *PriceListPrice `json:"node,omitempty"`
@@ -21721,38 +24235,6 @@ func (PriceRule) IsNode() {}
 
 // A globally-unique ID.
 
-// Return type for `priceRuleActivate` mutation.
-type PriceRuleActivatePayload struct {
-	// The activated price rule.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// An auto-generated type for paginating through multiple PriceRules.
-type PriceRuleConnection struct {
-	// A list of edges.
-	Edges []PriceRuleEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PriceRuleEdge.
-	Nodes []PriceRule `json:"nodes,omitempty"`
-	// Information to aid in pagination.
-	PageInfo *PageInfo `json:"pageInfo,omitempty"`
-}
-
-// Return type for `priceRuleCreate` mutation.
-type PriceRuleCreatePayload struct {
-	// The newly created price rule.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// The newly created discount code.
-	PriceRuleDiscountCode *PriceRuleDiscountCode `json:"priceRuleDiscountCode,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
 // A selection of customers for whom the price rule applies.
 type PriceRuleCustomerSelection struct {
 	// List of customers to whom the price rule applies.
@@ -21761,40 +24243,6 @@ type PriceRuleCustomerSelection struct {
 	ForAllCustomers bool `json:"forAllCustomers"`
 	// A list of customer segments that contain the customers who can use the price rule.
 	Segments []Segment `json:"segments,omitempty"`
-}
-
-// The input fields to update a price rule customer selection.
-type PriceRuleCustomerSelectionInput struct {
-	// Whether the price rule applies to all customers.
-	ForAllCustomers *bool `json:"forAllCustomers,omitempty,omitempty"`
-	// List of customer segments that contain the customers to whom the price rule applies. No single customer IDs may be present.
-	SegmentIds []string `json:"segmentIds,omitempty,omitempty"`
-	// List of customers to add to the current list of customers to whom the price rule applies. `savedSearchIds` must be empty.
-	CustomerIdsToAdd []string `json:"customerIdsToAdd,omitempty,omitempty"`
-	// A list of customers to remove from the current list of customers to whom the price rule applies.
-	CustomerIdsToRemove []string `json:"customerIdsToRemove,omitempty,omitempty"`
-}
-
-// Return type for `priceRuleDeactivate` mutation.
-type PriceRuleDeactivatePayload struct {
-	// The deactivated price rule.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// Return type for `priceRuleDelete` mutation.
-type PriceRuleDeletePayload struct {
-	// The ID price of the deleted price rule.
-	DeletedPriceRuleID *string `json:"deletedPriceRuleId,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The shop of the deleted price rule.
-	Shop *Shop `json:"shop,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
 // A discount code of a price rule.
@@ -21816,58 +24264,20 @@ func (this PriceRuleDiscountCode) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple PriceRuleDiscountCodes.
 type PriceRuleDiscountCodeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PriceRuleDiscountCodeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PriceRuleDiscountCodeEdge.
+	// A list of nodes that are contained in PriceRuleDiscountCodeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []PriceRuleDiscountCode `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
-}
-
-// Return type for `priceRuleDiscountCodeCreate` mutation.
-type PriceRuleDiscountCodeCreatePayload struct {
-	// The updated price rule.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// The newly created discount code.
-	PriceRuleDiscountCode *PriceRuleDiscountCode `json:"priceRuleDiscountCode,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
 // An auto-generated type which holds one PriceRuleDiscountCode and a cursor during pagination.
 type PriceRuleDiscountCodeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PriceRuleDiscountCodeEdge.
 	Node *PriceRuleDiscountCode `json:"node,omitempty"`
-}
-
-// The input fields to manipulate a discount code.
-type PriceRuleDiscountCodeInput struct {
-	// The code to use the discount.
-	Code *string `json:"code,omitempty,omitempty"`
-}
-
-// Return type for `priceRuleDiscountCodeUpdate` mutation.
-type PriceRuleDiscountCodeUpdatePayload struct {
-	// The updated price rule.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// The updated discount code.
-	PriceRuleDiscountCode *PriceRuleDiscountCode `json:"priceRuleDiscountCode,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// An auto-generated type which holds one PriceRule and a cursor during pagination.
-type PriceRuleEdge struct {
-	// A cursor for use in pagination.
-	Cursor string `json:"cursor"`
-	// The item at the end of PriceRuleEdge.
-	Node *PriceRule `json:"node,omitempty"`
 }
 
 // Quantity of prerequisite items required for the price rule to be applicable, compared to quantity of entitled items.
@@ -21878,14 +24288,6 @@ type PriceRuleEntitlementToPrerequisiteQuantityRatio struct {
 	PrerequisiteQuantity int `json:"prerequisiteQuantity"`
 }
 
-// Specifies the quantity of prerequisite items required for the price rule to be applicable, compared to quantity of entitled items.
-type PriceRuleEntitlementToPrerequisiteQuantityRatioInput struct {
-	// The quantity of entitled items in the ratio.
-	EntitlementQuantity *int `json:"entitlementQuantity,omitempty,omitempty"`
-	// The quantity of prerequisite items in the ratio.
-	PrerequisiteQuantity *int `json:"prerequisiteQuantity,omitempty,omitempty"`
-}
-
 // The value of a fixed amount price rule.
 type PriceRuleFixedAmountValue struct {
 	// The monetary value of the price rule.
@@ -21893,44 +24295,6 @@ type PriceRuleFixedAmountValue struct {
 }
 
 func (PriceRuleFixedAmountValue) IsPriceRuleValue() {}
-
-// The input fields to manipulate a price rule.
-type PriceRuleInput struct {
-	// Determines which discount classes the discount can combine with.
-	CombinesWith *DiscountCombinesWithInput `json:"combinesWith,omitempty,omitempty"`
-	// PriceRuleValidityPeriod for the price rule.
-	ValidityPeriod *PriceRuleValidityPeriodInput `json:"validityPeriod,omitempty,omitempty"`
-	// Whether the price rule can be applied only once per customer.
-	OncePerCustomer *bool `json:"oncePerCustomer,omitempty,omitempty"`
-	// The customers that can use this price rule.
-	CustomerSelection *PriceRuleCustomerSelectionInput `json:"customerSelection,omitempty,omitempty"`
-	// The maximum number of times that the price rule can be used in total.
-	UsageLimit *int `json:"usageLimit,omitempty,omitempty"`
-	// Title of the price rule.
-	Title *string `json:"title,omitempty,omitempty"`
-	// The maximum number of times that the price rule can be allocated onto an order.
-	AllocationLimit *int `json:"allocationLimit,omitempty,omitempty"`
-	// The method by which the price rule's value is allocated to its entitled items.
-	AllocationMethod *PriceRuleAllocationMethod `json:"allocationMethod,omitempty,omitempty"`
-	// The value of the price rule.
-	Value *PriceRuleValueInput `json:"value,omitempty,omitempty"`
-	// The type of lines (line_item or shipping_line) to which the price rule applies.
-	Target *PriceRuleTarget `json:"target,omitempty,omitempty"`
-	// The sum of the entitled items subtotal prices must fall within this range for the price rule to be applicable.
-	PrerequisiteSubtotalRange *PriceRuleMoneyRangeInput `json:"prerequisiteSubtotalRange,omitempty,omitempty"`
-	// The number of the entitled items must fall within this range for the price rule to be applicable.
-	PrerequisiteQuantityRange *PriceRuleQuantityRangeInput `json:"prerequisiteQuantityRange,omitempty,omitempty"`
-	// The shipping cost must fall within this range for the price rule to be applicable.
-	PrerequisiteShippingPriceRange *PriceRuleMoneyRangeInput `json:"prerequisiteShippingPriceRange,omitempty,omitempty"`
-	// The items to which the price rule applies.
-	ItemEntitlements *PriceRuleItemEntitlementsInput `json:"itemEntitlements,omitempty,omitempty"`
-	// The items required for the price rule to be applicable.
-	ItemPrerequisites *PriceRuleItemPrerequisitesInput `json:"itemPrerequisites,omitempty,omitempty"`
-	// The shipping lines to which the price rule applies.
-	ShippingEntitlements *PriceRuleShippingEntitlementsInput `json:"shippingEntitlements,omitempty,omitempty"`
-	// Quantity of prerequisite items required for the price rule to be applicable, compared to quantity of entitled items.
-	PrerequisiteToEntitlementQuantityRatio *PriceRulePrerequisiteToEntitlementQuantityRatioInput `json:"prerequisiteToEntitlementQuantityRatio,omitempty,omitempty"`
-}
 
 // The items to which this price rule applies. This may be multiple products, product variants, collections or combinations of the aforementioned.
 type PriceRuleItemEntitlements struct {
@@ -21942,28 +24306,6 @@ type PriceRuleItemEntitlements struct {
 	Products *ProductConnection `json:"products,omitempty"`
 	// Whether the price rule applies to all line items.
 	TargetAllLineItems bool `json:"targetAllLineItems"`
-}
-
-// The input fields to update a price rule line item entitlement.
-type PriceRuleItemEntitlementsInput struct {
-	// Whether the price rule applies to all items.
-	TargetAllLineItems *bool `json:"targetAllLineItems,omitempty,omitempty"`
-	// The products to which the price rule applies.
-	ProductIds []string `json:"productIds,omitempty,omitempty"`
-	// The product variants to which the price rule applies.
-	ProductVariantIds []string `json:"productVariantIds,omitempty,omitempty"`
-	// The collections to which the price rule applies.
-	CollectionIds []string `json:"collectionIds,omitempty,omitempty"`
-}
-
-// The input fields to update a price rule's item prerequisites.
-type PriceRuleItemPrerequisitesInput struct {
-	// The products needed for the price rule to be applied.
-	ProductIds []string `json:"productIds,omitempty,omitempty"`
-	// The product variants needed for the price rule to be applied.
-	ProductVariantIds []string `json:"productVariantIds,omitempty,omitempty"`
-	// The collections needed for the price rule to be applied.
-	CollectionIds []string `json:"collectionIds,omitempty,omitempty"`
 }
 
 // Single or multiple line item products, product variants or collections required for the price rule to be applicable, can also be provided in combination.
@@ -21988,18 +24330,6 @@ type PriceRuleMoneyRange struct {
 	LessThanOrEqualTo *decimal.Decimal `json:"lessThanOrEqualTo,omitempty,omitempty"`
 }
 
-// The input fields to update the money range within which the price rule is applicable.
-type PriceRuleMoneyRangeInput struct {
-	// The upper bound of the money range.
-	LessThan *decimal.Decimal `json:"lessThan,omitempty,omitempty"`
-	// The upper or equal bound of the money range.
-	LessThanOrEqualTo *decimal.Decimal `json:"lessThanOrEqualTo,omitempty,omitempty"`
-	// The lower bound of the money range.
-	GreaterThan *decimal.Decimal `json:"greaterThan,omitempty,omitempty"`
-	// The lower or equal bound of the money range.
-	GreaterThanOrEqualTo *decimal.Decimal `json:"greaterThanOrEqualTo,omitempty,omitempty"`
-}
-
 // The value of a percent price rule.
 type PriceRulePercentValue struct {
 	// The percent value of the price rule.
@@ -22016,14 +24346,6 @@ type PriceRulePrerequisiteToEntitlementQuantityRatio struct {
 	PrerequisiteQuantity int `json:"prerequisiteQuantity"`
 }
 
-// Specifies the quantity of prerequisite items required for the price rule to be applicable, compared to quantity of entitled items.
-type PriceRulePrerequisiteToEntitlementQuantityRatioInput struct {
-	// The quantity of entitled items in the ratio.
-	EntitlementQuantity *int `json:"entitlementQuantity,omitempty,omitempty"`
-	// The quantity of prerequisite items in the ratio.
-	PrerequisiteQuantity *int `json:"prerequisiteQuantity,omitempty,omitempty"`
-}
-
 // A quantity range within which the price rule is applicable.
 type PriceRuleQuantityRange struct {
 	// The lower bound of the quantity range.
@@ -22034,18 +24356,6 @@ type PriceRuleQuantityRange struct {
 	LessThan *int `json:"lessThan,omitempty,omitempty"`
 	// The upper bound or equal of the quantity range.
 	LessThanOrEqualTo *int `json:"lessThanOrEqualTo,omitempty,omitempty"`
-}
-
-// The input fields to update the quantity range within which the price rule is applicable.
-type PriceRuleQuantityRangeInput struct {
-	// The upper bound of the quantity range.
-	LessThan *int `json:"lessThan,omitempty,omitempty"`
-	// The upper or equal bound of the quantity range.
-	LessThanOrEqualTo *int `json:"lessThanOrEqualTo,omitempty,omitempty"`
-	// The lower bound of the quantity range.
-	GreaterThan *int `json:"greaterThan,omitempty,omitempty"`
-	// The lower or equal bound of the quantity range.
-	GreaterThanOrEqualTo *int `json:"greaterThanOrEqualTo,omitempty,omitempty"`
 }
 
 // Shareable URL for the discount code associated with the price rule.
@@ -22060,16 +24370,6 @@ type PriceRuleShareableURL struct {
 	URL string `json:"url"`
 }
 
-// The input fields to update a price rule shipping entitlement.
-type PriceRuleShippingEntitlementsInput struct {
-	// Whether the price rule applies to all shipping lines.
-	TargetAllShippingLines *bool `json:"targetAllShippingLines,omitempty,omitempty"`
-	// The codes for the countries to which the price rule applies to.
-	CountryCodes []CountryCode `json:"countryCodes,omitempty,omitempty"`
-	// Whether the price rule is applicable to countries that haven't been defined in the shop's shipping zones.
-	IncludeRestOfWorld *bool `json:"includeRestOfWorld,omitempty,omitempty"`
-}
-
 // The shipping lines to which the price rule applies to.
 type PriceRuleShippingLineEntitlements struct {
 	// The codes for the countries to which the price rule applies to.
@@ -22080,67 +24380,12 @@ type PriceRuleShippingLineEntitlements struct {
 	TargetAllShippingLines bool `json:"targetAllShippingLines"`
 }
 
-// Return type for `priceRuleUpdate` mutation.
-type PriceRuleUpdatePayload struct {
-	// The updated price rule.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// The updated discount code.
-	PriceRuleDiscountCode *PriceRuleDiscountCode `json:"priceRuleDiscountCode,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	PriceRuleUserErrors []PriceRuleUserError `json:"priceRuleUserErrors,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// Represents an error that happens during execution of a price rule mutation.
-type PriceRuleUserError struct {
-	// Error code to uniquely identify the error.
-	Code *PriceRuleErrorCode `json:"code,omitempty,omitempty"`
-	// The path to the input field that caused the error.
-	Field []string `json:"field,omitempty,omitempty"`
-	// The error message.
-	Message string `json:"message"`
-}
-
-func (PriceRuleUserError) IsDisplayableError() {}
-
-// The path to the input field that caused the error.
-func (this PriceRuleUserError) GetField() []string {
-	if this.Field == nil {
-		return nil
-	}
-	interfaceSlice := make([]string, 0, len(this.Field))
-	for _, concrete := range this.Field {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-// The error message.
-func (this PriceRuleUserError) GetMessage() string { return this.Message }
-
 // A time period during which a price rule is applicable.
 type PriceRuleValidityPeriod struct {
 	// The time after which the price rule becomes invalid.
 	End *time.Time `json:"end,omitempty,omitempty"`
 	// The time after which the price rule is valid.
 	Start time.Time `json:"start"`
-}
-
-// The input fields to update the validity period of a price rule.
-type PriceRuleValidityPeriodInput struct {
-	// The time after which the price rule is valid.
-	Start time.Time `json:"start"`
-	// The time after which the price rule becomes invalid.
-	End *time.Time `json:"end,omitempty,omitempty"`
-}
-
-// The input fields to update a price rule.
-type PriceRuleValueInput struct {
-	// The percentage value of the price rule.
-	PercentageValue *float64 `json:"percentageValue,omitempty,omitempty"`
-	// The fixed amount value of the price rule.
-	FixedAmountValue *decimal.Decimal `json:"fixedAmountValue,omitempty,omitempty"`
 }
 
 // One type of value given to a customer when a discount is applied to an order.
@@ -22183,11 +24428,11 @@ func (this PrivateMetafield) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple PrivateMetafields.
 type PrivateMetafieldConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PrivateMetafieldEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PrivateMetafieldEdge.
+	// A list of nodes that are contained in PrivateMetafieldEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []PrivateMetafield `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -22211,7 +24456,7 @@ type PrivateMetafieldDeletePayload struct {
 
 // An auto-generated type which holds one PrivateMetafield and a cursor during pagination.
 type PrivateMetafieldEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PrivateMetafieldEdge.
 	Node *PrivateMetafield `json:"node,omitempty"`
@@ -22245,85 +24490,132 @@ type PrivateMetafieldValueInput struct {
 	ValueType PrivateMetafieldValueType `json:"valueType"`
 }
 
-// The Product resource lets you manage products in a merchant’s store. You can use [ProductVariants](https://shopify.dev/api/admin-graphql/latest/objects/productvariant) to create or update different versions of the same product. You can also add or update product [Media](https://shopify.dev/api/admin-graphql/latest/interfaces/media). Products can be organized by grouping them into a [Collection](https://shopify.dev/api/admin-graphql/latest/objects/collection).
+// The `Product` object lets you manage products in a merchant’s store.
+//
+// Products are the goods and services that merchants offer to customers. They can include various details such as title, description, price, images, and options such as size or color.
+// You can use [product variants](https://shopify.dev/docs/api/admin-graphql/latest/objects/productvariant) to create or update different versions of the same product.
+// You can also add or update product [media](https://shopify.dev/docs/api/admin-graphql/latest/interfaces/media).
+// Products can be organized by grouping them into a [collection](https://shopify.dev/docs/api/admin-graphql/latest/objects/collection).
+//
+// Learn more about working with [Shopify's product model](https://shopify.dev/docs/apps/build/graphql/migrate/new-product-model/product-model-components),
+// including limitations and considerations.
 type Product struct {
-	// The number of publications a resource is published to without feedback errors.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	AvailablePublicationsCount *Count `json:"availablePublicationsCount,omitempty,omitempty"`
-	// The description of the product, complete with HTML formatting.
+	// The description of the product, with
+	// HTML tags. For example, the description might include
+	// bold `<strong></strong>` and italic `<i></i>` text.
 	BodyHTML *string `json:"bodyHtml,omitempty,omitempty"`
-	// A list of product components that are connected to this product via group relationships.
+	// A list of [components](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-product-fixed-bundle)
+	// that are associated with a product in a bundle.
 	BundleComponents *ProductBundleComponentConnection `json:"bundleComponents,omitempty"`
-	// The taxonomy category specified by the merchant.
+	// The category of a product
+	// from [Shopify's Standard Product Taxonomy](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17).
 	Category *TaxonomyCategory `json:"category,omitempty,omitempty"`
-	// A list of the collections that include the product.
+	// A list of [collections](https://shopify.dev/docs/api/admin-graphql/latest/objects/Collection)
+	// that include the product.
 	Collections *CollectionConnection `json:"collections,omitempty"`
-	// The combined listing.
+	// A special product type that combines separate products from a store into a single product listing.
+	// [Combined listings](https://shopify.dev/apps/build/product-merchandising/combined-listings) are connected
+	// by a shared option, such as color, model, or dimension.
 	CombinedListing *CombinedListing `json:"combinedListing,omitempty,omitempty"`
-	// The role of the product in a combined listing. If null, the product not a part of any combined_listing.
+	// The [role of the product](https://shopify.dev/docs/apps/build/product-merchandising/combined-listings/build-for-combined-listings)
+	// in a combined listing.
+	//
+	// If `null`, then the product isn't part of any combined listing.
 	CombinedListingRole *CombinedListingsRole `json:"combinedListingRole,omitempty,omitempty"`
-	// The compare-at price range of the product in the default shop currency.
+	// The [compare-at price range](https://help.shopify.com/manual/products/details/product-pricing/sale-pricing)
+	// of the product in the shop's default currency.
 	CompareAtPriceRange *ProductCompareAtPriceRange `json:"compareAtPriceRange,omitempty,omitempty"`
-	// The pricing that applies for a customer in a given context.
+	// The pricing that applies to a customer in a specific context. For example, a price might vary depending on the customer's location.
 	ContextualPricing *ProductContextualPricing `json:"contextualPricing,omitempty"`
-	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the product was created.
+	// The date and time when the product was created.
 	CreatedAt time.Time `json:"createdAt"`
 	// The custom product type specified by the merchant.
 	CustomProductType *string `json:"customProductType,omitempty,omitempty"`
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	DefaultCursor string `json:"defaultCursor"`
-	// A stripped description of the product, single line with HTML tags removed.
+	// A single-line description of the product,
+	// with [HTML tags](https://developer.mozilla.org/en-US/docs/Web/HTML) removed.
 	Description string `json:"description"`
-	// The description of the product, complete with HTML formatting.
+	// The description of the product, with
+	// HTML tags. For example, the description might include
+	// bold `<strong></strong>` and italic `<i></i>` text.
 	DescriptionHTML string `json:"descriptionHtml"`
 	// Stripped description of the product, single line with HTML tags removed.
 	// Truncated to 60 characters.
 	DescriptionPlainSummary string `json:"descriptionPlainSummary"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
 	// The featured image for the product.
 	FeaturedImage *Image `json:"featuredImage,omitempty,omitempty"`
-	// The featured media for the product.
+	// The featured [media](https://shopify.dev/docs/apps/build/online-store/product-media)
+	// associated with the product.
 	FeaturedMedia Media `json:"featuredMedia,omitempty"`
-	// Information about the product that's provided through resource feedback.
+	// The information that lets merchants know what steps they need to take
+	// to make sure that the app is set up correctly.
+	//
+	// For example, if a merchant hasn't set up a product correctly in the app,
+	// then the feedback might include a message that says "You need to add a price
+	// to this product".
 	Feedback *ResourceFeedback `json:"feedback,omitempty,omitempty"`
-	// The theme template used when viewing the gift card in a store.
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view the gift card in a store.
 	GiftCardTemplateSuffix *string `json:"giftCardTemplateSuffix,omitempty,omitempty"`
-	// A unique human-friendly string of the product's title.
+	// A unique, human-readable string of the product's title. A handle can contain letters, hyphens (`-`), and numbers, but no spaces.
+	// The handle is used in the online store URL for the product.
 	Handle string `json:"handle"`
 	// Whether the product has only a single variant with the default option and value.
 	HasOnlyDefaultVariant bool `json:"hasOnlyDefaultVariant"`
-	// Whether the product has out of stock variants.
+	// Whether the product has variants that are out of stock.
 	HasOutOfStockVariants bool `json:"hasOutOfStockVariants"`
-	// Determines if at least one of the product variant requires components. The default value is `false`.
+	// Whether at least one of the product variants requires
+	// [bundle components](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-product-fixed-bundle).
+	//
+	// Learn more about
+	// [store eligibility for bundles](https://shopify.dev/docs/apps/build/product-merchandising/bundles#store-eligibility).
 	HasVariantsThatRequiresComponents bool `json:"hasVariantsThatRequiresComponents"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The images associated with the product.
 	Images *ImageConnection `json:"images,omitempty"`
-	// Whether the product is in a given collection.
+	// Whether the product
+	// is in a specified
+	// [collection](https://shopify.dev/docs/api/admin-graphql/latest/objects/collection).
 	InCollection bool `json:"inCollection"`
 	// Whether the product is a gift card.
 	IsGiftCard bool `json:"isGiftCard"`
 	// The ID of the corresponding resource in the REST Admin API.
 	LegacyResourceID string `json:"legacyResourceId"`
-	// The media associated with the product. This can include images, 3D models, or videos.
+	// The [media](https://shopify.dev/docs/apps/build/online-store/product-media) associated with the product. Valid media are images, 3D models, videos.
 	Media *MediaConnection `json:"media,omitempty"`
-	// Total count of media belonging to a product.
+	// The total count of [media](https://shopify.dev/docs/apps/build/online-store/product-media)
+	// that's associated with a product.
 	MediaCount *Count `json:"mediaCount,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
-	// The online store preview URL.
+	// The [preview URL](https://help.shopify.com/manual/online-store/setting-up#preview-your-store) for the online store.
 	OnlineStorePreviewURL *string `json:"onlineStorePreviewUrl,omitempty,omitempty"`
-	// The online store URL for the product.
-	// A value of `null` indicates that the product isn't published to the Online Store sales channel.
+	// The product's URL on the online store.
+	// If `null`, then the product isn't published to the online store sales channel.
 	OnlineStoreURL *string `json:"onlineStoreUrl,omitempty,omitempty"`
-	// A list of product options. The limit is specified by Shop.resourceLimits.maxProductOptions.
+	// A list of product options. The limit is defined by the
+	// [shop's resource limits for product options](https://shopify.dev/docs/api/admin-graphql/latest/objects/Shop#field-resourcelimits) (`Shop.resourceLimits.maxProductOptions`).
 	Options []ProductOption `json:"options,omitempty"`
 	// The price range of the product.
 	PriceRange *ProductPriceRange `json:"priceRange,omitempty"`
-	// The price range of the product with prices formatted as decimals.
+	// The minimum and maximum prices of a product, expressed in decimal numbers.
+	// For example, if the product is priced between $10.00 and $50.00,
+	// then the price range is $10.00 - $50.00.
 	PriceRangeV2 *ProductPriceRangeV2 `json:"priceRangeV2,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -22333,79 +24625,116 @@ type Product struct {
 	ProductCategory *ProductCategory `json:"productCategory,omitempty,omitempty"`
 	// A list of the channels where the product is published.
 	ProductPublications *ProductPublicationConnection `json:"productPublications,omitempty"`
-	// The product type specified by the merchant.
+	// The [product type](https://help.shopify.com/manual/products/details/product-type)
+	// that merchants define.
 	ProductType string `json:"productType"`
-	// The number of publications a resource is published on.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	PublicationCount int `json:"publicationCount"`
 	// A list of the channels where the product is published.
 	Publications *ProductPublicationConnection `json:"publications,omitempty"`
-	// The date and time ([ISO 8601 format](http://en.wikipedia.org/wiki/ISO_8601)) when the product was published to the Online Store.
+	// The date and time when the product was published to the online store.
 	PublishedAt *time.Time `json:"publishedAt,omitempty,omitempty"`
-	// Whether or not the product is published for a customer in the given context.
+	// Whether the product is published for a customer only in a specified context. For example, a product might be published for a customer only in a specific location.
 	PublishedInContext bool `json:"publishedInContext"`
-	// Check to see whether the resource is published to a given channel.
+	// Whether the resource is published to a specific channel.
 	PublishedOnChannel bool `json:"publishedOnChannel"`
-	// Check to see whether the resource is published to the calling app's channel.
+	// Whether the resource is published to a
+	// [channel](https://shopify.dev/docs/api/admin-graphql/latest/objects/Channel).
+	// For example, the resource might be published to the online store channel.
 	PublishedOnCurrentChannel bool `json:"publishedOnCurrentChannel"`
-	// Check to see whether the resource is published to the calling app's publication.
+	// Whether the resource is published to the app's
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
+	// For example, the resource might be published to the app's online store channel.
 	PublishedOnCurrentPublication bool `json:"publishedOnCurrentPublication"`
-	// Check to see whether the resource is published to a given publication.
+	// Whether the resource is published to a specified
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	PublishedOnPublication bool `json:"publishedOnPublication"`
-	// Whether the product can only be purchased with a selling plan (subscription). Products that are sold on subscription (`requiresSellingPlan: true`) can be updated only for online stores. If you update a product to be subscription only, then the product is unpublished from all channels except the online store.
+	// Whether the product can only be purchased with
+	// a [selling plan](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans).
+	// Products that are sold on subscription (`requiresSellingPlan: true`) can be updated only for online stores.
+	// If you update a product to be subscription-only (`requiresSellingPlan:false`), then the product is unpublished from all channels, except the online store.
 	RequiresSellingPlan bool `json:"requiresSellingPlan"`
-	// The resource that's either published or staged to be published to the calling app's publication. Requires the `read_product_listings` scope.
+	// The resource that's either published or staged to be published to
+	// the [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	ResourcePublicationOnCurrentPublication *ResourcePublicationV2 `json:"resourcePublicationOnCurrentPublication,omitempty,omitempty"`
-	// The list of resources that are published to a publication.
+	// The list of resources that are published to a
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	ResourcePublications *ResourcePublicationConnection `json:"resourcePublications,omitempty"`
-	// The number of publications a resource is published on.
+	// The number of
+	// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that a resource is published to, without
+	// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 	ResourcePublicationsCount *Count `json:"resourcePublicationsCount,omitempty,omitempty"`
-	// The list of resources that are either published or staged to be published to a publication.
+	// The list of resources that are either published or staged to be published to a
+	// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 	ResourcePublicationsV2 *ResourcePublicationV2Connection `json:"resourcePublicationsV2,omitempty"`
-	// Count of selling plan groups associated with the product.
+	// Whether the merchant can make changes to the product when they
+	// [edit the order](https://shopify.dev/docs/apps/build/orders-fulfillment/order-management-apps/edit-orders)
+	// associated with the product. For example, a merchant might be restricted from changing product details when they
+	// edit an order.
+	RestrictedForResource *RestrictedForResource `json:"restrictedForResource,omitempty,omitempty"`
+	// A count of [selling plan groups](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans/build-a-selling-plan)
+	// that are associated with the product.
 	SellingPlanGroupCount int `json:"sellingPlanGroupCount"`
-	// A list of all selling plan groups defined in the current shop associated with the product either directly or through any of its variants.
+	// A list of all [selling plan groups](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans/build-a-selling-plan)
+	// that are associated with the product either directly, or through the product's variants.
 	SellingPlanGroups *SellingPlanGroupConnection `json:"sellingPlanGroups,omitempty"`
-	// Count of selling plan groups associated with the product.
+	// A count of [selling plan groups](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans/build-a-selling-plan)
+	// that are associated with the product.
 	SellingPlanGroupsCount *Count `json:"sellingPlanGroupsCount,omitempty,omitempty"`
-	// SEO information of the product.
+	// The [SEO title and description](https://help.shopify.com/manual/promoting-marketing/seo/adding-keywords)
+	// that are associated with a product.
 	Seo *Seo `json:"seo,omitempty"`
 	// The standardized product type in the Shopify product taxonomy.
 	StandardizedProductType *StandardizedProductType `json:"standardizedProductType,omitempty,omitempty"`
-	// The product status. This controls visibility across all channels.
+	// The [product status](https://help.shopify.com/manual/products/details/product-details-page#product-status),
+	// which controls visibility across all sales channels.
 	Status ProductStatus `json:"status"`
 	// The Storefront GraphQL API ID of the `Product`.
 	//
 	// As of the `2022-04` version release, the Storefront GraphQL API will no longer return Base64 encoded IDs to match the behavior of the Admin GraphQL API. Therefore, you can safely use the `id` field's value instead.
 	StorefrontID string `json:"storefrontId"`
-	// A comma separated list of tags associated with the product. Updating `tags` overwrites
+	// A comma-separated list of searchable keywords that are
+	// associated with the product. For example, a merchant might apply the `sports`
+	// and `summer` tags to products that are associated with sportwear for summer.
+	//
+	// Updating `tags` overwrites
 	// any existing tags that were previously added to the product. To add new tags without overwriting
-	// existing tags, use the [tagsAdd](https://shopify.dev/api/admin-graphql/latest/mutations/tagsadd)
+	// existing tags, use the [`tagsAdd`](https://shopify.dev/api/admin-graphql/latest/mutations/tagsadd)
 	// mutation.
 	Tags []string `json:"tags,omitempty"`
-	// The theme template used when viewing the product in a store.
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view the product in a store.
 	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
-	// The title of the product.
+	// The name for the product that displays to customers. The title is used to construct the product's handle.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
 	Title string `json:"title"`
-	// The quantity of inventory in stock.
+	// The quantity of inventory that's in stock.
 	TotalInventory int `json:"totalInventory"`
-	// The number of variants that are associated with the product.
+	// The number of [variants](https://shopify.dev/docs/api/admin-graphql/latest/objects/ProductVariant)
+	// that are associated with the product.
 	TotalVariants int `json:"totalVariants"`
-	// Whether inventory tracking has been enabled for the product.
+	// Whether [inventory tracking](https://help.shopify.com/manual/products/inventory/getting-started-with-inventory/set-up-inventory-tracking)
+	// has been enabled for the product.
 	TracksInventory bool `json:"tracksInventory"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 	// The list of channels that the resource is not published to.
 	UnpublishedChannels *ChannelConnection `json:"unpublishedChannels,omitempty"`
-	// The list of publications that the resource is not published to.
+	// The list of [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+	// that the resource isn't published to.
 	UnpublishedPublications *PublicationConnection `json:"unpublishedPublications,omitempty"`
 	// The date and time when the product was last modified.
 	// A product's `updatedAt` value can change for different reasons. For example, if an order
 	// is placed for a product that has inventory tracking set up, then the inventory adjustment
 	// is counted as an update.
 	UpdatedAt time.Time `json:"updatedAt"`
-	// A list of variants associated with the product.
+	// A list of [variants](https://shopify.dev/docs/api/admin-graphql/latest/objects/ProductVariant) associated with the product.
 	Variants *ProductVariantConnection `json:"variants,omitempty"`
-	// The number of variants that are associated with the product.
+	// The number of [variants](https://shopify.dev/docs/api/admin-graphql/latest/objects/ProductVariant)
+	// that are associated with the product.
 	VariantsCount *Count `json:"variantsCount,omitempty,omitempty"`
 	// The name of the product's vendor.
 	Vendor string `json:"vendor"`
@@ -22417,6 +24746,11 @@ func (Product) IsMetafieldReference() {}
 
 func (Product) IsMetafieldReferencer() {}
 
+func (Product) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this Product) GetEvents() *EventConnection { return this.Events }
+
 func (Product) IsHasMetafieldDefinitions() {}
 
 // List of metafield definitions.
@@ -22426,10 +24760,13 @@ func (this Product) GetMetafieldDefinitions() *MetafieldDefinitionConnection {
 
 func (Product) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Product) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Product) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -22440,7 +24777,7 @@ func (this Product) GetPrivateMetafields() *PrivateMetafieldConnection { return 
 
 func (Product) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this Product) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -22459,7 +24796,7 @@ func (this Product) GetLegacyResourceID() string { return this.LegacyResourceID 
 
 func (Product) IsNavigable() {}
 
-// A default cursor that returns the single next record, sorted ascending by ID.
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 func (this Product) GetDefaultCursor() string { return this.DefaultCursor }
 
 func (Product) IsNode() {}
@@ -22469,40 +24806,56 @@ func (this Product) GetID() string { return this.ID }
 
 func (Product) IsOnlineStorePreviewable() {}
 
-// The online store preview URL.
+// The [preview URL](https://help.shopify.com/manual/online-store/setting-up#preview-your-store) for the online store.
 func (this Product) GetOnlineStorePreviewURL() *string { return this.OnlineStorePreviewURL }
 
 func (Product) IsPublishable() {}
 
-// The number of publications a resource is published to without feedback errors.
+// The number of
+// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that a resource is published to, without
+// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 func (this Product) GetAvailablePublicationsCount() *Count { return this.AvailablePublicationsCount }
 
-// The number of publications a resource is published on.
+// The number of
+// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that a resource is published to, without
+// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 func (this Product) GetPublicationCount() int { return this.PublicationCount }
 
-// Check to see whether the resource is published to a given channel.
+// Whether the resource is published to a specific channel.
 func (this Product) GetPublishedOnChannel() bool { return this.PublishedOnChannel }
 
-// Check to see whether the resource is published to the calling app's channel.
+// Whether the resource is published to a
+// [channel](https://shopify.dev/docs/api/admin-graphql/latest/objects/Channel).
+// For example, the resource might be published to the online store channel.
 func (this Product) GetPublishedOnCurrentChannel() bool { return this.PublishedOnCurrentChannel }
 
-// Check to see whether the resource is published to the calling app's publication.
+// Whether the resource is published to the app's
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
+// For example, the resource might be published to the app's online store channel.
 func (this Product) GetPublishedOnCurrentPublication() bool {
 	return this.PublishedOnCurrentPublication
 }
 
-// Check to see whether the resource is published to a given publication.
+// Whether the resource is published to a specified
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 func (this Product) GetPublishedOnPublication() bool { return this.PublishedOnPublication }
 
-// The list of resources that are published to a publication.
+// The list of resources that are published to a
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 func (this Product) GetResourcePublications() *ResourcePublicationConnection {
 	return this.ResourcePublications
 }
 
-// The number of publications a resource is published on.
+// The number of
+// [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that a resource is published to, without
+// [feedback errors](https://shopify.dev/docs/api/admin-graphql/latest/objects/ResourceFeedback).
 func (this Product) GetResourcePublicationsCount() *Count { return this.ResourcePublicationsCount }
 
-// The list of resources that are either published or staged to be published to a publication.
+// The list of resources that are either published or staged to be published to a
+// [publication](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication).
 func (this Product) GetResourcePublicationsV2() *ResourcePublicationV2Connection {
 	return this.ResourcePublicationsV2
 }
@@ -22510,27 +24863,10 @@ func (this Product) GetResourcePublicationsV2() *ResourcePublicationV2Connection
 // The list of channels that the resource is not published to.
 func (this Product) GetUnpublishedChannels() *ChannelConnection { return this.UnpublishedChannels }
 
-// The list of publications that the resource is not published to.
+// The list of [publications](https://shopify.dev/docs/api/admin-graphql/latest/objects/Publication)
+// that the resource isn't published to.
 func (this Product) GetUnpublishedPublications() *PublicationConnection {
 	return this.UnpublishedPublications
-}
-
-// The input fields for specifying product images to append.
-type ProductAppendImagesInput struct {
-	// The ID of the product.
-	ID string `json:"id"`
-	// A list of images to be appended to the product.
-	Images []ImageInput `json:"images,omitempty"`
-}
-
-// Return type for `productAppendImages` mutation.
-type ProductAppendImagesPayload struct {
-	// List of new images appended to the product.
-	NewImages []Image `json:"newImages,omitempty,omitempty"`
-	// The product object.
-	Product *Product `json:"product,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
 // The product's component information.
@@ -22553,17 +24889,17 @@ type ProductBundleComponent struct {
 
 // An auto-generated type for paginating through multiple ProductBundleComponents.
 type ProductBundleComponentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductBundleComponentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductBundleComponentEdge.
+	// A list of nodes that are contained in ProductBundleComponentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ProductBundleComponent `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ProductBundleComponent and a cursor during pagination.
 type ProductBundleComponentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductBundleComponentEdge.
 	Node *ProductBundleComponent `json:"node,omitempty"`
@@ -22748,12 +25084,6 @@ type ProductCategory struct {
 	ProductTaxonomyNode *ProductTaxonomyNode `json:"productTaxonomyNode,omitempty,omitempty"`
 }
 
-// The input fields to use when adding a product category to a product. The [Shopify product taxonomy](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17) contains the full list of available values.
-type ProductCategoryInput struct {
-	// The ID of the node in the Shopify taxonomy that represents the product category.
-	ProductTaxonomyNodeID string `json:"productTaxonomyNodeId"`
-}
-
 // Return type for `productChangeStatus` mutation.
 type ProductChangeStatusPayload struct {
 	// The product object.
@@ -22811,11 +25141,11 @@ type ProductCompareAtPriceRange struct {
 
 // An auto-generated type for paginating through multiple Products.
 type ProductConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductEdge.
+	// A list of nodes that are contained in ProductEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Product `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -22830,8 +25160,73 @@ type ProductContextualPricing struct {
 	MaxVariantPricing *ProductVariantContextualPricing `json:"maxVariantPricing,omitempty,omitempty"`
 	// The pricing of the variant with the lowest price in the given context.
 	MinVariantPricing *ProductVariantContextualPricing `json:"minVariantPricing,omitempty,omitempty"`
-	// The price range of the product with prices formatted as decimals.
+	// The minimum and maximum prices of a product, expressed in decimal numbers.
+	// For example, if the product is priced between $10.00 and $50.00,
+	// then the price range is $10.00 - $50.00.
 	PriceRange *ProductPriceRangeV2 `json:"priceRange,omitempty"`
+}
+
+// The input fields required to create a product.
+type ProductCreateInput struct {
+	// The description of the product, with HTML tags.
+	// For example, the description might include bold `<strong></strong>` and italic `<i></i>` text.
+	DescriptionHTML *string `json:"descriptionHtml,omitempty,omitempty"`
+	// A unique, human-readable string of the product's title. A handle can contain letters, hyphens (`-`), and numbers, but no spaces.
+	// The handle is used in the online store URL for the product.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The [SEO title and description](https://help.shopify.com/manual/promoting-marketing/seo/adding-keywords)
+	// that are associated with a product.
+	Seo *SEOInput `json:"seo,omitempty,omitempty"`
+	// The [product type](https://help.shopify.com/manual/products/details/product-type)
+	// that merchants define.
+	ProductType *string `json:"productType,omitempty,omitempty"`
+	// The ID of the [category](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17)
+	// that's associated with the product.
+	Category *string `json:"category,omitempty,omitempty"`
+	// A comma-separated list of searchable keywords that are
+	// associated with the product. For example, a merchant might apply the `sports`
+	// and `summer` tags to products that are associated with sportwear for summer.
+	//
+	// Updating `tags` overwrites any existing tags that were previously added to the product.
+	// To add new tags without overwriting existing tags, use the
+	// [`tagsAdd`](https://shopify.dev/api/admin-graphql/latest/mutations/tagsadd)
+	// mutation.
+	Tags []string `json:"tags,omitempty,omitempty"`
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a product in a store.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a gift card in a store.
+	GiftCardTemplateSuffix *string `json:"giftCardTemplateSuffix,omitempty,omitempty"`
+	// The name for the product that displays to customers. The title is used to construct the product's handle.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
+	Title *string `json:"title,omitempty,omitempty"`
+	// The name of the product's vendor.
+	Vendor *string `json:"vendor,omitempty,omitempty"`
+	// Whether the product is a gift card.
+	GiftCard *bool `json:"giftCard,omitempty,omitempty"`
+	// A list of collection IDs to associate with the product.
+	CollectionsToJoin []string `json:"collectionsToJoin,omitempty,omitempty"`
+	// The role of the product in a [combined listing](https://shopify.dev/apps/build/product-merchandising/combined-listings).
+	CombinedListingRole *CombinedListingsRole `json:"combinedListingRole,omitempty,omitempty"`
+	// The [custom fields](https://shopify.dev/docs/apps/build/custom-data) to associate with the product
+	// for the purposes of adding and storing additional information.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// A list of product options and option values. Maximum product options: three. There's no limit on the number of option values.
+	ProductOptions []OptionCreateInput `json:"productOptions,omitempty,omitempty"`
+	// The [product status](https://help.shopify.com/manual/products/details/product-details-page#product-status),
+	// which controls visibility across all sales channels.
+	Status *ProductStatus `json:"status,omitempty,omitempty"`
+	// Whether the product can only be purchased with
+	// a [selling plan](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans).
+	// Products that are sold on subscription (`requiresSellingPlan: true`) can be updated only for online stores.
+	// If you update a product to be subscription-only (`requiresSellingPlan:false`), then the product is unpublished from all channels except the online store.
+	RequiresSellingPlan *bool `json:"requiresSellingPlan,omitempty,omitempty"`
+	// The input field to enable an app to provide additional product features.
+	// For example, you can specify
+	// [`bundles: true`](https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductClaimOwnershipInput#field-bundles)
+	// in the `claimOwnership` field to let an app add a
+	// [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-merchant-config-ui).
+	ClaimOwnership *ProductClaimOwnershipInput `json:"claimOwnership,omitempty,omitempty"`
 }
 
 // Return type for `productCreateMedia` mutation.
@@ -22856,26 +25251,6 @@ type ProductCreatePayload struct {
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
-// Return type for `productDeleteAsync` mutation.
-type ProductDeleteAsyncPayload struct {
-	// The ID of the product that was requested to be deleted.
-	DeleteProductID *string `json:"deleteProductId,omitempty,omitempty"`
-	// The background job that will delete the product and its associated variants and media.
-	Job *Job `json:"job,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []ProductDeleteUserError `json:"userErrors,omitempty"`
-}
-
-// Return type for `productDeleteImages` mutation.
-type ProductDeleteImagesPayload struct {
-	// The array of image IDs to delete.
-	DeletedImageIds []string `json:"deletedImageIds,omitempty"`
-	// The product object.
-	Product *Product `json:"product,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
 // The input fields for specifying the product to delete.
 type ProductDeleteInput struct {
 	// The ID of the product.
@@ -22896,65 +25271,54 @@ type ProductDeleteMediaPayload struct {
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
+// An entity that represents details of an asynchronous
+// [ProductDelete](https://shopify.dev/api/admin-graphql/current/mutations/productDelete) mutation.
+//
+// By querying this entity with the
+// [productOperation](https://shopify.dev/api/admin-graphql/current/queries/productOperation) query
+// using the ID that was returned when the product was deleted, this can be used to check the status of an operation.
+//
+// The `status` field indicates whether the operation is `CREATED`, `ACTIVE`, or `COMPLETE`.
+//
+// The `deletedProductId` field provides the ID of the deleted product.
+//
+// The `userErrors` field provides mutation errors that occurred during the operation.
+type ProductDeleteOperation struct {
+	// The ID of the deleted product.
+	DeletedProductID *string `json:"deletedProductId,omitempty,omitempty"`
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// The product on which the operation is being performed.
+	Product *Product `json:"product,omitempty,omitempty"`
+	// The status of this operation.
+	Status ProductOperationStatus `json:"status"`
+	// Returns mutation errors occurred during background mutation processing.
+	UserErrors []UserError `json:"userErrors,omitempty"`
+}
+
+func (ProductDeleteOperation) IsNode() {}
+
+// A globally-unique ID.
+func (this ProductDeleteOperation) GetID() string { return this.ID }
+
+func (ProductDeleteOperation) IsProductOperation() {}
+
+// The product on which the operation is being performed.
+func (this ProductDeleteOperation) GetProduct() *Product { return this.Product }
+
+// The status of this operation.
+func (this ProductDeleteOperation) GetStatus() ProductOperationStatus { return this.Status }
+
 // Return type for `productDelete` mutation.
 type ProductDeletePayload struct {
 	// The ID of the deleted product.
 	DeletedProductID *string `json:"deletedProductId,omitempty,omitempty"`
+	// The product delete operation, returned when run in asynchronous mode.
+	ProductDeleteOperation *ProductDeleteOperation `json:"productDeleteOperation,omitempty,omitempty"`
 	// The shop associated with the product.
 	Shop *Shop `json:"shop,omitempty"`
 	// The list of errors that occurred from executing the mutation.
 	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// An error that occurred while setting the activation status of an inventory item.
-type ProductDeleteUserError struct {
-	// The error code.
-	Code *ProductDeleteUserErrorCode `json:"code,omitempty,omitempty"`
-	// The path to the input field that caused the error.
-	Field []string `json:"field,omitempty,omitempty"`
-	// The error message.
-	Message string `json:"message"`
-}
-
-func (ProductDeleteUserError) IsDisplayableError() {}
-
-// The path to the input field that caused the error.
-func (this ProductDeleteUserError) GetField() []string {
-	if this.Field == nil {
-		return nil
-	}
-	interfaceSlice := make([]string, 0, len(this.Field))
-	for _, concrete := range this.Field {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-// The error message.
-func (this ProductDeleteUserError) GetMessage() string { return this.Message }
-
-// The input fields for the product async duplicate mutation.
-type ProductDuplicateAsyncInput struct {
-	// The ID of the product to be duplicated.
-	ProductID string `json:"productId"`
-	// The new title of the product.
-	NewTitle string `json:"newTitle"`
-	// The new status of the product. If no value is provided the status will be inherited from the original product.
-	NewStatus *ProductStatus `json:"newStatus,omitempty,omitempty"`
-	// Specifies whether or not to duplicate images.
-	IncludeImages *bool `json:"includeImages,omitempty,omitempty"`
-	// Specifies whether or not to duplicate translations.
-	IncludeTranslations *bool `json:"includeTranslations,omitempty,omitempty"`
-}
-
-// Return type for `productDuplicateAsyncV2` mutation.
-type ProductDuplicateAsyncV2Payload struct {
-	// The duplicated product ID.
-	DuplicatedProductID *string `json:"duplicatedProductId,omitempty,omitempty"`
-	// The asynchronous job for duplicating the product.
-	ProductDuplicateJobID *string `json:"productDuplicateJobId,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []ProductDuplicateUserError `json:"userErrors,omitempty"`
 }
 
 // Represents a product duplication job.
@@ -22965,48 +25329,65 @@ type ProductDuplicateJob struct {
 	ID string `json:"id"`
 }
 
+// An entity that represents details of an asynchronous
+// [ProductDuplicate](https://shopify.dev/api/admin-graphql/current/mutations/productDuplicate) mutation.
+//
+// By querying this entity with the
+// [productOperation](https://shopify.dev/api/admin-graphql/current/queries/productOperation) query
+// using the ID that was returned
+// [when the product was duplicated](https://shopify.dev/api/admin/migrate/new-product-model/sync-data#create-a-product-with-variants-and-options-asynchronously),
+// this can be used to check the status of an operation.
+//
+// The `status` field indicates whether the operation is `CREATED`, `ACTIVE`, or `COMPLETE`.
+//
+// The `product` field provides the details of the original product.
+//
+// The `newProduct` field provides the details of the new duplicate of the product.
+//
+// The `userErrors` field provides mutation errors that occurred during the operation.
+type ProductDuplicateOperation struct {
+	// A globally-unique ID.
+	ID string `json:"id"`
+	// The newly created duplicate of the original product.
+	NewProduct *Product `json:"newProduct,omitempty,omitempty"`
+	// The product on which the operation is being performed.
+	Product *Product `json:"product,omitempty,omitempty"`
+	// The status of this operation.
+	Status ProductOperationStatus `json:"status"`
+	// Returns mutation errors occurred during background mutation processing.
+	UserErrors []UserError `json:"userErrors,omitempty"`
+}
+
+func (ProductDuplicateOperation) IsNode() {}
+
+// A globally-unique ID.
+func (this ProductDuplicateOperation) GetID() string { return this.ID }
+
+func (ProductDuplicateOperation) IsProductOperation() {}
+
+// The product on which the operation is being performed.
+func (this ProductDuplicateOperation) GetProduct() *Product { return this.Product }
+
+// The status of this operation.
+func (this ProductDuplicateOperation) GetStatus() ProductOperationStatus { return this.Status }
+
 // Return type for `productDuplicate` mutation.
 type ProductDuplicatePayload struct {
 	// The asynchronous job that duplicates the product images.
 	ImageJob *Job `json:"imageJob,omitempty,omitempty"`
 	// The duplicated product.
 	NewProduct *Product `json:"newProduct,omitempty,omitempty"`
+	// The product duplicate operation, returned when run in asynchronous mode.
+	ProductDuplicateOperation *ProductDuplicateOperation `json:"productDuplicateOperation,omitempty,omitempty"`
 	// The user's shop.
 	Shop *Shop `json:"shop,omitempty"`
 	// The list of errors that occurred from executing the mutation.
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
-// An error that occurred while duplicating the product.
-type ProductDuplicateUserError struct {
-	// The error code.
-	Code *ProductDuplicateUserErrorCode `json:"code,omitempty,omitempty"`
-	// The path to the input field that caused the error.
-	Field []string `json:"field,omitempty,omitempty"`
-	// The error message.
-	Message string `json:"message"`
-}
-
-func (ProductDuplicateUserError) IsDisplayableError() {}
-
-// The path to the input field that caused the error.
-func (this ProductDuplicateUserError) GetField() []string {
-	if this.Field == nil {
-		return nil
-	}
-	interfaceSlice := make([]string, 0, len(this.Field))
-	for _, concrete := range this.Field {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
-// The error message.
-func (this ProductDuplicateUserError) GetMessage() string { return this.Message }
-
 // An auto-generated type which holds one Product and a cursor during pagination.
 type ProductEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductEdge.
 	Node *Product `json:"node,omitempty"`
@@ -23031,11 +25412,11 @@ func (this ProductFeed) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ProductFeeds.
 type ProductFeedConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductFeedEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductFeedEdge.
+	// A list of nodes that are contained in ProductFeedEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ProductFeed `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -23111,7 +25492,7 @@ func (this ProductFeedDeleteUserError) GetMessage() string { return this.Message
 
 // An auto-generated type which holds one ProductFeed and a cursor during pagination.
 type ProductFeedEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductFeedEdge.
 	Node *ProductFeed `json:"node,omitempty"`
@@ -23158,62 +25539,82 @@ func (this ProductFullSyncUserError) GetField() []string {
 // The error message.
 func (this ProductFullSyncUserError) GetMessage() string { return this.Message }
 
-// Return type for `productImageUpdate` mutation.
-type ProductImageUpdatePayload struct {
-	// The image that has been updated.
-	Image *Image `json:"image,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// The input fields required to create a product.
+// The input fields for creating or updating a product.
 type ProductInput struct {
-	// The description of the product, complete with HTML formatting.
+	// The description of the product, with HTML tags.
+	// For example, the description might include bold `<strong></strong>` and italic `<i></i>` text.
 	DescriptionHTML *string `json:"descriptionHtml,omitempty,omitempty"`
-	// A unique, human-friendly string for the product.
-	// Automatically generated from the product's title unless otherwise specified.
+	// A unique, human-readable string of the product's title. A handle can contain letters, hyphens (`-`), and numbers, but no spaces.
+	// The handle is used in the online store URL for the product.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
 	Handle *string `json:"handle,omitempty,omitempty"`
-	// Whether a redirect is required after a new handle has been provided.
-	// If true, then the old handle is redirected to the new one automatically.
-	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
-	// The SEO information associated with the product.
+	// The [SEO title and description](https://help.shopify.com/manual/promoting-marketing/seo/adding-keywords)
+	// that are associated with a product.
 	Seo *SEOInput `json:"seo,omitempty,omitempty"`
-	// The product type specified by the merchant.
+	// The [product type](https://help.shopify.com/manual/products/details/product-type)
+	// that merchants define.
 	ProductType *string `json:"productType,omitempty,omitempty"`
-	// The ID of the category associated with the product.
+	// The ID of the [category](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17)
+	// that's associated with the product.
 	Category *string `json:"category,omitempty,omitempty"`
-	// The custom product type specified by the merchant.
-	CustomProductType *string `json:"customProductType,omitempty,omitempty"`
-	// A comma separated list of tags that have been added to the product.
+	// A comma-separated list of searchable keywords that are
+	// associated with the product. For example, a merchant might apply the `sports`
+	// and `summer` tags to products that are associated with sportwear for summer.
+	//
+	// Updating `tags` overwrites any existing tags that were previously added to the product.
+	// To add new tags without overwriting existing tags, use the
+	// [`tagsAdd`](https://shopify.dev/api/admin-graphql/latest/mutations/tagsadd)
+	// mutation.
 	Tags []string `json:"tags,omitempty,omitempty"`
-	// The theme template used when viewing the product in a store.
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a product in a store.
 	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
-	// Whether the product is a gift card.
-	GiftCard *bool `json:"giftCard,omitempty,omitempty"`
-	// The theme template used when viewing the gift card in a store.
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a gift card in a store.
 	GiftCardTemplateSuffix *string `json:"giftCardTemplateSuffix,omitempty,omitempty"`
-	// The title of the product.
+	// The name for the product that displays to customers. The title is used to construct the product's handle.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The name of the product's vendor.
 	Vendor *string `json:"vendor,omitempty,omitempty"`
-	// The IDs of the collections that this product will be added to.
+	// Whether the product is a gift card.
+	GiftCard *bool `json:"giftCard,omitempty,omitempty"`
+	// Whether a redirect is required after a new handle has been provided.
+	// If `true`, then the old handle is redirected to the new one automatically.
+	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
+	// A list of collection IDs to associate with the product.
 	CollectionsToJoin []string `json:"collectionsToJoin,omitempty,omitempty"`
-	// The IDs of collections that will no longer include the existing product.
+	// The collection IDs to disassociate from the product.
 	CollectionsToLeave []string `json:"collectionsToLeave,omitempty,omitempty"`
-	// The role of the product in a product grouping. It can only be set during creation.
+	// The role of the product in a [combined listing](https://shopify.dev/apps/build/product-merchandising/combined-listings).
+	// You can specify this field only when you create a product.
 	CombinedListingRole *CombinedListingsRole `json:"combinedListingRole,omitempty,omitempty"`
-	// Specifies the product to update in productUpdate or creates a new product if absent in productCreate.
+	// The product's ID.
+	//
+	// If you're creating a product, then you don't need to pass the `id` as input to the
+	// [`productCreate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate) mutation.
+	// If you're updating a product, then you do need to pass the `id` as input to the
+	// [`productUpdate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/productUpdate) mutation
+	// to identify which product you want to update.
 	ID *string `json:"id,omitempty,omitempty"`
-	// The metafields to associate with this product.
+	// The [custom fields](https://shopify.dev/docs/apps/build/custom-data) to associate with the product
+	// for the purposes of adding and storing additional information.
 	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
-	// List of custom product options and option values (maximum of 3 per product).
-	// Supported as input with the `productCreate` mutation only.
+	// A list of product options and option values. Maximum product options: three. There's no limit on the number of option values.
+	// This input is supported only with the [`productCreate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate)
+	// mutation.
 	ProductOptions []OptionCreateInput `json:"productOptions,omitempty,omitempty"`
-	// The status of the product.
+	// The [product status](https://help.shopify.com/manual/products/details/product-details-page#product-status),
+	// which controls visibility across all sales channels.
 	Status *ProductStatus `json:"status,omitempty,omitempty"`
-	// Whether the product can only be purchased with a selling plan (subscription). Products that are sold exclusively on subscription can only be created on online stores. If set to `true` on an already existing product, then the product will be marked unavailable on channels that don't support subscriptions.
+	// Whether the product can only be purchased with
+	// a [selling plan](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans).
+	// Products that are sold on subscription (`requiresSellingPlan: true`) can be updated only for online stores.
+	// If you update a product to be subscription-only (`requiresSellingPlan:false`), then the product is unpublished from all channels except the online store.
 	RequiresSellingPlan *bool `json:"requiresSellingPlan,omitempty,omitempty"`
-	// Claim ownership of a product.
+	// The input field to enable an app to provide additional product features.
+	// For example, you can specify
+	// [`bundles: true`](https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductClaimOwnershipInput#field-bundles)
+	// in the `claimOwnership` field to let an app add a
+	// [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-merchant-config-ui).
 	ClaimOwnership *ProductClaimOwnershipInput `json:"claimOwnership,omitempty,omitempty"`
 }
 
@@ -23247,7 +25648,7 @@ type ProductOption struct {
 	OptionValues []ProductOptionValue `json:"optionValues,omitempty"`
 	// The product option's position.
 	Position int `json:"position"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 	// The corresponding value to the product option name.
 	Values []string `json:"values,omitempty"`
@@ -23255,7 +25656,7 @@ type ProductOption struct {
 
 func (ProductOption) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this ProductOption) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -23319,13 +25720,13 @@ type ProductOptionValue struct {
 	Name string `json:"name"`
 	// The swatch associated with the product option value.
 	Swatch *ProductOptionValueSwatch `json:"swatch,omitempty,omitempty"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 }
 
 func (ProductOptionValue) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this ProductOptionValue) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -23487,17 +25888,17 @@ type ProductPublication struct {
 
 // An auto-generated type for paginating through multiple ProductPublications.
 type ProductPublicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductPublicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductPublicationEdge.
+	// A list of nodes that are contained in ProductPublicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ProductPublication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ProductPublication and a cursor during pagination.
 type ProductPublicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductPublicationEdge.
 	Node *ProductPublication `json:"node,omitempty"`
@@ -23527,14 +25928,6 @@ type ProductPublishPayload struct {
 	ProductPublications []ProductPublication `json:"productPublications,omitempty,omitempty"`
 	// The user's shop.
 	Shop *Shop `json:"shop,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// Return type for `productReorderImages` mutation.
-type ProductReorderImagesPayload struct {
-	// The asynchronous job which reorders the images.
-	Job *Job `json:"job,omitempty,omitempty"`
 	// The list of errors that occurred from executing the mutation.
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
@@ -23650,35 +26043,52 @@ func (this ProductSale) GetTotalTaxAmount() *MoneyBag { return this.TotalTaxAmou
 
 // The input fields required to create or update a product via ProductSet mutation.
 type ProductSetInput struct {
-	// The description of the product, complete with HTML formatting.
+	// The description of the product, with HTML tags.
+	// For example, the description might include bold `<strong></strong>` and italic `<i></i>` text.
 	DescriptionHTML *string `json:"descriptionHtml,omitempty,omitempty"`
-	// A unique, human-friendly string for the product.
-	// Automatically generated from the product's title unless otherwise specified.
+	// A unique, human-readable string of the product's title. A handle can contain letters, hyphens (`-`), and numbers, but no spaces.
+	// The handle is used in the online store URL for the product.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
 	Handle *string `json:"handle,omitempty,omitempty"`
-	// Whether a redirect is required after a new handle has been provided.
-	// If true, then the old handle is redirected to the new one automatically.
-	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
-	// The SEO information associated with the product.
+	// The [SEO title and description](https://help.shopify.com/manual/promoting-marketing/seo/adding-keywords)
+	// that are associated with a product.
 	Seo *SEOInput `json:"seo,omitempty,omitempty"`
-	// The product type specified by the merchant.
+	// The [product type](https://help.shopify.com/manual/products/details/product-type)
+	// that merchants define.
 	ProductType *string `json:"productType,omitempty,omitempty"`
-	// The ID of the category associated with the product.
+	// The ID of the [category](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17)
+	// that's associated with the product.
 	Category *string `json:"category,omitempty,omitempty"`
-	// The custom product type specified by the merchant.
-	CustomProductType *string `json:"customProductType,omitempty,omitempty"`
-	// A comma separated list of tags that have been added to the product.
+	// A comma-separated list of searchable keywords that are
+	// associated with the product. For example, a merchant might apply the `sports`
+	// and `summer` tags to products that are associated with sportwear for summer.
+	//
+	// Updating `tags` overwrites any existing tags that were previously added to the product.
+	// To add new tags without overwriting existing tags, use the
+	// [`tagsAdd`](https://shopify.dev/api/admin-graphql/latest/mutations/tagsadd)
+	// mutation.
 	Tags []string `json:"tags,omitempty,omitempty"`
-	// The theme template used when viewing the product in a store.
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a product in a store.
 	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
-	// Whether the product is a gift card.
-	GiftCard *bool `json:"giftCard,omitempty,omitempty"`
-	// The theme template used when viewing the gift card in a store.
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a gift card in a store.
 	GiftCardTemplateSuffix *string `json:"giftCardTemplateSuffix,omitempty,omitempty"`
-	// The title of the product.
+	// The name for the product that displays to customers. The title is used to construct the product's handle.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
 	Title *string `json:"title,omitempty,omitempty"`
 	// The name of the product's vendor.
 	Vendor *string `json:"vendor,omitempty,omitempty"`
-	// Specifies the product to update. If absent, a new product is created.
+	// Whether the product is a gift card.
+	GiftCard *bool `json:"giftCard,omitempty,omitempty"`
+	// Whether a redirect is required after a new handle has been provided.
+	// If `true`, then the old handle is redirected to the new one automatically.
+	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
+	// The product's ID.
+	//
+	// If you're creating a product, then you don't need to pass the `id` as input to the
+	// [`productCreate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/productCreate) mutation.
+	// If you're updating a product, then you do need to pass the `id` as input to the
+	// [`productUpdate`](https://shopify.dev/docs/api/admin-graphql/latest/mutations/productUpdate) mutation
+	// to identify which product you want to update.
 	ID *string `json:"id,omitempty,omitempty"`
 	// The IDs of collections that this product will be a member of.
 	Collections []string `json:"collections,omitempty,omitempty"`
@@ -23686,16 +26096,32 @@ type ProductSetInput struct {
 	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
 	// A list of variants associated with the product.
 	Variants []ProductVariantSetInput `json:"variants,omitempty,omitempty"`
+	// The files to associate with the product.
+	Files []FileSetInput `json:"files,omitempty,omitempty"`
 	// The status of the product.
 	Status *ProductStatus `json:"status,omitempty,omitempty"`
 	// Whether the product can only be purchased with a selling plan (subscription). Products that are sold exclusively on subscription can only be created on online stores. If set to `true` on an already existing product, then the product will be marked unavailable on channels that don't support subscriptions.
 	RequiresSellingPlan *bool `json:"requiresSellingPlan,omitempty,omitempty"`
 	// List of custom product options and option values (maximum of 3 per product).
 	ProductOptions []OptionSetInput `json:"productOptions,omitempty,omitempty"`
-	// Claim ownership of a product.
+	// The input field to enable an app to provide additional product features.
+	// For example, you can specify
+	// [`bundles: true`](https://shopify.dev/docs/api/admin-graphql/latest/input-objects/ProductClaimOwnershipInput#field-bundles)
+	// in the `claimOwnership` field to let an app add a
+	// [product configuration extension](https://shopify.dev/docs/apps/build/product-merchandising/bundles/add-merchant-config-ui).
 	ClaimOwnership *ProductClaimOwnershipInput `json:"claimOwnership,omitempty,omitempty"`
 	// The role of the product in a product grouping. It can only be set during creation.
 	CombinedListingRole *CombinedListingsRole `json:"combinedListingRole,omitempty,omitempty"`
+}
+
+// The input fields required to set inventory quantities using `productSet` mutation.
+type ProductSetInventoryInput struct {
+	// The ID of the location of the inventory quantity being set.
+	LocationID string `json:"locationId"`
+	// The name of the inventory quantity being set. Must be one of `available` or `on_hand`.
+	Name string `json:"name"`
+	// The values to which each quantities will be set.
+	Quantity int `json:"quantity"`
 }
 
 // An entity that represents details of an asynchronous
@@ -23810,6 +26236,64 @@ type ProductUnpublishPayload struct {
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
+// The input fields for updating a product.
+type ProductUpdateInput struct {
+	// The description of the product, with HTML tags.
+	// For example, the description might include bold `<strong></strong>` and italic `<i></i>` text.
+	DescriptionHTML *string `json:"descriptionHtml,omitempty,omitempty"`
+	// A unique, human-readable string of the product's title. A handle can contain letters, hyphens (`-`), and numbers, but no spaces.
+	// The handle is used in the online store URL for the product.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
+	Handle *string `json:"handle,omitempty,omitempty"`
+	// The [SEO title and description](https://help.shopify.com/manual/promoting-marketing/seo/adding-keywords)
+	// that are associated with a product.
+	Seo *SEOInput `json:"seo,omitempty,omitempty"`
+	// The [product type](https://help.shopify.com/manual/products/details/product-type)
+	// that merchants define.
+	ProductType *string `json:"productType,omitempty,omitempty"`
+	// The ID of the [category](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17)
+	// that's associated with the product.
+	Category *string `json:"category,omitempty,omitempty"`
+	// A comma-separated list of searchable keywords that are
+	// associated with the product. For example, a merchant might apply the `sports`
+	// and `summer` tags to products that are associated with sportwear for summer.
+	//
+	// Updating `tags` overwrites any existing tags that were previously added to the product.
+	// To add new tags without overwriting existing tags, use the
+	// [`tagsAdd`](https://shopify.dev/api/admin-graphql/latest/mutations/tagsadd)
+	// mutation.
+	Tags []string `json:"tags,omitempty,omitempty"`
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a product in a store.
+	TemplateSuffix *string `json:"templateSuffix,omitempty,omitempty"`
+	// The [theme template](https://shopify.dev/docs/storefronts/themes/architecture/templates) that's used when customers view a gift card in a store.
+	GiftCardTemplateSuffix *string `json:"giftCardTemplateSuffix,omitempty,omitempty"`
+	// The name for the product that displays to customers. The title is used to construct the product's handle.
+	// For example, if a product is titled "Black Sunglasses", then the handle is `black-sunglasses`.
+	Title *string `json:"title,omitempty,omitempty"`
+	// The name of the product's vendor.
+	Vendor *string `json:"vendor,omitempty,omitempty"`
+	// Whether a redirect is required after a new handle has been provided.
+	// If `true`, then the old handle is redirected to the new one automatically.
+	RedirectNewHandle *bool `json:"redirectNewHandle,omitempty,omitempty"`
+	// The product's ID.
+	ID *string `json:"id,omitempty,omitempty"`
+	// A list of collection IDs to associate with the product.
+	CollectionsToJoin []string `json:"collectionsToJoin,omitempty,omitempty"`
+	// The collection IDs to disassociate from the product.
+	CollectionsToLeave []string `json:"collectionsToLeave,omitempty,omitempty"`
+	// The [custom fields](https://shopify.dev/docs/apps/build/custom-data) to associate with the product
+	// for the purposes of adding and storing additional information.
+	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
+	// The [product status](https://help.shopify.com/manual/products/details/product-details-page#product-status),
+	// which controls visibility across all sales channels.
+	Status *ProductStatus `json:"status,omitempty,omitempty"`
+	// Whether the product can only be purchased with
+	// a [selling plan](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans).
+	// Products that are sold on subscription (`requiresSellingPlan: true`) can be updated only for online stores.
+	// If you update a product to be subscription-only (`requiresSellingPlan:false`), then the product is unpublished from all channels except the online store.
+	RequiresSellingPlan *bool `json:"requiresSellingPlan,omitempty,omitempty"`
+}
+
 // Return type for `productUpdateMedia` mutation.
 type ProductUpdateMediaPayload struct {
 	// The updated media object.
@@ -23842,12 +26326,14 @@ type ProductVariant struct {
 	ContextualPricing *ProductVariantContextualPricing `json:"contextualPricing,omitempty"`
 	// The date and time when the variant was created.
 	CreatedAt time.Time `json:"createdAt"`
-	// A default cursor that returns the single next record, sorted ascending by ID.
+	// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 	DefaultCursor string `json:"defaultCursor"`
-	// The delivery profile for the variant.
+	// The [delivery profile](https://shopify.dev/api/admin-graphql/latest/objects/DeliveryProfile) for the variant.
 	DeliveryProfile *DeliveryProfile `json:"deliveryProfile,omitempty,omitempty"`
 	// Display name of the variant, based on product's title + variant's title.
 	DisplayName string `json:"displayName"`
+	// The paginated list of events associated with the host subject.
+	Events *EventConnection `json:"events,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The featured image for the variant.
@@ -23862,11 +26348,14 @@ type ProductVariant struct {
 	LegacyResourceID string `json:"legacyResourceId"`
 	// The media associated with the product variant.
 	Media *MediaConnection `json:"media,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The order of the product variant in the list of product variants. The first position in the list is 1.
 	Position int `json:"position"`
@@ -23911,8 +26400,10 @@ type ProductVariant struct {
 	Taxable bool `json:"taxable"`
 	// The title of the product variant.
 	Title string `json:"title"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
+	// The unit price measurement for the variant.
+	UnitPriceMeasurement *UnitPriceMeasurement `json:"unitPriceMeasurement,omitempty,omitempty"`
 	// The date and time (ISO 8601 format) when the product variant was last modified.
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -23923,6 +26414,11 @@ func (ProductVariant) IsMetafieldReference() {}
 
 func (ProductVariant) IsMetafieldReferencer() {}
 
+func (ProductVariant) IsHasEvents() {}
+
+// The paginated list of events associated with the host subject.
+func (this ProductVariant) GetEvents() *EventConnection { return this.Events }
+
 func (ProductVariant) IsHasMetafieldDefinitions() {}
 
 // List of metafield definitions.
@@ -23932,10 +26428,13 @@ func (this ProductVariant) GetMetafieldDefinitions() *MetafieldDefinitionConnect
 
 func (ProductVariant) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this ProductVariant) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this ProductVariant) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -23948,7 +26447,7 @@ func (this ProductVariant) GetPrivateMetafields() *PrivateMetafieldConnection {
 
 func (ProductVariant) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this ProductVariant) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -23967,7 +26466,7 @@ func (this ProductVariant) GetLegacyResourceID() string { return this.LegacyReso
 
 func (ProductVariant) IsNavigable() {}
 
-// A default cursor that returns the single next record, sorted ascending by ID.
+// A default [cursor](https://shopify.dev/api/usage/pagination-graphql) that returns the single next record, sorted ascending by ID.
 func (this ProductVariant) GetDefaultCursor() string { return this.DefaultCursor }
 
 func (ProductVariant) IsNode() {}
@@ -24010,17 +26509,17 @@ func (this ProductVariantComponent) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ProductVariantComponents.
 type ProductVariantComponentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductVariantComponentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductVariantComponentEdge.
+	// A list of nodes that are contained in ProductVariantComponentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ProductVariantComponent `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ProductVariantComponent and a cursor during pagination.
 type ProductVariantComponentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductVariantComponentEdge.
 	Node *ProductVariantComponent `json:"node,omitempty"`
@@ -24028,11 +26527,11 @@ type ProductVariantComponentEdge struct {
 
 // An auto-generated type for paginating through multiple ProductVariants.
 type ProductVariantConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductVariantEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductVariantEdge.
+	// A list of nodes that are contained in ProductVariantEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ProductVariant `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -24047,26 +26546,6 @@ type ProductVariantContextualPricing struct {
 	QuantityPriceBreaks *QuantityPriceBreakConnection `json:"quantityPriceBreaks,omitempty"`
 	// The quantity rule applied for a given context.
 	QuantityRule *QuantityRule `json:"quantityRule,omitempty"`
-}
-
-// Return type for `productVariantCreate` mutation.
-type ProductVariantCreatePayload struct {
-	// The product associated with the variant.
-	Product *Product `json:"product,omitempty,omitempty"`
-	// The successfully created variant.
-	ProductVariant *ProductVariant `json:"productVariant,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
-}
-
-// Return type for `productVariantDelete` mutation.
-type ProductVariantDeletePayload struct {
-	// The ID of the deleted product variant.
-	DeletedProductVariantID *string `json:"deletedProductVariantId,omitempty,omitempty"`
-	// The product associated with the deleted product variant.
-	Product *Product `json:"product,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
 // The input fields required to detach media from a single variant.
@@ -24089,7 +26568,7 @@ type ProductVariantDetachMediaPayload struct {
 
 // An auto-generated type which holds one ProductVariant and a cursor during pagination.
 type ProductVariantEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductVariantEdge.
 	Node *ProductVariant `json:"node,omitempty"`
@@ -24101,44 +26580,6 @@ type ProductVariantGroupRelationshipInput struct {
 	ID string `json:"id"`
 	// The number of units of the product variant required to construct one unit of the bundle.
 	Quantity int `json:"quantity"`
-}
-
-// The input fields for specifying a product variant to create or update.
-type ProductVariantInput struct {
-	// Whether a product variant requires components. The default value is `false`.
-	// If `true`, then the product variant can only be purchased as a parent bundle with components and it will be omitted
-	// from channels that don't support bundles.
-	RequiresComponents *bool `json:"requiresComponents,omitempty,omitempty"`
-	// The value of the barcode associated with the product.
-	Barcode *string `json:"barcode,omitempty,omitempty"`
-	// The compare-at price of the variant.
-	CompareAtPrice *decimal.Decimal `json:"compareAtPrice,omitempty,omitempty"`
-	// Specifies the product variant to update or create a new variant if absent.
-	ID *string `json:"id,omitempty,omitempty"`
-	// The ID of the media to associate with the variant. This field can only be used in mutations that create media images and must match one of the IDs being created on the product. This field only accepts one value.
-	MediaID *string `json:"mediaId,omitempty,omitempty"`
-	// The URL of the media to associate with the variant. This field can only be used in mutations that create media images and must match one of the URLs being created on the product. This field only accepts one value.
-	MediaSrc []string `json:"mediaSrc,omitempty,omitempty"`
-	// Whether customers are allowed to place an order for the product variant when it's out of stock.
-	InventoryPolicy *ProductVariantInventoryPolicy `json:"inventoryPolicy,omitempty,omitempty"`
-	// The inventory quantities at each location where the variant is stocked. Supported as input with the `productVariantCreate` mutation only.
-	InventoryQuantities []InventoryLevelInput `json:"inventoryQuantities,omitempty,omitempty"`
-	// The inventory item associated with the variant. Used for unit cost.
-	InventoryItem *InventoryItemInput `json:"inventoryItem,omitempty,omitempty"`
-	// Additional customizable information about the product variant.
-	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
-	// The custom properties that a shop owner uses to define product variants.
-	Options []string `json:"options,omitempty,omitempty"`
-	// The order of the product variant in the list of product variants. The first position in the list is 1.
-	Position *int `json:"position,omitempty,omitempty"`
-	// The price of the variant.
-	Price *decimal.Decimal `json:"price,omitempty,omitempty"`
-	// The product to create the variant for. Used as input only to the `productVariantCreate` mutation.
-	ProductID *string `json:"productId,omitempty,omitempty"`
-	// Whether the variant is taxable.
-	Taxable *bool `json:"taxable,omitempty,omitempty"`
-	// The tax code associated with the variant.
-	TaxCode *string `json:"taxCode,omitempty,omitempty"`
 }
 
 // Return type for `productVariantJoinSellingPlanGroups` mutation.
@@ -24175,17 +26616,17 @@ type ProductVariantPricePair struct {
 
 // An auto-generated type for paginating through multiple ProductVariantPricePairs.
 type ProductVariantPricePairConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ProductVariantPricePairEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ProductVariantPricePairEdge.
+	// A list of nodes that are contained in ProductVariantPricePairEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ProductVariantPricePair `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ProductVariantPricePair and a cursor during pagination.
 type ProductVariantPricePairEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ProductVariantPricePairEdge.
 	Node *ProductVariantPricePair `json:"node,omitempty"`
@@ -24256,8 +26697,12 @@ type ProductVariantSetInput struct {
 	CompareAtPrice *decimal.Decimal `json:"compareAtPrice,omitempty,omitempty"`
 	// Specifies the product variant to update or create a new variant if absent.
 	ID *string `json:"id,omitempty,omitempty"`
+	// The file to associate with the variant.
+	File *FileSetInput `json:"file,omitempty,omitempty"`
 	// Whether customers are allowed to place an order for the product variant when it's out of stock.
 	InventoryPolicy *ProductVariantInventoryPolicy `json:"inventoryPolicy,omitempty,omitempty"`
+	// The inventory quantities at each location where the variant is stocked.
+	InventoryQuantities []ProductSetInventoryInput `json:"inventoryQuantities,omitempty,omitempty"`
 	// Additional customizable information about the product variant.
 	Metafields []MetafieldInput `json:"metafields,omitempty,omitempty"`
 	// The custom properties that a shop owner uses to define product variants.
@@ -24272,16 +26717,6 @@ type ProductVariantSetInput struct {
 	Taxable *bool `json:"taxable,omitempty,omitempty"`
 	// The tax code associated with the variant.
 	TaxCode *string `json:"taxCode,omitempty,omitempty"`
-}
-
-// Return type for `productVariantUpdate` mutation.
-type ProductVariantUpdatePayload struct {
-	// The product associated with the variant.
-	Product *Product `json:"product,omitempty,omitempty"`
-	// The updated variant.
-	ProductVariant *ProductVariant `json:"productVariant,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
 // Return type for `productVariantsBulkCreate` mutation.
@@ -24386,6 +26821,10 @@ type ProductVariantsBulkInput struct {
 	Taxable *bool `json:"taxable,omitempty,omitempty"`
 	// The tax code associated with the variant.
 	TaxCode *string `json:"taxCode,omitempty,omitempty"`
+	// Whether a product variant requires components. The default value is `false`.
+	// If `true`, then the product variant can only be purchased as a parent bundle with components and it will be
+	// omitted from channels that don't support bundles.
+	RequiresComponents *bool `json:"requiresComponents,omitempty,omitempty"`
 }
 
 // Return type for `productVariantsBulkReorder` mutation.
@@ -24513,7 +26952,7 @@ type PubSubWebhookSubscriptionInput struct {
 	Format *WebhookSubscriptionFormat `json:"format,omitempty,omitempty"`
 	// The list of fields to be included in the webhook subscription.
 	IncludeFields []string `json:"includeFields,omitempty,omitempty"`
-	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted.
+	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted. See our [guide on filters](https://shopify.dev/docs/apps/build/webhooks/customize/filters) for more details.
 	Filter *string `json:"filter,omitempty,omitempty"`
 	// The list of namespaces for any metafields that should be included in the webhook subscription.
 	MetafieldNamespaces []string `json:"metafieldNamespaces,omitempty,omitempty"`
@@ -24589,11 +27028,11 @@ func (this Publication) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple Publications.
 type PublicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []PublicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in PublicationEdge.
+	// A list of nodes that are contained in PublicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Publication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -24625,7 +27064,7 @@ type PublicationDeletePayload struct {
 
 // An auto-generated type which holds one Publication and a cursor during pagination.
 type PublicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of PublicationEdge.
 	Node *Publication `json:"node,omitempty"`
@@ -24808,17 +27247,17 @@ func (this QuantityPriceBreak) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple QuantityPriceBreaks.
 type QuantityPriceBreakConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []QuantityPriceBreakEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in QuantityPriceBreakEdge.
+	// A list of nodes that are contained in QuantityPriceBreakEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []QuantityPriceBreak `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one QuantityPriceBreak and a cursor during pagination.
 type QuantityPriceBreakEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of QuantityPriceBreakEdge.
 	Node *QuantityPriceBreak `json:"node,omitempty"`
@@ -24909,17 +27348,17 @@ type QuantityRule struct {
 
 // An auto-generated type for paginating through multiple QuantityRules.
 type QuantityRuleConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []QuantityRuleEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in QuantityRuleEdge.
+	// A list of nodes that are contained in QuantityRuleEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []QuantityRule `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one QuantityRule and a cursor during pagination.
 type QuantityRuleEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of QuantityRuleEdge.
 	Node *QuantityRule `json:"node,omitempty"`
@@ -24985,6 +27424,10 @@ type Query struct {
 
 // The schema's entry-point for queries. This acts as the public, top-level API from which all queries must start.
 type QueryRoot struct {
+	// List of abandoned checkouts. Includes checkouts that were recovered after being abandoned.
+	AbandonedCheckouts *AbandonedCheckoutConnection `json:"abandonedCheckouts,omitempty"`
+	// Returns the count of abandoned checkouts for the given shop. Limited to a maximum of 10000.
+	AbandonedCheckoutsCount *Count `json:"abandonedCheckoutsCount,omitempty,omitempty"`
 	// Returns an abandonment by ID.
 	Abandonment *Abandonment `json:"abandonment,omitempty,omitempty"`
 	// Returns an Abandonment by the Abandoned Checkout ID.
@@ -25005,6 +27448,12 @@ type QueryRoot struct {
 	AppInstallation *AppInstallation `json:"appInstallation,omitempty,omitempty"`
 	// A list of app installations. To use this query, you need to contact [Shopify Support](https://partners.shopify.com/current/support/) to grant your custom app the `read_apps` access scope. Public apps can't be granted this access scope.
 	AppInstallations *AppInstallationConnection `json:"appInstallations,omitempty"`
+	// Returns an Article resource by ID.
+	Article *Article `json:"article,omitempty,omitempty"`
+	// List of all article tags.
+	ArticleTags []string `json:"articleTags,omitempty"`
+	// List of the shop's articles.
+	Articles *ArticleConnection `json:"articles,omitempty"`
 	// The paginated list of fulfillment orders assigned to the shop locations owned by the app.
 	//
 	// Assigned fulfillment orders are fulfillment orders that are set to be fulfilled from locations
@@ -25039,6 +27488,16 @@ type QueryRoot struct {
 	AvailableCarrierServices []DeliveryCarrierServiceAndLocations `json:"availableCarrierServices,omitempty"`
 	// A list of available locales.
 	AvailableLocales []Locale `json:"availableLocales,omitempty"`
+	// Returns a Blog resource by ID.
+	Blog *Blog `json:"blog,omitempty,omitempty"`
+	// List of the shop's blogs.
+	Blogs *BlogConnection `json:"blogs,omitempty"`
+	// Count of blogs.
+	BlogsCount *Count `json:"blogsCount,omitempty,omitempty"`
+	// Returns a list of Business Entities associated with the shop.
+	BusinessEntities []BusinessEntity `json:"businessEntities,omitempty"`
+	// Returns a Business Entity by ID.
+	BusinessEntity *BusinessEntity `json:"businessEntity,omitempty,omitempty"`
 	// Returns a `DeliveryCarrierService` object by ID.
 	CarrierService *DeliveryCarrierService `json:"carrierService,omitempty,omitempty"`
 	// Retrieve a list of CarrierServices.
@@ -25094,6 +27553,12 @@ type QueryRoot struct {
 	CollectionSavedSearches *SavedSearchConnection `json:"collectionSavedSearches,omitempty"`
 	// Returns a list of collections.
 	Collections *CollectionConnection `json:"collections,omitempty"`
+	// Count of collections. Limited to a maximum of 10000.
+	CollectionsCount *Count `json:"collectionsCount,omitempty,omitempty"`
+	// Returns a Comment resource by ID.
+	Comment *Comment `json:"comment,omitempty,omitempty"`
+	// List of the shop's comments.
+	Comments *CommentConnection `json:"comments,omitempty"`
 	// Returns the list of companies in the shop.
 	Companies *CompanyConnection `json:"companies,omitempty"`
 	// The number of companies for a shop.
@@ -25112,8 +27577,14 @@ type QueryRoot struct {
 	CurrentAppInstallation *AppInstallation `json:"currentAppInstallation,omitempty"`
 	// Returns the current app's most recent BulkOperation. Apps can run one bulk query and one bulk mutation operation at a time, by shop.
 	CurrentBulkOperation *BulkOperation `json:"currentBulkOperation,omitempty,omitempty"`
+	// The staff member making the API request.
+	CurrentStaffMember *StaffMember `json:"currentStaffMember,omitempty,omitempty"`
 	// Returns a Customer resource by ID.
 	Customer *Customer `json:"customer,omitempty,omitempty"`
+	// Returns a customer account page.
+	CustomerAccountPage CustomerAccountPage `json:"customerAccountPage,omitempty"`
+	// List of the shop's customer account pages.
+	CustomerAccountPages *CustomerAccountPageConnection `json:"customerAccountPages,omitempty,omitempty"`
 	// Returns the status of a customer merge request job.
 	CustomerMergeJobStatus *CustomerMergeRequest `json:"customerMergeJobStatus,omitempty,omitempty"`
 	// Returns a preview of a customer merge request.
@@ -25121,12 +27592,13 @@ type QueryRoot struct {
 	// Returns a CustomerPaymentMethod resource by its ID.
 	CustomerPaymentMethod *CustomerPaymentMethod `json:"customerPaymentMethod,omitempty,omitempty"`
 	// The list of members, such as customers, that's associated with an individual segment.
+	// The maximum page size is 1000.
 	CustomerSegmentMembers *CustomerSegmentMemberConnection `json:"customerSegmentMembers,omitempty"`
 	// Returns a segment members query resource by ID.
 	CustomerSegmentMembersQuery *CustomerSegmentMembersQuery `json:"customerSegmentMembersQuery,omitempty,omitempty"`
 	// Whether a member, which is a customer, belongs to a segment.
 	CustomerSegmentMembership *SegmentMembershipResponse `json:"customerSegmentMembership,omitempty"`
-	// List of customers.
+	// Returns a list of customers.
 	Customers *CustomerConnection `json:"customers,omitempty"`
 	// The number of customers.
 	CustomersCount *Count `json:"customersCount,omitempty,omitempty"`
@@ -25150,6 +27622,8 @@ type QueryRoot struct {
 	DiscountNode *DiscountNode `json:"discountNode,omitempty,omitempty"`
 	// List of discounts.
 	DiscountNodes *DiscountNodeConnection `json:"discountNodes,omitempty"`
+	// The total number of discounts for the shop. Limited to a maximum of 10000.
+	DiscountNodesCount *Count `json:"discountNodesCount,omitempty,omitempty"`
 	// Returns a bulk code creation resource by ID.
 	DiscountRedeemCodeBulkCreation *DiscountRedeemCodeBulkCreation `json:"discountRedeemCodeBulkCreation,omitempty,omitempty"`
 	// List of the shop's redeemed discount code saved searches.
@@ -25158,6 +27632,8 @@ type QueryRoot struct {
 	Dispute *ShopifyPaymentsDispute `json:"dispute,omitempty,omitempty"`
 	// Returns dispute evidence details based on ID.
 	DisputeEvidence *ShopifyPaymentsDisputeEvidence `json:"disputeEvidence,omitempty,omitempty"`
+	// All disputes related to the Shop.
+	Disputes *ShopifyPaymentsDisputeConnection `json:"disputes,omitempty"`
 	// Lookup a Domain by ID.
 	Domain *Domain `json:"domain,omitempty,omitempty"`
 	// Returns a DraftOrder resource by ID.
@@ -25168,6 +27644,12 @@ type QueryRoot struct {
 	DraftOrderTag *DraftOrderTag `json:"draftOrderTag,omitempty,omitempty"`
 	// List of saved draft orders.
 	DraftOrders *DraftOrderConnection `json:"draftOrders,omitempty"`
+	// Get a single event by its id.
+	Event Event `json:"event,omitempty"`
+	// The paginated list of events associated with the store.
+	Events *EventConnection `json:"events,omitempty,omitempty"`
+	// Count of events. Limited to a maximum of 10000.
+	EventsCount *Count `json:"eventsCount,omitempty,omitempty"`
 	// A list of the shop's file saved searches.
 	FileSavedSearches *SavedSearchConnection `json:"fileSavedSearches,omitempty"`
 	// Returns a paginated list of files that have been uploaded to Shopify.
@@ -25248,14 +27730,14 @@ type QueryRoot struct {
 	Menu *Menu `json:"menu,omitempty,omitempty"`
 	// The shop's menus.
 	Menus *MenuConnection `json:"menus,omitempty"`
-	// Returns a metafield definition by ID.
+	// Returns a metafield definition by identifier.
 	MetafieldDefinition *MetafieldDefinition `json:"metafieldDefinition,omitempty,omitempty"`
 	// Each metafield definition has a type, which defines the type of information that it can store.
 	// This type is enforced across every instance of the resource that owns the metafield definition.
 	//
 	// Refer to the [list of supported metafield types](https://shopify.dev/apps/metafields/types).
 	MetafieldDefinitionTypes []MetafieldDefinitionType `json:"metafieldDefinitionTypes,omitempty"`
-	// List of metafield definitions.
+	// Returns a list of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
 	// List of the `MetafieldStorefrontVisibility` records.
 	MetafieldStorefrontVisibilities *MetafieldStorefrontVisibilityConnection `json:"metafieldStorefrontVisibilities,omitempty"`
@@ -25297,10 +27779,16 @@ type QueryRoot struct {
 	OrderPaymentStatus *OrderPaymentStatus `json:"orderPaymentStatus,omitempty,omitempty"`
 	// List of the shop's order saved searches.
 	OrderSavedSearches *SavedSearchConnection `json:"orderSavedSearches,omitempty"`
-	// Returns a list of orders placed.
+	// Returns a list of orders placed in the store.
 	Orders *OrderConnection `json:"orders,omitempty"`
 	// Returns the count of orders for the given shop. Limited to a maximum of 10000.
 	OrdersCount *Count `json:"ordersCount,omitempty,omitempty"`
+	// Returns a Page resource by ID.
+	Page *Page `json:"page,omitempty,omitempty"`
+	// List of the shop's pages.
+	Pages *PageConnection `json:"pages,omitempty"`
+	// Count of pages.
+	PagesCount *Count `json:"pagesCount,omitempty,omitempty"`
 	// The payment customization.
 	PaymentCustomization *PaymentCustomization `json:"paymentCustomization,omitempty,omitempty"`
 	// The payment customizations.
@@ -25313,12 +27801,6 @@ type QueryRoot struct {
 	PriceList *PriceList `json:"priceList,omitempty,omitempty"`
 	// All price lists for a shop.
 	PriceLists *PriceListConnection `json:"priceLists,omitempty"`
-	// Returns a code price rule resource by ID.
-	PriceRule *PriceRule `json:"priceRule,omitempty,omitempty"`
-	// List of the shop's price rule saved searches.
-	PriceRuleSavedSearches *SavedSearchConnection `json:"priceRuleSavedSearches,omitempty"`
-	// Returns a list of price rule resources that have at least one associated discount code.
-	PriceRules *PriceRuleConnection `json:"priceRules,omitempty"`
 	// The primary market of the shop.
 	PrimaryMarket *Market `json:"primaryMarket,omitempty"`
 	// Returns a private metafield by ID.
@@ -25359,9 +27841,11 @@ type QueryRoot struct {
 	ProductSavedSearches *SavedSearchConnection `json:"productSavedSearches,omitempty"`
 	// Returns a ProductVariant resource by ID.
 	ProductVariant *ProductVariant `json:"productVariant,omitempty,omitempty"`
-	// List of the product variants.
+	// Returns a list of product variants.
 	ProductVariants *ProductVariantConnection `json:"productVariants,omitempty"`
-	// List of products.
+	// Count of product variants.
+	ProductVariantsCount *Count `json:"productVariantsCount,omitempty,omitempty"`
+	// Returns a list of products.
 	Products *ProductConnection `json:"products,omitempty"`
 	// Count of products. Limited to a maximum of 10000.
 	ProductsCount *Count `json:"productsCount,omitempty,omitempty"`
@@ -25442,6 +27926,8 @@ type QueryRoot struct {
 	ShopifyPaymentsAccount *ShopifyPaymentsAccount `json:"shopifyPaymentsAccount,omitempty,omitempty"`
 	// The StaffMember resource, by ID.
 	StaffMember *StaffMember `json:"staffMember,omitempty,omitempty"`
+	// The shop staff members.
+	StaffMembers *StaffMemberConnection `json:"staffMembers,omitempty,omitempty"`
 	// Standard metafield definitions are intended for specific, common use cases. Their namespace and keys reflect these use cases and are reserved.
 	//
 	// Refer to all available [`Standard Metafield Definition Templates`](https://shopify.dev/api/admin-graphql/latest/objects/StandardMetafieldDefinitionTemplate).
@@ -25469,6 +27955,10 @@ type QueryRoot struct {
 	Taxonomy *Taxonomy `json:"taxonomy,omitempty,omitempty"`
 	// Returns a list of TenderTransactions associated with the shop.
 	TenderTransactions *TenderTransactionConnection `json:"tenderTransactions,omitempty"`
+	// Returns a particular theme for the shop.
+	Theme *OnlineStoreTheme `json:"theme,omitempty,omitempty"`
+	// Returns a paginated list of themes for the shop.
+	Themes *OnlineStoreThemeConnection `json:"themes,omitempty,omitempty"`
 	// A resource that can have localized values for different languages.
 	TranslatableResource *TranslatableResource `json:"translatableResource,omitempty,omitempty"`
 	// Resources that can have localized values for different languages.
@@ -25483,6 +27973,8 @@ type QueryRoot struct {
 	URLRedirectSavedSearches *SavedSearchConnection `json:"urlRedirectSavedSearches,omitempty"`
 	// A list of redirects for a shop.
 	URLRedirects *URLRedirectConnection `json:"urlRedirects,omitempty"`
+	// Count of redirects. Limited to a maximum of 10000.
+	URLRedirectsCount *Count `json:"urlRedirectsCount,omitempty,omitempty"`
 	// Validation available on the shop.
 	Validation *Validation `json:"validation,omitempty,omitempty"`
 	// Validations available on the shop.
@@ -25490,10 +27982,16 @@ type QueryRoot struct {
 	// The web pixel configured by the app.
 	WebPixel *WebPixel `json:"webPixel,omitempty,omitempty"`
 	// Returns a webhook subscription by ID.
+	//
+	// Building an app? If you only use app-specific webhooks, you won't need this. App-specific webhook subscriptions specified in your `shopify.app.toml` may be easier. They are automatically kept up to date by Shopify & require less maintenance. Please read [About managing webhook subscriptions](https://shopify.dev/docs/apps/build/webhooks/subscribe).
 	WebhookSubscription *WebhookSubscription `json:"webhookSubscription,omitempty,omitempty"`
 	// Returns a list of webhook subscriptions.
+	//
+	// Building an app? If you only use app-specific webhooks, you won't need this. App-specific webhook subscriptions specified in your `shopify.app.toml` may be easier. They are automatically kept up to date by Shopify & require less maintenance. Please read [About managing webhook subscriptions](https://shopify.dev/docs/apps/build/webhooks/subscribe).
 	WebhookSubscriptions *WebhookSubscriptionConnection `json:"webhookSubscriptions,omitempty"`
-	// The count of webhook subscriptions. Limited to a maximum of 10000.
+	// The count of webhook subscriptions.
+	//
+	// Building an app? If you only use app-specific webhooks, you won't need this. App-specific webhook subscriptions specified in your `shopify.app.toml` may be easier. They are automatically kept up to date by Shopify & require less maintenance. Please read [About managing webhook subscriptions](https://shopify.dev/docs/apps/build/webhooks/subscribe). Limited to a maximum of 10000.
 	WebhookSubscriptionsCount *Count `json:"webhookSubscriptionsCount,omitempty,omitempty"`
 }
 
@@ -25511,6 +28009,8 @@ type Refund struct {
 	Note *string `json:"note,omitempty,omitempty"`
 	// The order associated with the refund.
 	Order *Order `json:"order,omitempty"`
+	// The order adjustments that are attached with the refund.
+	OrderAdjustments *OrderAdjustmentConnection `json:"orderAdjustments,omitempty"`
 	// The `RefundLineItem` resources attached to the refund.
 	RefundLineItems *RefundLineItemConnection `json:"refundLineItems,omitempty"`
 	// The `RefundShippingLine` resources attached to the refund.
@@ -25579,11 +28079,11 @@ func (this RefundAgreement) GetUser() *StaffMember { return this.User }
 
 // An auto-generated type for paginating through multiple Refunds.
 type RefundConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []RefundEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in RefundEdge.
+	// A list of nodes that are contained in RefundEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Refund `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -25615,7 +28115,7 @@ type RefundDutyInput struct {
 
 // An auto-generated type which holds one Refund and a cursor during pagination.
 type RefundEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of RefundEdge.
 	Node *Refund `json:"node,omitempty"`
@@ -25639,6 +28139,8 @@ type RefundInput struct {
 	RefundDuties []RefundDutyInput `json:"refundDuties,omitempty,omitempty"`
 	// A list of transactions involved in the refund.
 	Transactions []OrderTransactionInput `json:"transactions,omitempty,omitempty"`
+	// An optional reason for a discrepancy between calculated and actual refund amounts.
+	DiscrepancyReason *OrderAdjustmentInputDiscrepancyReason `json:"discrepancyReason,omitempty,omitempty"`
 }
 
 // A line item that's included in a refund.
@@ -25671,17 +28173,17 @@ type RefundLineItem struct {
 
 // An auto-generated type for paginating through multiple RefundLineItems.
 type RefundLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []RefundLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in RefundLineItemEdge.
+	// A list of nodes that are contained in RefundLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []RefundLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one RefundLineItem and a cursor during pagination.
 type RefundLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of RefundLineItemEdge.
 	Node *RefundLineItem `json:"node,omitempty"`
@@ -25714,6 +28216,10 @@ type RefundShippingLine struct {
 	ID string `json:"id"`
 	// The `ShippingLine` resource associated to the refunded shipping line item.
 	ShippingLine *ShippingLine `json:"shippingLine,omitempty"`
+	// The subtotal amount of the refund shipping line in shop and presentment currencies.
+	SubtotalAmountSet *MoneyBag `json:"subtotalAmountSet,omitempty"`
+	// The tax amount of the refund shipping line in shop and presentment currencies.
+	TaxAmountSet *MoneyBag `json:"taxAmountSet,omitempty"`
 }
 
 func (RefundShippingLine) IsNode() {}
@@ -25723,17 +28229,17 @@ func (this RefundShippingLine) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple RefundShippingLines.
 type RefundShippingLineConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []RefundShippingLineEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in RefundShippingLineEdge.
+	// A list of nodes that are contained in RefundShippingLineEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []RefundShippingLine `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one RefundShippingLine and a cursor during pagination.
 type RefundShippingLineEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of RefundShippingLineEdge.
 	Node *RefundShippingLine `json:"node,omitempty"`
@@ -25743,7 +28249,8 @@ type RefundShippingLineEdge struct {
 type RemoteAuthorizeNetCustomerPaymentProfileInput struct {
 	// The customerProfileId value from the Authorize.net API.
 	CustomerProfileID string `json:"customerProfileId"`
-	// The customerPaymentProfileId value from the Authorize.net API.
+	// The customerPaymentProfileId value from the Authorize.net API. Starting on 2025,
+	// customer_payment_profile_id will become mandatory for all API versions.
 	CustomerPaymentProfileID *string `json:"customerPaymentProfileId,omitempty,omitempty"`
 }
 
@@ -25751,7 +28258,8 @@ type RemoteAuthorizeNetCustomerPaymentProfileInput struct {
 type RemoteBraintreePaymentMethodInput struct {
 	// The `customer_id` value from the Braintree API.
 	CustomerID string `json:"customerId"`
-	// The `payment_method_token` value from the Braintree API.
+	// The `payment_method_token` value from the Braintree API. Starting on 2025,
+	// payment_method_token will become mandatory for all API versions.
 	PaymentMethodToken *string `json:"paymentMethodToken,omitempty,omitempty"`
 }
 
@@ -25759,7 +28267,8 @@ type RemoteBraintreePaymentMethodInput struct {
 type RemoteStripePaymentMethodInput struct {
 	// The customer_id value from the Stripe API.
 	CustomerID string `json:"customerId"`
-	// The payment_method_id value from the Stripe API.
+	// The payment_method_id value from the Stripe API. Starting on 2025,
+	// payment_method_id will become mandatory for all API versions.
 	PaymentMethodID *string `json:"paymentMethodId,omitempty,omitempty"`
 }
 
@@ -25844,17 +28353,17 @@ type ResourcePublication struct {
 
 // An auto-generated type for paginating through multiple ResourcePublications.
 type ResourcePublicationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ResourcePublicationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ResourcePublicationEdge.
+	// A list of nodes that are contained in ResourcePublicationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ResourcePublication `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ResourcePublication and a cursor during pagination.
 type ResourcePublicationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ResourcePublicationEdge.
 	Node *ResourcePublication `json:"node,omitempty"`
@@ -25878,17 +28387,17 @@ type ResourcePublicationV2 struct {
 
 // An auto-generated type for paginating through multiple ResourcePublicationV2s.
 type ResourcePublicationV2Connection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ResourcePublicationV2Edge `json:"edges,omitempty"`
-	// A list of the nodes contained in ResourcePublicationV2Edge.
+	// A list of nodes that are contained in ResourcePublicationV2Edge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ResourcePublicationV2 `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ResourcePublicationV2 and a cursor during pagination.
 type ResourcePublicationV2Edge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ResourcePublicationV2Edge.
 	Node *ResourcePublicationV2 `json:"node,omitempty"`
@@ -25914,6 +28423,14 @@ func (this RestockingFee) GetID() string { return this.ID }
 type RestockingFeeInput struct {
 	// The value of the fee as a percentage.
 	Percentage float64 `json:"percentage"`
+}
+
+// Information about product is restricted for a given resource.
+type RestrictedForResource struct {
+	// Returns true when the product is restricted for the given resource.
+	Restricted bool `json:"restricted"`
+	// Restriction reason for the given resource.
+	RestrictedReason string `json:"restrictedReason"`
 }
 
 // Represents a return.
@@ -25991,6 +28508,9 @@ func (this ReturnAgreement) GetUser() *StaffMember { return this.User }
 type ReturnApproveRequestInput struct {
 	// The ID of the return that's being approved.
 	ID string `json:"id"`
+	// Notify the customer when a return request is approved.
+	// The customer will only receive a notification if `Order.email` is present.
+	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
 }
 
 // Return type for `returnApproveRequest` mutation.
@@ -26019,11 +28539,11 @@ type ReturnClosePayload struct {
 
 // An auto-generated type for paginating through multiple Returns.
 type ReturnConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReturnEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReturnEdge.
+	// A list of nodes that are contained in ReturnEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Return `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -26050,6 +28570,12 @@ type ReturnDeclineRequestInput struct {
 	ID string `json:"id"`
 	// The reason why the merchant declined the customer's return request.
 	DeclineReason ReturnDeclineReason `json:"declineReason"`
+	// Notify the customer when a return request is declined.
+	// The customer will only receive a notification if `Order.email` is present.
+	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
+	// The notification message that's sent to a customer about their declined return request.
+	// Maximum length: 500 characters.
+	DeclineNote *string `json:"declineNote,omitempty,omitempty"`
 }
 
 // Return type for `returnDeclineRequest` mutation.
@@ -26062,7 +28588,7 @@ type ReturnDeclineRequestPayload struct {
 
 // An auto-generated type which holds one Return and a cursor during pagination.
 type ReturnEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReturnEdge.
 	Node *Return `json:"node,omitempty"`
@@ -26072,8 +28598,6 @@ type ReturnEdge struct {
 type ReturnInput struct {
 	// The new line items to be added to the order.
 	ExchangeLineItems []ExchangeLineItemInput `json:"exchangeLineItems,omitempty,omitempty"`
-	// When `true` the customer will receive a notification if there's an `Order.email` present.
-	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
 	// The UTC date and time when the return was first solicited by the customer.
 	RequestedAt *time.Time `json:"requestedAt,omitempty,omitempty"`
 	// The ID of the order to be returned.
@@ -26082,6 +28606,8 @@ type ReturnInput struct {
 	ReturnLineItems []ReturnLineItemInput `json:"returnLineItems,omitempty"`
 	// The return shipping fee to capture.
 	ReturnShippingFee *ReturnShippingFeeInput `json:"returnShippingFee,omitempty,omitempty"`
+	// When `true` the customer will receive a notification if there's an `Order.email` present.
+	NotifyCustomer *bool `json:"notifyCustomer,omitempty,omitempty"`
 }
 
 // A return line item.
@@ -26171,17 +28697,17 @@ type ReturnLineItemRemoveFromReturnPayload struct {
 
 // An auto-generated type for paginating through multiple ReturnLineItemTypes.
 type ReturnLineItemTypeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReturnLineItemTypeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReturnLineItemTypeEdge.
+	// A list of nodes that are contained in ReturnLineItemTypeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReturnLineItemType `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ReturnLineItemType and a cursor during pagination.
 type ReturnLineItemTypeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReturnLineItemTypeEdge.
 	Node ReturnLineItemType `json:"node"`
@@ -26334,17 +28860,17 @@ func (this ReturnableFulfillment) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ReturnableFulfillments.
 type ReturnableFulfillmentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReturnableFulfillmentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReturnableFulfillmentEdge.
+	// A list of nodes that are contained in ReturnableFulfillmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReturnableFulfillment `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ReturnableFulfillment and a cursor during pagination.
 type ReturnableFulfillmentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReturnableFulfillmentEdge.
 	Node *ReturnableFulfillment `json:"node,omitempty"`
@@ -26360,17 +28886,17 @@ type ReturnableFulfillmentLineItem struct {
 
 // An auto-generated type for paginating through multiple ReturnableFulfillmentLineItems.
 type ReturnableFulfillmentLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReturnableFulfillmentLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReturnableFulfillmentLineItemEdge.
+	// A list of nodes that are contained in ReturnableFulfillmentLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReturnableFulfillmentLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ReturnableFulfillmentLineItem and a cursor during pagination.
 type ReturnableFulfillmentLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReturnableFulfillmentLineItemEdge.
 	Node *ReturnableFulfillmentLineItem `json:"node,omitempty"`
@@ -26398,11 +28924,11 @@ func (this ReverseDelivery) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ReverseDeliveries.
 type ReverseDeliveryConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReverseDeliveryEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReverseDeliveryEdge.
+	// A list of nodes that are contained in ReverseDeliveryEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReverseDelivery `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -26414,30 +28940,9 @@ type ReverseDeliveryCreateWithShippingPayload struct {
 	UserErrors []ReturnUserError `json:"userErrors,omitempty"`
 }
 
-// The input fields to dispose a reverse delivery line item.
-type ReverseDeliveryDisposeInput struct {
-	// The ID of the reverse delivery line item.
-	ReverseDeliveryLineItemID string `json:"reverseDeliveryLineItemId"`
-	// The quantity of the reverse delivery line item to dispose.
-	Quantity int `json:"quantity"`
-	// The final arrangement for the reverse delivery line item.
-	DispositionType ReverseFulfillmentOrderDispositionType `json:"dispositionType"`
-	// The ID of the location where the reverse delivery line item is to be disposed. This is required
-	//           when the disposition type is RESTOCKED.
-	LocationID *string `json:"locationId,omitempty,omitempty"`
-}
-
-// Return type for `reverseDeliveryDispose` mutation.
-type ReverseDeliveryDisposePayload struct {
-	// The disposed reverse delivery line items.
-	ReverseDeliveryLineItems []ReverseDeliveryLineItem `json:"reverseDeliveryLineItems,omitempty,omitempty"`
-	// The list of errors that occurred from executing the mutation.
-	UserErrors []ReturnUserError `json:"userErrors,omitempty"`
-}
-
 // An auto-generated type which holds one ReverseDelivery and a cursor during pagination.
 type ReverseDeliveryEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReverseDeliveryEdge.
 	Node *ReverseDelivery `json:"node,omitempty"`
@@ -26478,17 +28983,17 @@ func (this ReverseDeliveryLineItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ReverseDeliveryLineItems.
 type ReverseDeliveryLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReverseDeliveryLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReverseDeliveryLineItemEdge.
+	// A list of nodes that are contained in ReverseDeliveryLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReverseDeliveryLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ReverseDeliveryLineItem and a cursor during pagination.
 type ReverseDeliveryLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReverseDeliveryLineItemEdge.
 	Node *ReverseDeliveryLineItem `json:"node,omitempty"`
@@ -26563,11 +29068,11 @@ func (this ReverseFulfillmentOrder) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ReverseFulfillmentOrders.
 type ReverseFulfillmentOrderConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReverseFulfillmentOrderEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReverseFulfillmentOrderEdge.
+	// A list of nodes that are contained in ReverseFulfillmentOrderEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReverseFulfillmentOrder `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -26611,7 +29116,7 @@ func (this ReverseFulfillmentOrderDisposition) GetID() string { return this.ID }
 
 // An auto-generated type which holds one ReverseFulfillmentOrder and a cursor during pagination.
 type ReverseFulfillmentOrderEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReverseFulfillmentOrderEdge.
 	Node *ReverseFulfillmentOrder `json:"node,omitempty"`
@@ -26622,7 +29127,7 @@ type ReverseFulfillmentOrderLineItem struct {
 	// The dispositions of the item.
 	Dispositions []ReverseFulfillmentOrderDisposition `json:"dispositions,omitempty"`
 	// The corresponding fulfillment line item for a reverse fulfillment order line item.
-	FulfillmentLineItem *FulfillmentLineItem `json:"fulfillmentLineItem,omitempty"`
+	FulfillmentLineItem *FulfillmentLineItem `json:"fulfillmentLineItem,omitempty,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
 	// The total number of units to be processed.
@@ -26636,17 +29141,17 @@ func (this ReverseFulfillmentOrderLineItem) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ReverseFulfillmentOrderLineItems.
 type ReverseFulfillmentOrderLineItemConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ReverseFulfillmentOrderLineItemEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ReverseFulfillmentOrderLineItemEdge.
+	// A list of nodes that are contained in ReverseFulfillmentOrderLineItemEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ReverseFulfillmentOrderLineItem `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ReverseFulfillmentOrderLineItem and a cursor during pagination.
 type ReverseFulfillmentOrderLineItemEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ReverseFulfillmentOrderLineItemEdge.
 	Node *ReverseFulfillmentOrderLineItem `json:"node,omitempty"`
@@ -26709,17 +29214,17 @@ func (this SaleAdditionalFee) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple Sales.
 type SaleConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SaleEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SaleEdge.
+	// A list of nodes that are contained in SaleEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Sale `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one Sale and a cursor during pagination.
 type SaleEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SaleEdge.
 	Node Sale `json:"node"`
@@ -26737,17 +29242,17 @@ type SaleTax struct {
 
 // An auto-generated type for paginating through multiple SalesAgreements.
 type SalesAgreementConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SalesAgreementEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SalesAgreementEdge.
+	// A list of nodes that are contained in SalesAgreementEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SalesAgreement `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SalesAgreement and a cursor during pagination.
 type SalesAgreementEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SalesAgreementEdge.
 	Node SalesAgreement `json:"node"`
@@ -26783,11 +29288,11 @@ func (this SavedSearch) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple SavedSearches.
 type SavedSearchConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SavedSearchEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SavedSearchEdge.
+	// A list of nodes that are contained in SavedSearchEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SavedSearch `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -26827,7 +29332,7 @@ type SavedSearchDeletePayload struct {
 
 // An auto-generated type which holds one SavedSearch and a cursor during pagination.
 type SavedSearchEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SavedSearchEdge.
 	Node *SavedSearch `json:"node,omitempty"`
@@ -26938,11 +29443,11 @@ func (this ScriptTag) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ScriptTags.
 type ScriptTagConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ScriptTagEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ScriptTagEdge.
+	// A list of nodes that are contained in ScriptTagEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ScriptTag `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -26964,7 +29469,7 @@ type ScriptTagDeletePayload struct {
 
 // An auto-generated type which holds one ScriptTag and a cursor during pagination.
 type ScriptTagEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ScriptTagEdge.
 	Node *ScriptTag `json:"node,omitempty"`
@@ -27023,17 +29528,17 @@ type SearchResult struct {
 
 // The connection type for SearchResult.
 type SearchResultConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SearchResultEdge `json:"edges,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	ResultsAfterCount int `json:"resultsAfterCount"`
 }
 
 // An auto-generated type which holds one SearchResult and a cursor during pagination.
 type SearchResultEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SearchResultEdge.
 	Node *SearchResult `json:"node,omitempty"`
@@ -27110,11 +29615,11 @@ func (this SegmentBooleanFilter) GetQueryName() string { return this.QueryName }
 
 // An auto-generated type for paginating through multiple Segments.
 type SegmentConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SegmentEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SegmentEdge.
+	// A list of nodes that are contained in SegmentEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Segment `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -27157,7 +29662,7 @@ type SegmentDeletePayload struct {
 
 // An auto-generated type which holds one Segment and a cursor during pagination.
 type SegmentEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SegmentEdge.
 	Node *Segment `json:"node,omitempty"`
@@ -27227,17 +29732,17 @@ type SegmentEventFilterParameter struct {
 
 // An auto-generated type for paginating through multiple SegmentFilters.
 type SegmentFilterConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SegmentFilterEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SegmentFilterEdge.
+	// A list of nodes that are contained in SegmentFilterEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SegmentFilter `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SegmentFilter and a cursor during pagination.
 type SegmentFilterEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SegmentFilterEdge.
 	Node SegmentFilter `json:"node"`
@@ -27312,17 +29817,17 @@ type SegmentMigration struct {
 
 // An auto-generated type for paginating through multiple SegmentMigrations.
 type SegmentMigrationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SegmentMigrationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SegmentMigrationEdge.
+	// A list of nodes that are contained in SegmentMigrationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SegmentMigration `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SegmentMigration and a cursor during pagination.
 type SegmentMigrationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SegmentMigrationEdge.
 	Node *SegmentMigration `json:"node,omitempty"`
@@ -27375,17 +29880,17 @@ type SegmentValue struct {
 
 // An auto-generated type for paginating through multiple SegmentValues.
 type SegmentValueConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SegmentValueEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SegmentValueEdge.
+	// A list of nodes that are contained in SegmentValueEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SegmentValue `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SegmentValue and a cursor during pagination.
 type SegmentValueEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SegmentValueEdge.
 	Node *SegmentValue `json:"node,omitempty"`
@@ -27433,11 +29938,14 @@ type SellingPlan struct {
 	ID string `json:"id"`
 	// When to reserve inventory for a selling plan.
 	InventoryPolicy *SellingPlanInventoryPolicy `json:"inventoryPolicy,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// A customer-facing description of the selling plan.
 	//
@@ -27453,7 +29961,7 @@ type SellingPlan struct {
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
 	// List of private metafields that belong to the resource.
 	PrivateMetafields *PrivateMetafieldConnection `json:"privateMetafields,omitempty"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 }
 
@@ -27466,10 +29974,13 @@ func (this SellingPlan) GetMetafieldDefinitions() *MetafieldDefinitionConnection
 
 func (SellingPlan) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this SellingPlan) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this SellingPlan) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -27482,7 +29993,7 @@ func (this SellingPlan) GetPrivateMetafields() *PrivateMetafieldConnection {
 
 func (SellingPlan) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this SellingPlan) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -27499,9 +30010,19 @@ func (SellingPlan) IsNode() {}
 // A globally-unique ID.
 func (this SellingPlan) GetID() string { return this.ID }
 
-// Represents a selling plan policy anchor.
+// Specifies the date when delivery or fulfillment is completed by a merchant for a given time cycle. You can also
+// define a cutoff for which customers are eligible to enter this cycle and the desired behavior for customers who
+// start their subscription inside the cutoff period.
+//
+// Some example scenarios where anchors can be useful to implement advanced delivery behavior:
+// - A merchant starts fulfillment on a specific date every month.
+// - A merchant wants to bill the 1st of every quarter.
+// - A customer expects their delivery every Tuesday.
+//
+// For more details, see [About Selling Plans](https://shopify.dev/docs/apps/build/purchase-options/subscriptions/selling-plans#anchors).
 type SellingPlanAnchor struct {
-	// The cutoff day for the anchor.
+	// The cutoff day for the anchor. Specifies a buffer period before the anchor date for orders to be included in a
+	// delivery or fulfillment cycle.
 	//
 	// If `type` is WEEKDAY, then the value must be between 1-7. Shopify interprets
 	// the days of the week according to ISO 8601, where 1 is Monday.
@@ -27593,11 +30114,11 @@ type SellingPlanCheckoutChargeValueInput struct {
 
 // An auto-generated type for paginating through multiple SellingPlans.
 type SellingPlanConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SellingPlanEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SellingPlanEdge.
+	// A list of nodes that are contained in SellingPlanEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SellingPlan `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -27611,7 +30132,7 @@ type SellingPlanDeliveryPolicyInput struct {
 
 // An auto-generated type which holds one SellingPlan and a cursor during pagination.
 type SellingPlanEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SellingPlanEdge.
 	Node *SellingPlan `json:"node,omitempty"`
@@ -27757,13 +30278,13 @@ type SellingPlanGroup struct {
 	SellingPlans *SellingPlanConnection `json:"sellingPlans,omitempty"`
 	// A summary of the policies associated to the selling plan group.
 	Summary *string `json:"summary,omitempty,omitempty"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 }
 
 func (SellingPlanGroup) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this SellingPlanGroup) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -27798,11 +30319,11 @@ type SellingPlanGroupAddProductsPayload struct {
 
 // An auto-generated type for paginating through multiple SellingPlanGroups.
 type SellingPlanGroupConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SellingPlanGroupEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SellingPlanGroupEdge.
+	// A list of nodes that are contained in SellingPlanGroupEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SellingPlanGroup `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -27824,7 +30345,7 @@ type SellingPlanGroupDeletePayload struct {
 
 // An auto-generated type which holds one SellingPlanGroup and a cursor during pagination.
 type SellingPlanGroupEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SellingPlanGroupEdge.
 	Node *SellingPlanGroup `json:"node,omitempty"`
@@ -28123,6 +30644,8 @@ type ShippingLine struct {
 	CarrierIdentifier *string `json:"carrierIdentifier,omitempty,omitempty"`
 	// A reference to the shipping method.
 	Code *string `json:"code,omitempty,omitempty"`
+	// The current shipping price after applying refunds, after applying discounts. If the parent `order.taxesIncluded`` field is true, then this price includes taxes. Otherwise, this field is the pre-tax price.
+	CurrentDiscountedPriceSet *MoneyBag `json:"currentDiscountedPriceSet,omitempty"`
 	// Whether the shipping line is custom or not.
 	Custom bool `json:"custom"`
 	// The general classification of the delivery method.
@@ -28164,17 +30687,17 @@ func (ShippingLine) IsDraftOrderPlatformDiscountAllocationTarget() {}
 
 // An auto-generated type for paginating through multiple ShippingLines.
 type ShippingLineConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ShippingLineEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ShippingLineEdge.
+	// A list of nodes that are contained in ShippingLineEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ShippingLine `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ShippingLine and a cursor during pagination.
 type ShippingLineEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ShippingLineEdge.
 	Node *ShippingLine `json:"node,omitempty"`
@@ -28259,15 +30782,6 @@ func (this ShippingLineSale) GetTotalDiscountAmountBeforeTaxes() *MoneyBag {
 // The total amount of taxes for the sale.
 func (this ShippingLineSale) GetTotalTaxAmount() *MoneyBag { return this.TotalTaxAmount }
 
-// The shipping method for the delivery. Customers will see applicable shipping methods in the shipping section of checkout.
-type ShippingMethod struct {
-	// A unique code associated with the rate. For example: `expedited_mail`
-	Code string `json:"code"`
-	// A description of the rate, which customers will see at checkout.
-	// For example: `Local delivery`, `Free Express Worldwide`, `Includes tracking and insurance`.
-	Label string `json:"label"`
-}
-
 // Return type for `shippingPackageDelete` mutation.
 type ShippingPackageDeletePayload struct {
 	// The ID of the deleted shipping package.
@@ -28324,6 +30838,8 @@ type ShippingRefundInput struct {
 
 // Represents a collection of general settings and information about the shop.
 type Shop struct {
+	// Account owner information.
+	AccountOwner *StaffMember `json:"accountOwner,omitempty"`
 	// A list of the shop's active alert messages that appear in the Shopify admin.
 	Alerts []ShopAlert `json:"alerts,omitempty"`
 	// A list of the shop's product categories. Limit: 1000 product categories.
@@ -28429,9 +30945,12 @@ type Shop struct {
 	MarketingSmsConsentEnabledAtCheckout bool `json:"marketingSmsConsentEnabledAtCheckout"`
 	// The approval signals for a shop to support onboarding to channel apps.
 	MerchantApprovalSignals *MerchantApprovalSignals `json:"merchantApprovalSignals,omitempty,omitempty"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// The shop's .myshopify.com domain name.
 	MyshopifyDomain string `json:"myshopifyDomain"`
@@ -28453,10 +30972,6 @@ type Shop struct {
 	PaymentSettings *PaymentSettings `json:"paymentSettings,omitempty"`
 	// The shop's billing plan.
 	Plan *ShopPlan `json:"plan,omitempty"`
-	// List of the shop's price rule saved searches.
-	PriceRuleSavedSearches *SavedSearchConnection `json:"priceRuleSavedSearches,omitempty"`
-	// List of the shop’s price rules.
-	PriceRules *PriceRuleConnection `json:"priceRules,omitempty"`
 	// The primary domain of the shop's online store.
 	PrimaryDomain *Domain `json:"primaryDomain,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
@@ -28493,6 +31008,8 @@ type Shop struct {
 	SetupRequired bool `json:"setupRequired"`
 	// The list of countries that the shop ships to.
 	ShipsToCountries []CountryCode `json:"shipsToCountries,omitempty"`
+	// The name of the shop owner.
+	ShopOwnerName string `json:"shopOwnerName"`
 	// The list of all legal policies associated with a shop.
 	ShopPolicies []ShopPolicy `json:"shopPolicies,omitempty"`
 	// The paginated list of the shop's staff members.
@@ -28513,7 +31030,7 @@ type Shop struct {
 	TimezoneOffsetMinutes int `json:"timezoneOffsetMinutes"`
 	// Whether transactional SMS sent by Shopify have been disabled for a shop.
 	TransactionalSmsDisabled bool `json:"transactionalSmsDisabled"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 	// The shop's unit system for weights and measures.
 	UnitSystem UnitSystem `json:"unitSystem"`
@@ -28531,10 +31048,13 @@ func (Shop) IsMetafieldReferencer() {}
 
 func (Shop) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Shop) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Shop) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -28545,7 +31065,7 @@ func (this Shop) GetPrivateMetafields() *PrivateMetafieldConnection { return thi
 
 func (Shop) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this Shop) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -28782,7 +31302,7 @@ type ShopPolicy struct {
 	ID string `json:"id"`
 	// The translated title of the policy. For example, Refund Policy or Politique de remboursement.
 	Title string `json:"title"`
-	// The translations associated with the resource.
+	// The published translations associated with the resource.
 	Translations []Translation `json:"translations,omitempty"`
 	// The shop policy type.
 	Type ShopPolicyType `json:"type"`
@@ -28794,7 +31314,7 @@ type ShopPolicy struct {
 
 func (ShopPolicy) IsHasPublishedTranslations() {}
 
-// The translations associated with the resource.
+// The published translations associated with the resource.
 func (this ShopPolicy) GetTranslations() []Translation {
 	if this.Translations == nil {
 		return nil
@@ -28927,17 +31447,17 @@ type ShopifyFunction struct {
 
 // An auto-generated type for paginating through multiple ShopifyFunctions.
 type ShopifyFunctionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ShopifyFunctionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ShopifyFunctionEdge.
+	// A list of nodes that are contained in ShopifyFunctionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ShopifyFunction `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ShopifyFunction and a cursor during pagination.
 type ShopifyFunctionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ShopifyFunctionEdge.
 	Node *ShopifyFunction `json:"node,omitempty"`
@@ -28970,12 +31490,8 @@ type ShopifyPaymentsAccount struct {
 	DefaultCurrency CurrencyCode `json:"defaultCurrency"`
 	// All disputes that originated from a transaction made with the Shopify Payments account.
 	Disputes *ShopifyPaymentsDisputeConnection `json:"disputes,omitempty"`
-	// The fraud settings of the Shopify Payments account.
-	FraudSettings *ShopifyPaymentsFraudSettings `json:"fraudSettings,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
-	// The notifications settings for the account.
-	NotificationSettings *ShopifyPaymentsNotificationSettings `json:"notificationSettings,omitempty"`
 	// Whether the Shopify Payments account can be onboarded.
 	Onboardable bool `json:"onboardable"`
 	// The payout schedule for the account.
@@ -28986,10 +31502,6 @@ type ShopifyPaymentsAccount struct {
 	PayoutStatementDescriptor *string `json:"payoutStatementDescriptor,omitempty,omitempty"`
 	// All current and previous payouts made between the account and the bank account.
 	Payouts *ShopifyPaymentsPayoutConnection `json:"payouts,omitempty"`
-	// The permitted documents for identity verification.
-	PermittedVerificationDocuments []ShopifyPaymentsVerificationDocument `json:"permittedVerificationDocuments,omitempty"`
-	// The verifications necessary for this account.
-	Verifications []ShopifyPaymentsVerification `json:"verifications,omitempty"`
 }
 
 func (ShopifyPaymentsAccount) IsNode() {}
@@ -29068,17 +31580,17 @@ type ShopifyPaymentsBalanceTransactionAssociatedPayout struct {
 
 // An auto-generated type for paginating through multiple ShopifyPaymentsBalanceTransactions.
 type ShopifyPaymentsBalanceTransactionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ShopifyPaymentsBalanceTransactionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ShopifyPaymentsBalanceTransactionEdge.
+	// A list of nodes that are contained in ShopifyPaymentsBalanceTransactionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ShopifyPaymentsBalanceTransaction `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ShopifyPaymentsBalanceTransaction and a cursor during pagination.
 type ShopifyPaymentsBalanceTransactionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ShopifyPaymentsBalanceTransactionEdge.
 	Node *ShopifyPaymentsBalanceTransaction `json:"node,omitempty"`
@@ -29115,17 +31627,17 @@ func (this ShopifyPaymentsBankAccount) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ShopifyPaymentsBankAccounts.
 type ShopifyPaymentsBankAccountConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ShopifyPaymentsBankAccountEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ShopifyPaymentsBankAccountEdge.
+	// A list of nodes that are contained in ShopifyPaymentsBankAccountEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ShopifyPaymentsBankAccount `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ShopifyPaymentsBankAccount and a cursor during pagination.
 type ShopifyPaymentsBankAccountEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ShopifyPaymentsBankAccountEdge.
 	Node *ShopifyPaymentsBankAccount `json:"node,omitempty"`
@@ -29185,17 +31697,17 @@ func (this ShopifyPaymentsDispute) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ShopifyPaymentsDisputes.
 type ShopifyPaymentsDisputeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ShopifyPaymentsDisputeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ShopifyPaymentsDisputeEdge.
+	// A list of nodes that are contained in ShopifyPaymentsDisputeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ShopifyPaymentsDispute `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ShopifyPaymentsDispute and a cursor during pagination.
 type ShopifyPaymentsDisputeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ShopifyPaymentsDisputeEdge.
 	Node *ShopifyPaymentsDispute `json:"node,omitempty"`
@@ -29358,14 +31870,6 @@ type ShopifyPaymentsExtendedAuthorization struct {
 	StandardAuthorizationExpiresAt time.Time `json:"standardAuthorizationExpiresAt"`
 }
 
-// The fraud settings of a payments account.
-type ShopifyPaymentsFraudSettings struct {
-	// Decline a charge if there's an AVS failure.
-	DeclineChargeOnAvsFailure bool `json:"declineChargeOnAvsFailure"`
-	// Decline a charge if there's an CVC failure.
-	DeclineChargeOnCvcFailure bool `json:"declineChargeOnCvcFailure"`
-}
-
 // The charge descriptors for a Japanese payments account.
 type ShopifyPaymentsJpChargeStatementDescriptor struct {
 	// The default charge statement descriptor.
@@ -29386,17 +31890,13 @@ func (this ShopifyPaymentsJpChargeStatementDescriptor) GetDefault() *string { re
 // The prefix of the statement descriptor.
 func (this ShopifyPaymentsJpChargeStatementDescriptor) GetPrefix() string { return this.Prefix }
 
-// The notification settings for the account.
-type ShopifyPaymentsNotificationSettings struct {
-	// Receive email notifications when new payouts are sent or payouts fail.
-	Payouts bool `json:"payouts"`
-}
-
 // Payouts represent the movement of money between a merchant's Shopify
 // Payments balance and their bank account.
 type ShopifyPaymentsPayout struct {
 	// The bank account for the payout.
 	BankAccount *ShopifyPaymentsBankAccount `json:"bankAccount,omitempty,omitempty"`
+	// The business entity associated with the payout.
+	BusinessEntity *BusinessEntity `json:"businessEntity,omitempty"`
 	// The total amount and currency of the payout.
 	Gross *MoneyV2 `json:"gross,omitempty"`
 	// A globally-unique ID.
@@ -29428,17 +31928,17 @@ func (this ShopifyPaymentsPayout) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple ShopifyPaymentsPayouts.
 type ShopifyPaymentsPayoutConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ShopifyPaymentsPayoutEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ShopifyPaymentsPayoutEdge.
+	// A list of nodes that are contained in ShopifyPaymentsPayoutEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []ShopifyPaymentsPayout `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one ShopifyPaymentsPayout and a cursor during pagination.
 type ShopifyPaymentsPayoutEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ShopifyPaymentsPayoutEdge.
 	Node *ShopifyPaymentsPayout `json:"node,omitempty"`
@@ -29468,6 +31968,10 @@ type ShopifyPaymentsPayoutSummary struct {
 	AdjustmentsFee *MoneyV2 `json:"adjustmentsFee,omitempty"`
 	// Total gross amount for all adjustments including disputes.
 	AdjustmentsGross *MoneyV2 `json:"adjustmentsGross,omitempty"`
+	// Total fees for all advances.
+	AdvanceFees *MoneyV2 `json:"advanceFees,omitempty"`
+	// Total gross amount for all advances.
+	AdvanceGross *MoneyV2 `json:"advanceGross,omitempty"`
 	// Total fees for all charges.
 	ChargesFee *MoneyV2 `json:"chargesFee,omitempty"`
 	// Total gross amount for all charges.
@@ -29517,16 +32021,6 @@ func (ShopifyPaymentsVerification) IsNode() {}
 // A globally-unique ID.
 func (this ShopifyPaymentsVerification) GetID() string { return this.ID }
 
-// A document which can be used to verify an individual.
-type ShopifyPaymentsVerificationDocument struct {
-	// True if the back side of the document is required.
-	BackRequired bool `json:"backRequired"`
-	// True if the front side of the document is required.
-	FrontRequired bool `json:"frontRequired"`
-	// The type of the document which can be used for verification.
-	Type ShopifyPaymentsVerificationDocumentType `json:"type"`
-}
-
 // The verification subject represents an individual that has to be verified.
 type ShopifyPaymentsVerificationSubject struct {
 	// The family name of the individual to verify.
@@ -29551,6 +32045,8 @@ type ShopifyProtectOrderSummary struct {
 
 // Represents the data about a staff member's Shopify account. Merchants can use staff member data to get more information about the staff members in their store.
 type StaffMember struct {
+	// The type of account the staff member has.
+	AccountType *AccountType `json:"accountType,omitempty,omitempty"`
 	// Whether the staff member is active.
 	Active bool `json:"active"`
 	// The image used as the staff member's avatar in the Shopify admin.
@@ -29586,17 +32082,17 @@ func (this StaffMember) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple StaffMembers.
 type StaffMemberConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []StaffMemberEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in StaffMemberEdge.
+	// A list of nodes that are contained in StaffMemberEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []StaffMember `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one StaffMember and a cursor during pagination.
 type StaffMemberEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of StaffMemberEdge.
 	Node *StaffMember `json:"node,omitempty"`
@@ -29737,6 +32233,16 @@ type StagedUploadsCreatePayload struct {
 	UserErrors []UserError `json:"userErrors,omitempty"`
 }
 
+// The input fields for the access settings for the metafields under the standard definition.
+type StandardMetafieldDefinitionAccessInput struct {
+	// The Admin API access setting to use for the metafields under this definition.
+	Admin MetafieldAdminAccessInput `json:"admin"`
+	// The Storefront API access setting to use for the metafields under this definition.
+	Storefront *MetafieldStorefrontAccessInput `json:"storefront,omitempty,omitempty"`
+	// The Customer Account API access setting to use for the metafields under this definition.
+	CustomerAccount *MetafieldCustomerAccountAccessInput `json:"customerAccount,omitempty,omitempty"`
+}
+
 // Return type for `standardMetafieldDefinitionEnable` mutation.
 type StandardMetafieldDefinitionEnablePayload struct {
 	// The metafield definition that was created.
@@ -29804,17 +32310,17 @@ func (this StandardMetafieldDefinitionTemplate) GetID() string { return this.ID 
 
 // An auto-generated type for paginating through multiple StandardMetafieldDefinitionTemplates.
 type StandardMetafieldDefinitionTemplateConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []StandardMetafieldDefinitionTemplateEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in StandardMetafieldDefinitionTemplateEdge.
+	// A list of nodes that are contained in StandardMetafieldDefinitionTemplateEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []StandardMetafieldDefinitionTemplate `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one StandardMetafieldDefinitionTemplate and a cursor during pagination.
 type StandardMetafieldDefinitionTemplateEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of StandardMetafieldDefinitionTemplateEdge.
 	Node *StandardMetafieldDefinitionTemplate `json:"node,omitempty"`
@@ -29832,12 +32338,6 @@ type StandardMetaobjectDefinitionEnablePayload struct {
 type StandardizedProductType struct {
 	// The product taxonomy node associated with the standardized product type.
 	ProductTaxonomyNode *ProductTaxonomyNode `json:"productTaxonomyNode,omitempty,omitempty"`
-}
-
-// Provides the fields and values to use when adding a standard product type to a product. The [Shopify product taxonomy](https://shopify.github.io/product-taxonomy/releases/unstable/?categoryId=sg-4-17-2-17) contains the full list of available values.
-type StandardizedProductTypeInput struct {
-	// The ID of the node in the Shopify taxonomy that represents the product type.
-	ProductTaxonomyNodeID string `json:"productTaxonomyNodeId"`
 }
 
 // A store credit account contains a monetary balance that can be redeemed at checkout for purchases in the shop.
@@ -29862,11 +32362,11 @@ func (this StoreCreditAccount) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple StoreCreditAccounts.
 type StoreCreditAccountConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []StoreCreditAccountEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in StoreCreditAccountEdge.
+	// A list of nodes that are contained in StoreCreditAccountEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []StoreCreditAccount `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -30076,7 +32576,7 @@ func (this StoreCreditAccountDebitUserError) GetMessage() string { return this.M
 
 // An auto-generated type which holds one StoreCreditAccount and a cursor during pagination.
 type StoreCreditAccountEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of StoreCreditAccountEdge.
 	Node *StoreCreditAccount `json:"node,omitempty"`
@@ -30119,17 +32619,17 @@ func (this StoreCreditAccountExpirationTransaction) GetCreatedAt() time.Time { r
 
 // An auto-generated type for paginating through multiple StoreCreditAccountTransactions.
 type StoreCreditAccountTransactionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []StoreCreditAccountTransactionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in StoreCreditAccountTransactionEdge.
+	// A list of nodes that are contained in StoreCreditAccountTransactionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []StoreCreditAccountTransaction `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one StoreCreditAccountTransaction and a cursor during pagination.
 type StoreCreditAccountTransactionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of StoreCreditAccountTransactionEdge.
 	Node StoreCreditAccountTransaction `json:"node"`
@@ -30164,11 +32664,11 @@ func (this StorefrontAccessToken) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple StorefrontAccessTokens.
 type StorefrontAccessTokenConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []StorefrontAccessTokenEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in StorefrontAccessTokenEdge.
+	// A list of nodes that are contained in StorefrontAccessTokenEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []StorefrontAccessToken `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -30198,7 +32698,7 @@ type StorefrontAccessTokenDeletePayload struct {
 
 // An auto-generated type which holds one StorefrontAccessToken and a cursor during pagination.
 type StorefrontAccessTokenEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of StorefrontAccessTokenEdge.
 	Node *StorefrontAccessToken `json:"node,omitempty"`
@@ -30210,17 +32710,17 @@ type StorefrontAccessTokenInput struct {
 	Title string `json:"title"`
 }
 
-// An auto-generated type for paginating through a list of Strings.
+// An auto-generated type for paginating through multiple Strings.
 type StringConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []StringEdge `json:"edges,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one String and a cursor during pagination.
 type StringEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of StringEdge.
 	Node string `json:"node"`
@@ -30280,10 +32780,16 @@ type SubscriptionBillingAttempt struct {
 	// successfully completed after the current anchor date. To prevent fulfillment from being
 	// pushed to the next anchor date, this field can override the billing attempt date.
 	OriginTime *time.Time `json:"originTime,omitempty,omitempty"`
+	// The reference shared between retried payment attempts.
+	PaymentGroupID *string `json:"paymentGroupId,omitempty,omitempty"`
+	// The reference shared between payment attempts with similar payment details.
+	PaymentSessionID *string `json:"paymentSessionId,omitempty,omitempty"`
 	// Whether the billing attempt is still processing.
 	Ready bool `json:"ready"`
 	// The subscription contract.
 	SubscriptionContract *SubscriptionContract `json:"subscriptionContract,omitempty"`
+	// The transactions created by the billing attempt.
+	Transactions *OrderTransactionConnection `json:"transactions,omitempty"`
 }
 
 func (SubscriptionBillingAttempt) IsNode() {}
@@ -30293,11 +32799,11 @@ func (this SubscriptionBillingAttempt) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple SubscriptionBillingAttempts.
 type SubscriptionBillingAttemptConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SubscriptionBillingAttemptEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SubscriptionBillingAttemptEdge.
+	// A list of nodes that are contained in SubscriptionBillingAttemptEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SubscriptionBillingAttempt `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -30311,7 +32817,7 @@ type SubscriptionBillingAttemptCreatePayload struct {
 
 // An auto-generated type which holds one SubscriptionBillingAttempt and a cursor during pagination.
 type SubscriptionBillingAttemptEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SubscriptionBillingAttemptEdge.
 	Node *SubscriptionBillingAttempt `json:"node,omitempty"`
@@ -30417,11 +32923,11 @@ type SubscriptionBillingCycleChargePayload struct {
 
 // An auto-generated type for paginating through multiple SubscriptionBillingCycles.
 type SubscriptionBillingCycleConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SubscriptionBillingCycleEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SubscriptionBillingCycleEdge.
+	// A list of nodes that are contained in SubscriptionBillingCycleEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SubscriptionBillingCycle `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -30451,7 +32957,7 @@ type SubscriptionBillingCycleContractEditPayload struct {
 
 // An auto-generated type which holds one SubscriptionBillingCycle and a cursor during pagination.
 type SubscriptionBillingCycleEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SubscriptionBillingCycleEdge.
 	Node *SubscriptionBillingCycle `json:"node,omitempty"`
@@ -30784,6 +33290,8 @@ type SubscriptionContract struct {
 	Discounts *SubscriptionManualDiscountConnection `json:"discounts,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
+	// The last billing error type of the contract.
+	LastBillingAttemptErrorType *SubscriptionContractLastBillingErrorType `json:"lastBillingAttemptErrorType,omitempty,omitempty"`
 	// The current status of the last payment.
 	LastPaymentStatus *SubscriptionContractLastPaymentStatus `json:"lastPaymentStatus,omitempty,omitempty"`
 	// The number of lines associated with the subscription contract.
@@ -30920,11 +33428,11 @@ type SubscriptionContractCancelPayload struct {
 
 // An auto-generated type for paginating through multiple SubscriptionContracts.
 type SubscriptionContractConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SubscriptionContractEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SubscriptionContractEdge.
+	// A list of nodes that are contained in SubscriptionContractEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SubscriptionContract `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -30950,7 +33458,7 @@ type SubscriptionContractCreatePayload struct {
 
 // An auto-generated type which holds one SubscriptionContract and a cursor during pagination.
 type SubscriptionContractEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SubscriptionContractEdge.
 	Node *SubscriptionContract `json:"node,omitempty"`
@@ -31171,7 +33679,7 @@ type SubscriptionDeliveryMethodPickupOption struct {
 	Code *string `json:"code,omitempty,omitempty"`
 	// The details displayed to the customer to describe the pickup option.
 	Description *string `json:"description,omitempty,omitempty"`
-	// The location where the customer will pickup the merchandise.
+	// The location where the customer will pick up the merchandise.
 	Location *Location `json:"location,omitempty"`
 	// The presentment title of the pickup option.
 	PresentmentTitle *string `json:"presentmentTitle,omitempty,omitempty"`
@@ -31289,17 +33797,17 @@ type SubscriptionDiscountAllocation struct {
 
 // An auto-generated type for paginating through multiple SubscriptionDiscounts.
 type SubscriptionDiscountConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SubscriptionDiscountEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SubscriptionDiscountEdge.
+	// A list of nodes that are contained in SubscriptionDiscountEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SubscriptionDiscount `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SubscriptionDiscount and a cursor during pagination.
 type SubscriptionDiscountEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SubscriptionDiscountEdge.
 	Node SubscriptionDiscount `json:"node"`
@@ -31607,17 +34115,17 @@ type SubscriptionLine struct {
 
 // An auto-generated type for paginating through multiple SubscriptionLines.
 type SubscriptionLineConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SubscriptionLineEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SubscriptionLineEdge.
+	// A list of nodes that are contained in SubscriptionLineEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SubscriptionLine `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SubscriptionLine and a cursor during pagination.
 type SubscriptionLineEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SubscriptionLineEdge.
 	Node *SubscriptionLine `json:"node,omitempty"`
@@ -31739,17 +34247,17 @@ func (SubscriptionManualDiscount) IsSubscriptionDiscount() {}
 
 // An auto-generated type for paginating through multiple SubscriptionManualDiscounts.
 type SubscriptionManualDiscountConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []SubscriptionManualDiscountEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in SubscriptionManualDiscountEdge.
+	// A list of nodes that are contained in SubscriptionManualDiscountEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []SubscriptionManualDiscount `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one SubscriptionManualDiscount and a cursor during pagination.
 type SubscriptionManualDiscountEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of SubscriptionManualDiscountEdge.
 	Node *SubscriptionManualDiscount `json:"node,omitempty"`
@@ -32038,6 +34546,8 @@ type TaxLine struct {
 	Rate *float64 `json:"rate,omitempty,omitempty"`
 	// The proportion of the line item price that the tax represents as a percentage.
 	RatePercentage *float64 `json:"ratePercentage,omitempty,omitempty"`
+	// The source of the tax.
+	Source *string `json:"source,omitempty,omitempty"`
 	// The name of the tax.
 	Title string `json:"title"`
 }
@@ -32099,17 +34609,17 @@ func (this TaxonomyCategory) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple TaxonomyCategoryAttributes.
 type TaxonomyCategoryAttributeConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []TaxonomyCategoryAttributeEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in TaxonomyCategoryAttributeEdge.
+	// A list of nodes that are contained in TaxonomyCategoryAttributeEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []TaxonomyCategoryAttribute `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one TaxonomyCategoryAttribute and a cursor during pagination.
 type TaxonomyCategoryAttributeEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of TaxonomyCategoryAttributeEdge.
 	Node TaxonomyCategoryAttribute `json:"node"`
@@ -32117,17 +34627,17 @@ type TaxonomyCategoryAttributeEdge struct {
 
 // An auto-generated type for paginating through multiple TaxonomyCategories.
 type TaxonomyCategoryConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []TaxonomyCategoryEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in TaxonomyCategoryEdge.
+	// A list of nodes that are contained in TaxonomyCategoryEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []TaxonomyCategory `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one TaxonomyCategory and a cursor during pagination.
 type TaxonomyCategoryEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of TaxonomyCategoryEdge.
 	Node *TaxonomyCategory `json:"node,omitempty"`
@@ -32184,17 +34694,17 @@ func (this TaxonomyValue) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple TaxonomyValues.
 type TaxonomyValueConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []TaxonomyValueEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in TaxonomyValueEdge.
+	// A list of nodes that are contained in TaxonomyValueEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []TaxonomyValue `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one TaxonomyValue and a cursor during pagination.
 type TaxonomyValueEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of TaxonomyValueEdge.
 	Node *TaxonomyValue `json:"node,omitempty"`
@@ -32208,6 +34718,8 @@ type TenderTransaction struct {
 	Amount *MoneyV2 `json:"amount,omitempty"`
 	// A globally-unique ID.
 	ID string `json:"id"`
+	// The order that's related to the tender transaction. This value is null if the order has been deleted.
+	Order *Order `json:"order,omitempty,omitempty"`
 	// Information about the payment method used for the transaction.
 	PaymentMethod *string `json:"paymentMethod,omitempty,omitempty"`
 	// Date and time when the transaction was processed.
@@ -32229,11 +34741,11 @@ func (this TenderTransaction) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple TenderTransactions.
 type TenderTransactionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []TenderTransactionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in TenderTransactionEdge.
+	// A list of nodes that are contained in TenderTransactionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []TenderTransaction `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -32249,11 +34761,185 @@ func (TenderTransactionCreditCardDetails) IsTenderTransactionDetails() {}
 
 // An auto-generated type which holds one TenderTransaction and a cursor during pagination.
 type TenderTransactionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of TenderTransactionEdge.
 	Node *TenderTransaction `json:"node,omitempty"`
 }
+
+// Return type for `themeCreate` mutation.
+type ThemeCreatePayload struct {
+	// The theme that was created.
+	Theme *OnlineStoreTheme `json:"theme,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ThemeCreateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ThemeCreate`.
+type ThemeCreateUserError struct {
+	// The error code.
+	Code *ThemeCreateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ThemeCreateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ThemeCreateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ThemeCreateUserError) GetMessage() string { return this.Message }
+
+// Return type for `themeDelete` mutation.
+type ThemeDeletePayload struct {
+	// The ID of the deleted theme.
+	DeletedThemeID *string `json:"deletedThemeId,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ThemeDeleteUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ThemeDelete`.
+type ThemeDeleteUserError struct {
+	// The error code.
+	Code *ThemeDeleteUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ThemeDeleteUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ThemeDeleteUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ThemeDeleteUserError) GetMessage() string { return this.Message }
+
+// The input fields for the file copy.
+type ThemeFilesCopyFileInput struct {
+	// The new file where the content is copied to.
+	DstFilename string `json:"dstFilename"`
+	// The source file to copy from.
+	SrcFilename string `json:"srcFilename"`
+}
+
+// Return type for `themeFilesCopy` mutation.
+type ThemeFilesCopyPayload struct {
+	// The resulting theme files.
+	CopiedThemeFiles []OnlineStoreThemeFileOperationResult `json:"copiedThemeFiles,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []OnlineStoreThemeFilesUserErrors `json:"userErrors,omitempty"`
+}
+
+// Return type for `themeFilesDelete` mutation.
+type ThemeFilesDeletePayload struct {
+	// The resulting theme files.
+	DeletedThemeFiles []OnlineStoreThemeFileOperationResult `json:"deletedThemeFiles,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []OnlineStoreThemeFilesUserErrors `json:"userErrors,omitempty"`
+}
+
+// Return type for `themeFilesUpsert` mutation.
+type ThemeFilesUpsertPayload struct {
+	// The theme files write job triggered by the mutation.
+	Job *Job `json:"job,omitempty,omitempty"`
+	// The resulting theme files.
+	UpsertedThemeFiles []OnlineStoreThemeFileOperationResult `json:"upsertedThemeFiles,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []OnlineStoreThemeFilesUserErrors `json:"userErrors,omitempty"`
+}
+
+// Return type for `themePublish` mutation.
+type ThemePublishPayload struct {
+	// The theme that was published.
+	Theme *OnlineStoreTheme `json:"theme,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ThemePublishUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ThemePublish`.
+type ThemePublishUserError struct {
+	// The error code.
+	Code *ThemePublishUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ThemePublishUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ThemePublishUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ThemePublishUserError) GetMessage() string { return this.Message }
+
+// Return type for `themeUpdate` mutation.
+type ThemeUpdatePayload struct {
+	// The theme that was updated.
+	Theme *OnlineStoreTheme `json:"theme,omitempty,omitempty"`
+	// The list of errors that occurred from executing the mutation.
+	UserErrors []ThemeUpdateUserError `json:"userErrors,omitempty"`
+}
+
+// An error that occurs during the execution of `ThemeUpdate`.
+type ThemeUpdateUserError struct {
+	// The error code.
+	Code *ThemeUpdateUserErrorCode `json:"code,omitempty,omitempty"`
+	// The path to the input field that caused the error.
+	Field []string `json:"field,omitempty,omitempty"`
+	// The error message.
+	Message string `json:"message"`
+}
+
+func (ThemeUpdateUserError) IsDisplayableError() {}
+
+// The path to the input field that caused the error.
+func (this ThemeUpdateUserError) GetField() []string {
+	if this.Field == nil {
+		return nil
+	}
+	interfaceSlice := make([]string, 0, len(this.Field))
+	for _, concrete := range this.Field {
+		interfaceSlice = append(interfaceSlice, concrete)
+	}
+	return interfaceSlice
+}
+
+// The error message.
+func (this ThemeUpdateUserError) GetMessage() string { return this.Message }
 
 // A sale associated with a tip.
 type TipSale struct {
@@ -32397,27 +35083,29 @@ type TranslatableContent struct {
 
 // A resource that has translatable fields.
 type TranslatableResource struct {
+	// Nested translatable resources under the current resource.
+	NestedTranslatableResources *TranslatableResourceConnection `json:"nestedTranslatableResources,omitempty"`
 	// GID of the resource.
 	ResourceID string `json:"resourceId"`
 	// Translatable content.
 	TranslatableContent []TranslatableContent `json:"translatableContent,omitempty"`
-	// Translatable content translations.
+	// Translatable content translations (includes unpublished locales).
 	Translations []Translation `json:"translations,omitempty"`
 }
 
 // An auto-generated type for paginating through multiple TranslatableResources.
 type TranslatableResourceConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []TranslatableResourceEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in TranslatableResourceEdge.
+	// A list of nodes that are contained in TranslatableResourceEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []TranslatableResource `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
 // An auto-generated type which holds one TranslatableResource and a cursor during pagination.
 type TranslatableResourceEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of TranslatableResourceEdge.
 	Node *TranslatableResource `json:"node,omitempty"`
@@ -32528,6 +35216,20 @@ type UTMParameters struct {
 	Source *string `json:"source,omitempty,omitempty"`
 	// Paid search terms used by a marketing campaign.
 	Term *string `json:"term,omitempty,omitempty"`
+}
+
+// The measurement used to calculate a unit price for a product variant (e.g. $9.99 / 100ml).
+type UnitPriceMeasurement struct {
+	// The type of unit of measurement for the unit price measurement.
+	MeasuredType *UnitPriceMeasurementMeasuredType `json:"measuredType,omitempty,omitempty"`
+	// The quantity unit for the unit price measurement.
+	QuantityUnit *UnitPriceMeasurementMeasuredUnit `json:"quantityUnit,omitempty,omitempty"`
+	// The quantity value for the unit price measurement.
+	QuantityValue float64 `json:"quantityValue"`
+	// The reference unit for the unit price measurement.
+	ReferenceUnit *UnitPriceMeasurementMeasuredUnit `json:"referenceUnit,omitempty,omitempty"`
+	// The reference value for the unit price measurement.
+	ReferenceValue int `json:"referenceValue"`
 }
 
 // This is represents new sale types that have been added in future API versions. You may update to a more recent API version to receive additional details about this sale.
@@ -32781,11 +35483,11 @@ func (this URLRedirectBulkDeleteBySearchUserError) GetMessage() string { return 
 
 // An auto-generated type for paginating through multiple UrlRedirects.
 type URLRedirectConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []URLRedirectEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in UrlRedirectEdge.
+	// A list of nodes that are contained in UrlRedirectEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []URLRedirect `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -32807,7 +35509,7 @@ type URLRedirectDeletePayload struct {
 
 // An auto-generated type which holds one UrlRedirect and a cursor during pagination.
 type URLRedirectEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of UrlRedirectEdge.
 	Node *URLRedirect `json:"node,omitempty"`
@@ -32970,11 +35672,14 @@ type Validation struct {
 	ErrorHistory *FunctionsErrorHistory `json:"errorHistory,omitempty,omitempty"`
 	// Global ID for the validation.
 	ID string `json:"id"`
-	// Returns a metafield by namespace and key that belongs to the resource.
+	// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+	// including its `namespace` and `key`, that's associated with a Shopify resource
+	// for the purposes of adding and storing additional information.
 	Metafield *Metafield `json:"metafield,omitempty,omitempty"`
 	// List of metafield definitions.
 	MetafieldDefinitions *MetafieldDefinitionConnection `json:"metafieldDefinitions,omitempty"`
-	// List of metafields that belong to the resource.
+	// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+	// that a merchant associates with a Shopify resource.
 	Metafields *MetafieldConnection `json:"metafields,omitempty"`
 	// Returns a private metafield by namespace and key that belongs to the resource.
 	PrivateMetafield *PrivateMetafield `json:"privateMetafield,omitempty,omitempty"`
@@ -32995,10 +35700,13 @@ func (this Validation) GetMetafieldDefinitions() *MetafieldDefinitionConnection 
 
 func (Validation) IsHasMetafields() {}
 
-// Returns a metafield by namespace and key that belongs to the resource.
+// A [custom field](https://shopify.dev/docs/apps/build/custom-data),
+// including its `namespace` and `key`, that's associated with a Shopify resource
+// for the purposes of adding and storing additional information.
 func (this Validation) GetMetafield() *Metafield { return this.Metafield }
 
-// List of metafields that belong to the resource.
+// A list of [custom fields](https://shopify.dev/docs/apps/build/custom-data)
+// that a merchant associates with a Shopify resource.
 func (this Validation) GetMetafields() *MetafieldConnection { return this.Metafields }
 
 // Returns a private metafield by namespace and key that belongs to the resource.
@@ -33016,11 +35724,11 @@ func (this Validation) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple Validations.
 type ValidationConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []ValidationEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in ValidationEdge.
+	// A list of nodes that are contained in ValidationEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []Validation `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -33056,7 +35764,7 @@ type ValidationDeletePayload struct {
 
 // An auto-generated type which holds one Validation and a cursor during pagination.
 type ValidationEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of ValidationEdge.
 	Node *Validation `json:"node,omitempty"`
@@ -33115,6 +35823,8 @@ type VariantOptionValueInput struct {
 	ID *string `json:"id,omitempty,omitempty"`
 	// Specifies the product option value by name.
 	Name *string `json:"name,omitempty,omitempty"`
+	// Metafield value associated with an option.
+	LinkedMetafieldValue *string `json:"linkedMetafieldValue,omitempty,omitempty"`
 	// Specifies the product option by ID.
 	OptionID *string `json:"optionId,omitempty,omitempty"`
 	// Specifies the product option by name.
@@ -33382,7 +36092,7 @@ type WebhookSubscription struct {
 	CreatedAt time.Time `json:"createdAt"`
 	// The endpoint to which the webhook subscription will send events.
 	Endpoint WebhookSubscriptionEndpoint `json:"endpoint"`
-	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted.
+	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted. See our [guide on filters](https://shopify.dev/docs/apps/build/webhooks/customize/filters) for more details.
 	Filter *string `json:"filter,omitempty,omitempty"`
 	// The format in which the webhook subscription should send the data.
 	Format WebhookSubscriptionFormat `json:"format"`
@@ -33414,11 +36124,11 @@ func (this WebhookSubscription) GetID() string { return this.ID }
 
 // An auto-generated type for paginating through multiple WebhookSubscriptions.
 type WebhookSubscriptionConnection struct {
-	// A list of edges.
+	// The connection between the node and its parent. Each edge contains a minimum of the edge's cursor and the node.
 	Edges []WebhookSubscriptionEdge `json:"edges,omitempty"`
-	// A list of the nodes contained in WebhookSubscriptionEdge.
+	// A list of nodes that are contained in WebhookSubscriptionEdge. You can fetch data about an individual node, or you can follow the edges to fetch data about a collection of related nodes. At each node, you specify the fields that you want to retrieve.
 	Nodes []WebhookSubscription `json:"nodes,omitempty"`
-	// Information to aid in pagination.
+	// An object that’s used to retrieve [cursor information](https://shopify.dev/api/usage/pagination-graphql) about the current page.
 	PageInfo *PageInfo `json:"pageInfo,omitempty"`
 }
 
@@ -33440,7 +36150,7 @@ type WebhookSubscriptionDeletePayload struct {
 
 // An auto-generated type which holds one WebhookSubscription and a cursor during pagination.
 type WebhookSubscriptionEdge struct {
-	// A cursor for use in pagination.
+	// The position of each node in an array, used in [pagination](https://shopify.dev/api/usage/pagination-graphql).
 	Cursor string `json:"cursor"`
 	// The item at the end of WebhookSubscriptionEdge.
 	Node *WebhookSubscription `json:"node,omitempty"`
@@ -33454,7 +36164,7 @@ type WebhookSubscriptionInput struct {
 	Format *WebhookSubscriptionFormat `json:"format,omitempty,omitempty"`
 	// The list of fields to be included in the webhook subscription.
 	IncludeFields []string `json:"includeFields,omitempty,omitempty"`
-	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted.
+	// A constraint specified using search syntax that ensures only webhooks that match the specified filter are emitted. See our [guide on filters](https://shopify.dev/docs/apps/build/webhooks/customize/filters) for more details.
 	Filter *string `json:"filter,omitempty,omitempty"`
 	// The list of namespaces for any metafields that should be included in the webhook subscription.
 	MetafieldNamespaces []string `json:"metafieldNamespaces,omitempty,omitempty"`
@@ -33484,6 +36194,63 @@ type WeightInput struct {
 	Value float64 `json:"value"`
 	// Unit of measurement for `value`.
 	Unit WeightUnit `json:"unit"`
+}
+
+// The set of valid sort keys for the AbandonedCartGraphQL query.
+type AbandonedCheckoutSortKeys string
+
+const (
+	// Sort by the `checkout_id` value.
+	AbandonedCheckoutSortKeysCheckoutID AbandonedCheckoutSortKeys = "CHECKOUT_ID"
+	// Sort by the `created_at` value.
+	AbandonedCheckoutSortKeysCreatedAt AbandonedCheckoutSortKeys = "CREATED_AT"
+	// Sort by the `customer_name` value.
+	AbandonedCheckoutSortKeysCustomerName AbandonedCheckoutSortKeys = "CUSTOMER_NAME"
+	// Sort by the `total_price` value.
+	AbandonedCheckoutSortKeysTotalPrice AbandonedCheckoutSortKeys = "TOTAL_PRICE"
+	// Sort by the `id` value.
+	AbandonedCheckoutSortKeysID AbandonedCheckoutSortKeys = "ID"
+	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
+	// Don't use this sort key when no search query is specified.
+	AbandonedCheckoutSortKeysRelevance AbandonedCheckoutSortKeys = "RELEVANCE"
+)
+
+var AllAbandonedCheckoutSortKeys = []AbandonedCheckoutSortKeys{
+	AbandonedCheckoutSortKeysCheckoutID,
+	AbandonedCheckoutSortKeysCreatedAt,
+	AbandonedCheckoutSortKeysCustomerName,
+	AbandonedCheckoutSortKeysTotalPrice,
+	AbandonedCheckoutSortKeysID,
+	AbandonedCheckoutSortKeysRelevance,
+}
+
+func (e AbandonedCheckoutSortKeys) IsValid() bool {
+	switch e {
+	case AbandonedCheckoutSortKeysCheckoutID, AbandonedCheckoutSortKeysCreatedAt, AbandonedCheckoutSortKeysCustomerName, AbandonedCheckoutSortKeysTotalPrice, AbandonedCheckoutSortKeysID, AbandonedCheckoutSortKeysRelevance:
+		return true
+	}
+	return false
+}
+
+func (e AbandonedCheckoutSortKeys) String() string {
+	return string(e)
+}
+
+func (e *AbandonedCheckoutSortKeys) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AbandonedCheckoutSortKeys(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AbandonedCheckoutSortKeys", str)
+	}
+	return nil
+}
+
+func (e AbandonedCheckoutSortKeys) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
 // Specifies the abandonment type.
@@ -33712,6 +36479,68 @@ func (e *AbandonmentUpdateActivitiesDeliveryStatusesUserErrorCode) UnmarshalGQL(
 }
 
 func (e AbandonmentUpdateActivitiesDeliveryStatusesUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible account types that a staff member can have.
+type AccountType string
+
+const (
+	// The account can access the Shopify admin.
+	AccountTypeRegular AccountType = "REGULAR"
+	// The account cannot access the Shopify admin.
+	AccountTypeRestricted AccountType = "RESTRICTED"
+	// The user has not yet accepted the invitation to create an account.
+	AccountTypeInvited AccountType = "INVITED"
+	// The admin has not yet accepted the request to create a collaborator account.
+	AccountTypeRequested AccountType = "REQUESTED"
+	// The account of a partner who collaborates with the merchant.
+	AccountTypeCollaborator AccountType = "COLLABORATOR"
+	// The account of a partner collaborator team member.
+	AccountTypeCollaboratorTeamMember AccountType = "COLLABORATOR_TEAM_MEMBER"
+	// The account can be signed into via a SAML provider.
+	AccountTypeSaml AccountType = "SAML"
+	// The user has not yet accepted the invitation to become the store owner.
+	AccountTypeInvitedStoreOwner AccountType = "INVITED_STORE_OWNER"
+)
+
+var AllAccountType = []AccountType{
+	AccountTypeRegular,
+	AccountTypeRestricted,
+	AccountTypeInvited,
+	AccountTypeRequested,
+	AccountTypeCollaborator,
+	AccountTypeCollaboratorTeamMember,
+	AccountTypeSaml,
+	AccountTypeInvitedStoreOwner,
+}
+
+func (e AccountType) IsValid() bool {
+	switch e {
+	case AccountTypeRegular, AccountTypeRestricted, AccountTypeInvited, AccountTypeRequested, AccountTypeCollaborator, AccountTypeCollaboratorTeamMember, AccountTypeSaml, AccountTypeInvitedStoreOwner:
+		return true
+	}
+	return false
+}
+
+func (e AccountType) String() string {
+	return string(e)
+}
+
+func (e *AccountType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AccountType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AccountType", str)
+	}
+	return nil
+}
+
+func (e AccountType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -34202,6 +37031,65 @@ func (e AppRevenueAttributionType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible error codes that can be returned by `AppRevokeAccessScopesAppRevokeScopeError`.
+type AppRevokeAccessScopesAppRevokeScopeErrorCode string
+
+const (
+	// No app found on the access token.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeMissingSourceApp AppRevokeAccessScopesAppRevokeScopeErrorCode = "MISSING_SOURCE_APP"
+	// The application cannot be found.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeApplicationCannotBeFound AppRevokeAccessScopesAppRevokeScopeErrorCode = "APPLICATION_CANNOT_BE_FOUND"
+	// The requested list of scopes to revoke includes invalid handles.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeUnknownScopes AppRevokeAccessScopesAppRevokeScopeErrorCode = "UNKNOWN_SCOPES"
+	// Required scopes cannot be revoked.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeRequiredScopes AppRevokeAccessScopesAppRevokeScopeErrorCode = "CANNOT_REVOKE_REQUIRED_SCOPES"
+	// Already granted implied scopes cannot be revoked.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeImpliedScopes AppRevokeAccessScopesAppRevokeScopeErrorCode = "CANNOT_REVOKE_IMPLIED_SCOPES"
+	// Cannot revoke optional scopes that haven't been declared.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeUndeclaredScopes AppRevokeAccessScopesAppRevokeScopeErrorCode = "CANNOT_REVOKE_UNDECLARED_SCOPES"
+	// App is not installed on shop.
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeAppNotInstalled AppRevokeAccessScopesAppRevokeScopeErrorCode = "APP_NOT_INSTALLED"
+)
+
+var AllAppRevokeAccessScopesAppRevokeScopeErrorCode = []AppRevokeAccessScopesAppRevokeScopeErrorCode{
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeMissingSourceApp,
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeApplicationCannotBeFound,
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeUnknownScopes,
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeRequiredScopes,
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeImpliedScopes,
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeUndeclaredScopes,
+	AppRevokeAccessScopesAppRevokeScopeErrorCodeAppNotInstalled,
+}
+
+func (e AppRevokeAccessScopesAppRevokeScopeErrorCode) IsValid() bool {
+	switch e {
+	case AppRevokeAccessScopesAppRevokeScopeErrorCodeMissingSourceApp, AppRevokeAccessScopesAppRevokeScopeErrorCodeApplicationCannotBeFound, AppRevokeAccessScopesAppRevokeScopeErrorCodeUnknownScopes, AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeRequiredScopes, AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeImpliedScopes, AppRevokeAccessScopesAppRevokeScopeErrorCodeCannotRevokeUndeclaredScopes, AppRevokeAccessScopesAppRevokeScopeErrorCodeAppNotInstalled:
+		return true
+	}
+	return false
+}
+
+func (e AppRevokeAccessScopesAppRevokeScopeErrorCode) String() string {
+	return string(e)
+}
+
+func (e *AppRevokeAccessScopesAppRevokeScopeErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AppRevokeAccessScopesAppRevokeScopeErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AppRevokeAccessScopesAppRevokeScopeErrorCode", str)
+	}
+	return nil
+}
+
+func (e AppRevokeAccessScopesAppRevokeScopeErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The replacement behavior when creating an app subscription for a merchant with an already existing app subscription.
 type AppSubscriptionReplacementBehavior string
 
@@ -34503,6 +37391,290 @@ func (e AppUsageRecordSortKeys) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible error codes that can be returned by `ArticleCreateUserError`.
+type ArticleCreateUserErrorCode string
+
+const (
+	// Can't create an article author if both author name and user ID are supplied.
+	ArticleCreateUserErrorCodeAmbiguousAuthor ArticleCreateUserErrorCode = "AMBIGUOUS_AUTHOR"
+	// Can't create a blog from input if a blog ID is supplied.
+	ArticleCreateUserErrorCodeAmbiguousBlog ArticleCreateUserErrorCode = "AMBIGUOUS_BLOG"
+	// Can't create an article if both author name and user ID are blank.
+	ArticleCreateUserErrorCodeAuthorFieldRequired ArticleCreateUserErrorCode = "AUTHOR_FIELD_REQUIRED"
+	// User must exist if a user ID is supplied.
+	ArticleCreateUserErrorCodeAuthorMustExist ArticleCreateUserErrorCode = "AUTHOR_MUST_EXIST"
+	// Can’t set isPublished to true and also set a future publish date.
+	ArticleCreateUserErrorCodeInvalidPublishDate ArticleCreateUserErrorCode = "INVALID_PUBLISH_DATE"
+	// Must reference or create a blog when creating an article.
+	ArticleCreateUserErrorCodeBlogReferenceRequired ArticleCreateUserErrorCode = "BLOG_REFERENCE_REQUIRED"
+	// Image upload failed.
+	ArticleCreateUserErrorCodeUploadFailed ArticleCreateUserErrorCode = "UPLOAD_FAILED"
+	// The record with the ID used as the input value couldn't be found.
+	ArticleCreateUserErrorCodeNotFound ArticleCreateUserErrorCode = "NOT_FOUND"
+	// The input value is too long.
+	ArticleCreateUserErrorCodeTooLong ArticleCreateUserErrorCode = "TOO_LONG"
+	// The input value is already taken.
+	ArticleCreateUserErrorCodeTaken ArticleCreateUserErrorCode = "TAKEN"
+	// The value is invalid for the metafield type or for the definition options.
+	ArticleCreateUserErrorCodeInvalidValue ArticleCreateUserErrorCode = "INVALID_VALUE"
+	// The metafield type is invalid.
+	ArticleCreateUserErrorCodeInvalidType ArticleCreateUserErrorCode = "INVALID_TYPE"
+)
+
+var AllArticleCreateUserErrorCode = []ArticleCreateUserErrorCode{
+	ArticleCreateUserErrorCodeAmbiguousAuthor,
+	ArticleCreateUserErrorCodeAmbiguousBlog,
+	ArticleCreateUserErrorCodeAuthorFieldRequired,
+	ArticleCreateUserErrorCodeAuthorMustExist,
+	ArticleCreateUserErrorCodeInvalidPublishDate,
+	ArticleCreateUserErrorCodeBlogReferenceRequired,
+	ArticleCreateUserErrorCodeUploadFailed,
+	ArticleCreateUserErrorCodeNotFound,
+	ArticleCreateUserErrorCodeTooLong,
+	ArticleCreateUserErrorCodeTaken,
+	ArticleCreateUserErrorCodeInvalidValue,
+	ArticleCreateUserErrorCodeInvalidType,
+}
+
+func (e ArticleCreateUserErrorCode) IsValid() bool {
+	switch e {
+	case ArticleCreateUserErrorCodeAmbiguousAuthor, ArticleCreateUserErrorCodeAmbiguousBlog, ArticleCreateUserErrorCodeAuthorFieldRequired, ArticleCreateUserErrorCodeAuthorMustExist, ArticleCreateUserErrorCodeInvalidPublishDate, ArticleCreateUserErrorCodeBlogReferenceRequired, ArticleCreateUserErrorCodeUploadFailed, ArticleCreateUserErrorCodeNotFound, ArticleCreateUserErrorCodeTooLong, ArticleCreateUserErrorCodeTaken, ArticleCreateUserErrorCodeInvalidValue, ArticleCreateUserErrorCodeInvalidType:
+		return true
+	}
+	return false
+}
+
+func (e ArticleCreateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ArticleCreateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArticleCreateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArticleCreateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ArticleCreateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `ArticleDeleteUserError`.
+type ArticleDeleteUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	ArticleDeleteUserErrorCodeNotFound ArticleDeleteUserErrorCode = "NOT_FOUND"
+)
+
+var AllArticleDeleteUserErrorCode = []ArticleDeleteUserErrorCode{
+	ArticleDeleteUserErrorCodeNotFound,
+}
+
+func (e ArticleDeleteUserErrorCode) IsValid() bool {
+	switch e {
+	case ArticleDeleteUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e ArticleDeleteUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ArticleDeleteUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArticleDeleteUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArticleDeleteUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ArticleDeleteUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The set of valid sort keys for the Article query.
+type ArticleSortKeys string
+
+const (
+	// Sort by the `title` value.
+	ArticleSortKeysTitle ArticleSortKeys = "TITLE"
+	// Sort by the `blog_title` value.
+	ArticleSortKeysBlogTitle ArticleSortKeys = "BLOG_TITLE"
+	// Sort by the `author` value.
+	ArticleSortKeysAuthor ArticleSortKeys = "AUTHOR"
+	// Sort by the `updated_at` value.
+	ArticleSortKeysUpdatedAt ArticleSortKeys = "UPDATED_AT"
+	// Sort by the `published_at` value.
+	ArticleSortKeysPublishedAt ArticleSortKeys = "PUBLISHED_AT"
+	// Sort by the `id` value.
+	ArticleSortKeysID ArticleSortKeys = "ID"
+	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
+	// Don't use this sort key when no search query is specified.
+	ArticleSortKeysRelevance ArticleSortKeys = "RELEVANCE"
+)
+
+var AllArticleSortKeys = []ArticleSortKeys{
+	ArticleSortKeysTitle,
+	ArticleSortKeysBlogTitle,
+	ArticleSortKeysAuthor,
+	ArticleSortKeysUpdatedAt,
+	ArticleSortKeysPublishedAt,
+	ArticleSortKeysID,
+	ArticleSortKeysRelevance,
+}
+
+func (e ArticleSortKeys) IsValid() bool {
+	switch e {
+	case ArticleSortKeysTitle, ArticleSortKeysBlogTitle, ArticleSortKeysAuthor, ArticleSortKeysUpdatedAt, ArticleSortKeysPublishedAt, ArticleSortKeysID, ArticleSortKeysRelevance:
+		return true
+	}
+	return false
+}
+
+func (e ArticleSortKeys) String() string {
+	return string(e)
+}
+
+func (e *ArticleSortKeys) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArticleSortKeys(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArticleSortKeys", str)
+	}
+	return nil
+}
+
+func (e ArticleSortKeys) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible sort of tags.
+type ArticleTagSort string
+
+const (
+	// Sort alphabetically..
+	ArticleTagSortAlphabetical ArticleTagSort = "ALPHABETICAL"
+	// Sort by popularity, starting with the most popular tag.
+	ArticleTagSortPopular ArticleTagSort = "POPULAR"
+)
+
+var AllArticleTagSort = []ArticleTagSort{
+	ArticleTagSortAlphabetical,
+	ArticleTagSortPopular,
+}
+
+func (e ArticleTagSort) IsValid() bool {
+	switch e {
+	case ArticleTagSortAlphabetical, ArticleTagSortPopular:
+		return true
+	}
+	return false
+}
+
+func (e ArticleTagSort) String() string {
+	return string(e)
+}
+
+func (e *ArticleTagSort) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArticleTagSort(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArticleTagSort", str)
+	}
+	return nil
+}
+
+func (e ArticleTagSort) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `ArticleUpdateUserError`.
+type ArticleUpdateUserErrorCode string
+
+const (
+	// Can't update an article author if both author name and user ID are supplied.
+	ArticleUpdateUserErrorCodeAmbiguousAuthor ArticleUpdateUserErrorCode = "AMBIGUOUS_AUTHOR"
+	// Can't create a blog from input if a blog ID is supplied.
+	ArticleUpdateUserErrorCodeAmbiguousBlog ArticleUpdateUserErrorCode = "AMBIGUOUS_BLOG"
+	// User must exist if a user ID is supplied.
+	ArticleUpdateUserErrorCodeAuthorMustExist ArticleUpdateUserErrorCode = "AUTHOR_MUST_EXIST"
+	// Can’t set isPublished to true and also set a future publish date.
+	ArticleUpdateUserErrorCodeInvalidPublishDate ArticleUpdateUserErrorCode = "INVALID_PUBLISH_DATE"
+	// Image upload failed.
+	ArticleUpdateUserErrorCodeUploadFailed ArticleUpdateUserErrorCode = "UPLOAD_FAILED"
+	// The input value is blank.
+	ArticleUpdateUserErrorCodeBlank ArticleUpdateUserErrorCode = "BLANK"
+	// The record with the ID used as the input value couldn't be found.
+	ArticleUpdateUserErrorCodeNotFound ArticleUpdateUserErrorCode = "NOT_FOUND"
+	// The input value is too long.
+	ArticleUpdateUserErrorCodeTooLong ArticleUpdateUserErrorCode = "TOO_LONG"
+	// The input value is already taken.
+	ArticleUpdateUserErrorCodeTaken ArticleUpdateUserErrorCode = "TAKEN"
+)
+
+var AllArticleUpdateUserErrorCode = []ArticleUpdateUserErrorCode{
+	ArticleUpdateUserErrorCodeAmbiguousAuthor,
+	ArticleUpdateUserErrorCodeAmbiguousBlog,
+	ArticleUpdateUserErrorCodeAuthorMustExist,
+	ArticleUpdateUserErrorCodeInvalidPublishDate,
+	ArticleUpdateUserErrorCodeUploadFailed,
+	ArticleUpdateUserErrorCodeBlank,
+	ArticleUpdateUserErrorCodeNotFound,
+	ArticleUpdateUserErrorCodeTooLong,
+	ArticleUpdateUserErrorCodeTaken,
+}
+
+func (e ArticleUpdateUserErrorCode) IsValid() bool {
+	switch e {
+	case ArticleUpdateUserErrorCodeAmbiguousAuthor, ArticleUpdateUserErrorCodeAmbiguousBlog, ArticleUpdateUserErrorCodeAuthorMustExist, ArticleUpdateUserErrorCodeInvalidPublishDate, ArticleUpdateUserErrorCodeUploadFailed, ArticleUpdateUserErrorCodeBlank, ArticleUpdateUserErrorCodeNotFound, ArticleUpdateUserErrorCodeTooLong, ArticleUpdateUserErrorCodeTaken:
+		return true
+	}
+	return false
+}
+
+func (e ArticleUpdateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ArticleUpdateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ArticleUpdateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ArticleUpdateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ArticleUpdateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The set of valid sort keys for the AutomaticDiscount query.
 type AutomaticDiscountSortKeys string
 
@@ -34750,6 +37922,204 @@ func (e *BillingAttemptUserErrorCode) UnmarshalGQL(v interface{}) error {
 }
 
 func (e BillingAttemptUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `BlogCreateUserError`.
+type BlogCreateUserErrorCode string
+
+const (
+	// The input value is invalid.
+	BlogCreateUserErrorCodeInvalid BlogCreateUserErrorCode = "INVALID"
+	// The input value is too long.
+	BlogCreateUserErrorCodeTooLong BlogCreateUserErrorCode = "TOO_LONG"
+	// The input value isn't included in the list.
+	BlogCreateUserErrorCodeInclusion BlogCreateUserErrorCode = "INCLUSION"
+	// The value is invalid for the metafield type or for the definition options.
+	BlogCreateUserErrorCodeInvalidValue BlogCreateUserErrorCode = "INVALID_VALUE"
+	// The metafield type is invalid.
+	BlogCreateUserErrorCodeInvalidType BlogCreateUserErrorCode = "INVALID_TYPE"
+)
+
+var AllBlogCreateUserErrorCode = []BlogCreateUserErrorCode{
+	BlogCreateUserErrorCodeInvalid,
+	BlogCreateUserErrorCodeTooLong,
+	BlogCreateUserErrorCodeInclusion,
+	BlogCreateUserErrorCodeInvalidValue,
+	BlogCreateUserErrorCodeInvalidType,
+}
+
+func (e BlogCreateUserErrorCode) IsValid() bool {
+	switch e {
+	case BlogCreateUserErrorCodeInvalid, BlogCreateUserErrorCodeTooLong, BlogCreateUserErrorCodeInclusion, BlogCreateUserErrorCodeInvalidValue, BlogCreateUserErrorCodeInvalidType:
+		return true
+	}
+	return false
+}
+
+func (e BlogCreateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *BlogCreateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BlogCreateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BlogCreateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e BlogCreateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `BlogDeleteUserError`.
+type BlogDeleteUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	BlogDeleteUserErrorCodeNotFound BlogDeleteUserErrorCode = "NOT_FOUND"
+)
+
+var AllBlogDeleteUserErrorCode = []BlogDeleteUserErrorCode{
+	BlogDeleteUserErrorCodeNotFound,
+}
+
+func (e BlogDeleteUserErrorCode) IsValid() bool {
+	switch e {
+	case BlogDeleteUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e BlogDeleteUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *BlogDeleteUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BlogDeleteUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BlogDeleteUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e BlogDeleteUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The set of valid sort keys for the Blog query.
+type BlogSortKeys string
+
+const (
+	// Sort by the `handle` value.
+	BlogSortKeysHandle BlogSortKeys = "HANDLE"
+	// Sort by the `title` value.
+	BlogSortKeysTitle BlogSortKeys = "TITLE"
+	// Sort by the `id` value.
+	BlogSortKeysID BlogSortKeys = "ID"
+	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
+	// Don't use this sort key when no search query is specified.
+	BlogSortKeysRelevance BlogSortKeys = "RELEVANCE"
+)
+
+var AllBlogSortKeys = []BlogSortKeys{
+	BlogSortKeysHandle,
+	BlogSortKeysTitle,
+	BlogSortKeysID,
+	BlogSortKeysRelevance,
+}
+
+func (e BlogSortKeys) IsValid() bool {
+	switch e {
+	case BlogSortKeysHandle, BlogSortKeysTitle, BlogSortKeysID, BlogSortKeysRelevance:
+		return true
+	}
+	return false
+}
+
+func (e BlogSortKeys) String() string {
+	return string(e)
+}
+
+func (e *BlogSortKeys) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BlogSortKeys(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BlogSortKeys", str)
+	}
+	return nil
+}
+
+func (e BlogSortKeys) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `BlogUpdateUserError`.
+type BlogUpdateUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	BlogUpdateUserErrorCodeNotFound BlogUpdateUserErrorCode = "NOT_FOUND"
+	// The input value is invalid.
+	BlogUpdateUserErrorCodeInvalid BlogUpdateUserErrorCode = "INVALID"
+	// The input value is blank.
+	BlogUpdateUserErrorCodeBlank BlogUpdateUserErrorCode = "BLANK"
+	// The input value is too long.
+	BlogUpdateUserErrorCodeTooLong BlogUpdateUserErrorCode = "TOO_LONG"
+	// The input value isn't included in the list.
+	BlogUpdateUserErrorCodeInclusion BlogUpdateUserErrorCode = "INCLUSION"
+)
+
+var AllBlogUpdateUserErrorCode = []BlogUpdateUserErrorCode{
+	BlogUpdateUserErrorCodeNotFound,
+	BlogUpdateUserErrorCodeInvalid,
+	BlogUpdateUserErrorCodeBlank,
+	BlogUpdateUserErrorCodeTooLong,
+	BlogUpdateUserErrorCodeInclusion,
+}
+
+func (e BlogUpdateUserErrorCode) IsValid() bool {
+	switch e {
+	case BlogUpdateUserErrorCodeNotFound, BlogUpdateUserErrorCodeInvalid, BlogUpdateUserErrorCodeBlank, BlogUpdateUserErrorCodeTooLong, BlogUpdateUserErrorCodeInclusion:
+		return true
+	}
+	return false
+}
+
+func (e BlogUpdateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *BlogUpdateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = BlogUpdateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid BlogUpdateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e BlogUpdateUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -35328,6 +38698,8 @@ const (
 	CartTransformCreateUserErrorCodeFunctionAlreadyRegistered CartTransformCreateUserErrorCode = "FUNCTION_ALREADY_REGISTERED"
 	// Function does not implement the required interface for this cart_transform function.
 	CartTransformCreateUserErrorCodeFunctionDoesNotImplement CartTransformCreateUserErrorCode = "FUNCTION_DOES_NOT_IMPLEMENT"
+	// Could not create or update metafields.
+	CartTransformCreateUserErrorCodeInvalidMetafields CartTransformCreateUserErrorCode = "INVALID_METAFIELDS"
 )
 
 var AllCartTransformCreateUserErrorCode = []CartTransformCreateUserErrorCode{
@@ -35335,11 +38707,12 @@ var AllCartTransformCreateUserErrorCode = []CartTransformCreateUserErrorCode{
 	CartTransformCreateUserErrorCodeFunctionNotFound,
 	CartTransformCreateUserErrorCodeFunctionAlreadyRegistered,
 	CartTransformCreateUserErrorCodeFunctionDoesNotImplement,
+	CartTransformCreateUserErrorCodeInvalidMetafields,
 }
 
 func (e CartTransformCreateUserErrorCode) IsValid() bool {
 	switch e {
-	case CartTransformCreateUserErrorCodeInputInvalid, CartTransformCreateUserErrorCodeFunctionNotFound, CartTransformCreateUserErrorCodeFunctionAlreadyRegistered, CartTransformCreateUserErrorCodeFunctionDoesNotImplement:
+	case CartTransformCreateUserErrorCodeInputInvalid, CartTransformCreateUserErrorCodeFunctionNotFound, CartTransformCreateUserErrorCodeFunctionAlreadyRegistered, CartTransformCreateUserErrorCodeFunctionDoesNotImplement, CartTransformCreateUserErrorCodeInvalidMetafields:
 		return true
 	}
 	return false
@@ -37313,6 +40686,8 @@ const (
 	CollectionRuleColumnType CollectionRuleColumn = "TYPE"
 	// The [`product_taxonomy_node_id`](https://shopify.dev/api/admin-graphql/latest/objects/Product#field-product-productcategory) attribute.
 	CollectionRuleColumnProductTaxonomyNodeID CollectionRuleColumn = "PRODUCT_TAXONOMY_NODE_ID"
+	// The [`product_category_id`](https://shopify.dev/api/admin-graphql/latest/objects/Product#field-category) attribute.
+	CollectionRuleColumnProductCategoryID CollectionRuleColumn = "PRODUCT_CATEGORY_ID"
 	// The [`vendor`](https://shopify.dev/api/admin-graphql/latest/objects/Product#field-product-vendor) attribute.
 	CollectionRuleColumnVendor CollectionRuleColumn = "VENDOR"
 	// The [`variant_price`](https://shopify.dev/api/admin-graphql/latest/objects/ProductVariant#field-productvariant-price) attribute.
@@ -37340,6 +40715,7 @@ var AllCollectionRuleColumn = []CollectionRuleColumn{
 	CollectionRuleColumnTitle,
 	CollectionRuleColumnType,
 	CollectionRuleColumnProductTaxonomyNodeID,
+	CollectionRuleColumnProductCategoryID,
 	CollectionRuleColumnVendor,
 	CollectionRuleColumnVariantPrice,
 	CollectionRuleColumnIsPriceReduced,
@@ -37353,7 +40729,7 @@ var AllCollectionRuleColumn = []CollectionRuleColumn{
 
 func (e CollectionRuleColumn) IsValid() bool {
 	switch e {
-	case CollectionRuleColumnTag, CollectionRuleColumnTitle, CollectionRuleColumnType, CollectionRuleColumnProductTaxonomyNodeID, CollectionRuleColumnVendor, CollectionRuleColumnVariantPrice, CollectionRuleColumnIsPriceReduced, CollectionRuleColumnVariantCompareAtPrice, CollectionRuleColumnVariantWeight, CollectionRuleColumnVariantInventory, CollectionRuleColumnVariantTitle, CollectionRuleColumnProductMetafieldDefinition, CollectionRuleColumnVariantMetafieldDefinition:
+	case CollectionRuleColumnTag, CollectionRuleColumnTitle, CollectionRuleColumnType, CollectionRuleColumnProductTaxonomyNodeID, CollectionRuleColumnProductCategoryID, CollectionRuleColumnVendor, CollectionRuleColumnVariantPrice, CollectionRuleColumnIsPriceReduced, CollectionRuleColumnVariantCompareAtPrice, CollectionRuleColumnVariantWeight, CollectionRuleColumnVariantInventory, CollectionRuleColumnVariantTitle, CollectionRuleColumnProductMetafieldDefinition, CollectionRuleColumnVariantMetafieldDefinition:
 		return true
 	}
 	return false
@@ -37599,7 +40975,7 @@ const (
 	CombinedListingUpdateUserErrorCodeOptionNameCannotBeBlank CombinedListingUpdateUserErrorCode = "OPTION_NAME_CANNOT_BE_BLANK"
 	// Option does not exist.
 	CombinedListingUpdateUserErrorCodeOptionNotFound CombinedListingUpdateUserErrorCode = "OPTION_NOT_FOUND"
-	// Unable to add products with different options.
+	// All child products must include the same options.
 	CombinedListingUpdateUserErrorCodeOptionsMustBeEqualToTheOtherComponents CombinedListingUpdateUserErrorCode = "OPTIONS_MUST_BE_EQUAL_TO_THE_OTHER_COMPONENTS"
 	// Unable to update options with blank option values.
 	CombinedListingUpdateUserErrorCodeOptionValuesCannotBeBlank CombinedListingUpdateUserErrorCode = "OPTION_VALUES_CANNOT_BE_BLANK"
@@ -37724,6 +41100,318 @@ func (e *CombinedListingsRole) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CombinedListingsRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `CommentApproveUserError`.
+type CommentApproveUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	CommentApproveUserErrorCodeNotFound CommentApproveUserErrorCode = "NOT_FOUND"
+)
+
+var AllCommentApproveUserErrorCode = []CommentApproveUserErrorCode{
+	CommentApproveUserErrorCodeNotFound,
+}
+
+func (e CommentApproveUserErrorCode) IsValid() bool {
+	switch e {
+	case CommentApproveUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e CommentApproveUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *CommentApproveUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentApproveUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentApproveUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e CommentApproveUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `CommentDeleteUserError`.
+type CommentDeleteUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	CommentDeleteUserErrorCodeNotFound CommentDeleteUserErrorCode = "NOT_FOUND"
+)
+
+var AllCommentDeleteUserErrorCode = []CommentDeleteUserErrorCode{
+	CommentDeleteUserErrorCodeNotFound,
+}
+
+func (e CommentDeleteUserErrorCode) IsValid() bool {
+	switch e {
+	case CommentDeleteUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e CommentDeleteUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *CommentDeleteUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentDeleteUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentDeleteUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e CommentDeleteUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `CommentNotSpamUserError`.
+type CommentNotSpamUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	CommentNotSpamUserErrorCodeNotFound CommentNotSpamUserErrorCode = "NOT_FOUND"
+)
+
+var AllCommentNotSpamUserErrorCode = []CommentNotSpamUserErrorCode{
+	CommentNotSpamUserErrorCodeNotFound,
+}
+
+func (e CommentNotSpamUserErrorCode) IsValid() bool {
+	switch e {
+	case CommentNotSpamUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e CommentNotSpamUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *CommentNotSpamUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentNotSpamUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentNotSpamUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e CommentNotSpamUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible comment policies for a blog.
+type CommentPolicy string
+
+const (
+	// Readers can post comments to blog articles without moderation.
+	CommentPolicyAutoPublished CommentPolicy = "AUTO_PUBLISHED"
+	// Readers cannot post comments to blog articles.
+	CommentPolicyClosed CommentPolicy = "CLOSED"
+	// Readers can post comments to blog articles, but comments must be moderated before they appear.
+	CommentPolicyModerated CommentPolicy = "MODERATED"
+)
+
+var AllCommentPolicy = []CommentPolicy{
+	CommentPolicyAutoPublished,
+	CommentPolicyClosed,
+	CommentPolicyModerated,
+}
+
+func (e CommentPolicy) IsValid() bool {
+	switch e {
+	case CommentPolicyAutoPublished, CommentPolicyClosed, CommentPolicyModerated:
+		return true
+	}
+	return false
+}
+
+func (e CommentPolicy) String() string {
+	return string(e)
+}
+
+func (e *CommentPolicy) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentPolicy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentPolicy", str)
+	}
+	return nil
+}
+
+func (e CommentPolicy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The set of valid sort keys for the Comment query.
+type CommentSortKeys string
+
+const (
+	// Sort by the `created_at` value.
+	CommentSortKeysCreatedAt CommentSortKeys = "CREATED_AT"
+	// Sort by the `id` value.
+	CommentSortKeysID CommentSortKeys = "ID"
+	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
+	// Don't use this sort key when no search query is specified.
+	CommentSortKeysRelevance CommentSortKeys = "RELEVANCE"
+)
+
+var AllCommentSortKeys = []CommentSortKeys{
+	CommentSortKeysCreatedAt,
+	CommentSortKeysID,
+	CommentSortKeysRelevance,
+}
+
+func (e CommentSortKeys) IsValid() bool {
+	switch e {
+	case CommentSortKeysCreatedAt, CommentSortKeysID, CommentSortKeysRelevance:
+		return true
+	}
+	return false
+}
+
+func (e CommentSortKeys) String() string {
+	return string(e)
+}
+
+func (e *CommentSortKeys) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentSortKeys(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentSortKeys", str)
+	}
+	return nil
+}
+
+func (e CommentSortKeys) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `CommentSpamUserError`.
+type CommentSpamUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	CommentSpamUserErrorCodeNotFound CommentSpamUserErrorCode = "NOT_FOUND"
+)
+
+var AllCommentSpamUserErrorCode = []CommentSpamUserErrorCode{
+	CommentSpamUserErrorCodeNotFound,
+}
+
+func (e CommentSpamUserErrorCode) IsValid() bool {
+	switch e {
+	case CommentSpamUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e CommentSpamUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *CommentSpamUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentSpamUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentSpamUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e CommentSpamUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The status of a comment.
+type CommentStatus string
+
+const (
+	// The comment is marked as spam.
+	CommentStatusSpam CommentStatus = "SPAM"
+	// The comment has been removed.
+	CommentStatusRemoved CommentStatus = "REMOVED"
+	// The comment is published.
+	CommentStatusPublished CommentStatus = "PUBLISHED"
+	// The comment is unapproved.
+	CommentStatusUnapproved CommentStatus = "UNAPPROVED"
+	// The comment is pending approval.
+	CommentStatusPending CommentStatus = "PENDING"
+)
+
+var AllCommentStatus = []CommentStatus{
+	CommentStatusSpam,
+	CommentStatusRemoved,
+	CommentStatusPublished,
+	CommentStatusUnapproved,
+	CommentStatusPending,
+}
+
+func (e CommentStatus) IsValid() bool {
+	switch e {
+	case CommentStatusSpam, CommentStatusRemoved, CommentStatusPublished, CommentStatusUnapproved, CommentStatusPending:
+		return true
+	}
+	return false
+}
+
+func (e CommentStatus) String() string {
+	return string(e)
+}
+
+func (e *CommentStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CommentStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CommentStatus", str)
+	}
+	return nil
+}
+
+func (e CommentStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -37999,6 +41687,57 @@ func (e *CompanyLocationSortKeys) UnmarshalGQL(v interface{}) error {
 }
 
 func (e CompanyLocationSortKeys) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The set of valid sort keys for the CompanyLocationStaffMemberAssignment query.
+type CompanyLocationStaffMemberAssignmentSortKeys string
+
+const (
+	// Sort by the `created_at` value.
+	CompanyLocationStaffMemberAssignmentSortKeysCreatedAt CompanyLocationStaffMemberAssignmentSortKeys = "CREATED_AT"
+	// Sort by the `updated_at` value.
+	CompanyLocationStaffMemberAssignmentSortKeysUpdatedAt CompanyLocationStaffMemberAssignmentSortKeys = "UPDATED_AT"
+	// Sort by the `id` value.
+	CompanyLocationStaffMemberAssignmentSortKeysID CompanyLocationStaffMemberAssignmentSortKeys = "ID"
+	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
+	// Don't use this sort key when no search query is specified.
+	CompanyLocationStaffMemberAssignmentSortKeysRelevance CompanyLocationStaffMemberAssignmentSortKeys = "RELEVANCE"
+)
+
+var AllCompanyLocationStaffMemberAssignmentSortKeys = []CompanyLocationStaffMemberAssignmentSortKeys{
+	CompanyLocationStaffMemberAssignmentSortKeysCreatedAt,
+	CompanyLocationStaffMemberAssignmentSortKeysUpdatedAt,
+	CompanyLocationStaffMemberAssignmentSortKeysID,
+	CompanyLocationStaffMemberAssignmentSortKeysRelevance,
+}
+
+func (e CompanyLocationStaffMemberAssignmentSortKeys) IsValid() bool {
+	switch e {
+	case CompanyLocationStaffMemberAssignmentSortKeysCreatedAt, CompanyLocationStaffMemberAssignmentSortKeysUpdatedAt, CompanyLocationStaffMemberAssignmentSortKeysID, CompanyLocationStaffMemberAssignmentSortKeysRelevance:
+		return true
+	}
+	return false
+}
+
+func (e CompanyLocationStaffMemberAssignmentSortKeys) String() string {
+	return string(e)
+}
+
+func (e *CompanyLocationStaffMemberAssignmentSortKeys) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CompanyLocationStaffMemberAssignmentSortKeys(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CompanyLocationStaffMemberAssignmentSortKeys", str)
+	}
+	return nil
+}
+
+func (e CompanyLocationStaffMemberAssignmentSortKeys) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -39460,6 +43199,56 @@ func (e CurrencyCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// The type of customer account native page.
+type CustomerAccountNativePagePageType string
+
+const (
+	// An orders page type.
+	CustomerAccountNativePagePageTypeNativeOrders CustomerAccountNativePagePageType = "NATIVE_ORDERS"
+	// A settings page type.
+	CustomerAccountNativePagePageTypeNativeSettings CustomerAccountNativePagePageType = "NATIVE_SETTINGS"
+	// A profile page type.
+	CustomerAccountNativePagePageTypeNativeProfile CustomerAccountNativePagePageType = "NATIVE_PROFILE"
+	// An unknown page type. Represents new page types that may be added in future versions.
+	CustomerAccountNativePagePageTypeUnknown CustomerAccountNativePagePageType = "UNKNOWN"
+)
+
+var AllCustomerAccountNativePagePageType = []CustomerAccountNativePagePageType{
+	CustomerAccountNativePagePageTypeNativeOrders,
+	CustomerAccountNativePagePageTypeNativeSettings,
+	CustomerAccountNativePagePageTypeNativeProfile,
+	CustomerAccountNativePagePageTypeUnknown,
+}
+
+func (e CustomerAccountNativePagePageType) IsValid() bool {
+	switch e {
+	case CustomerAccountNativePagePageTypeNativeOrders, CustomerAccountNativePagePageTypeNativeSettings, CustomerAccountNativePagePageTypeNativeProfile, CustomerAccountNativePagePageTypeUnknown:
+		return true
+	}
+	return false
+}
+
+func (e CustomerAccountNativePagePageType) String() string {
+	return string(e)
+}
+
+func (e *CustomerAccountNativePagePageType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CustomerAccountNativePagePageType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CustomerAccountNativePagePageType", str)
+	}
+	return nil
+}
+
+func (e CustomerAccountNativePagePageType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The login redirection target for customer accounts.
 type CustomerAccountsVersion string
 
@@ -40267,6 +44056,8 @@ const (
 	CustomerPaymentMethodRevocationReasonBraintreePaymentMethodNotCard CustomerPaymentMethodRevocationReason = "BRAINTREE_PAYMENT_METHOD_NOT_CARD"
 	// The payment method was manually revoked.
 	CustomerPaymentMethodRevocationReasonManuallyRevoked CustomerPaymentMethodRevocationReason = "MANUALLY_REVOKED"
+	// The billing address failed to retrieve.
+	CustomerPaymentMethodRevocationReasonFailedToRetrieveBillingAddress CustomerPaymentMethodRevocationReason = "FAILED_TO_RETRIEVE_BILLING_ADDRESS"
 	// The payment method was replaced with an existing payment method. The associated contracts have been migrated to the other payment method.
 	CustomerPaymentMethodRevocationReasonMerged CustomerPaymentMethodRevocationReason = "MERGED"
 )
@@ -40285,12 +44076,13 @@ var AllCustomerPaymentMethodRevocationReason = []CustomerPaymentMethodRevocation
 	CustomerPaymentMethodRevocationReasonBraintreeReturnedNoPaymentMethod,
 	CustomerPaymentMethodRevocationReasonBraintreePaymentMethodNotCard,
 	CustomerPaymentMethodRevocationReasonManuallyRevoked,
+	CustomerPaymentMethodRevocationReasonFailedToRetrieveBillingAddress,
 	CustomerPaymentMethodRevocationReasonMerged,
 }
 
 func (e CustomerPaymentMethodRevocationReason) IsValid() bool {
 	switch e {
-	case CustomerPaymentMethodRevocationReasonAuthorizeNetGatewayNotEnabled, CustomerPaymentMethodRevocationReasonAuthorizeNetReturnedNoPaymentMethod, CustomerPaymentMethodRevocationReasonFailedToUpdateCreditCard, CustomerPaymentMethodRevocationReasonStripeAPIAuthenticationError, CustomerPaymentMethodRevocationReasonStripeAPIInvalidRequestError, CustomerPaymentMethodRevocationReasonStripeGatewayNotEnabled, CustomerPaymentMethodRevocationReasonStripeReturnedNoPaymentMethod, CustomerPaymentMethodRevocationReasonStripePaymentMethodNotCard, CustomerPaymentMethodRevocationReasonBraintreeAPIAuthenticationError, CustomerPaymentMethodRevocationReasonBraintreeGatewayNotEnabled, CustomerPaymentMethodRevocationReasonBraintreeReturnedNoPaymentMethod, CustomerPaymentMethodRevocationReasonBraintreePaymentMethodNotCard, CustomerPaymentMethodRevocationReasonManuallyRevoked, CustomerPaymentMethodRevocationReasonMerged:
+	case CustomerPaymentMethodRevocationReasonAuthorizeNetGatewayNotEnabled, CustomerPaymentMethodRevocationReasonAuthorizeNetReturnedNoPaymentMethod, CustomerPaymentMethodRevocationReasonFailedToUpdateCreditCard, CustomerPaymentMethodRevocationReasonStripeAPIAuthenticationError, CustomerPaymentMethodRevocationReasonStripeAPIInvalidRequestError, CustomerPaymentMethodRevocationReasonStripeGatewayNotEnabled, CustomerPaymentMethodRevocationReasonStripeReturnedNoPaymentMethod, CustomerPaymentMethodRevocationReasonStripePaymentMethodNotCard, CustomerPaymentMethodRevocationReasonBraintreeAPIAuthenticationError, CustomerPaymentMethodRevocationReasonBraintreeGatewayNotEnabled, CustomerPaymentMethodRevocationReasonBraintreeReturnedNoPaymentMethod, CustomerPaymentMethodRevocationReasonBraintreePaymentMethodNotCard, CustomerPaymentMethodRevocationReasonManuallyRevoked, CustomerPaymentMethodRevocationReasonFailedToRetrieveBillingAddress, CustomerPaymentMethodRevocationReasonMerged:
 		return true
 	}
 	return false
@@ -40601,6 +44393,47 @@ func (e *CustomerSegmentMembersQueryUserErrorCode) UnmarshalGQL(v interface{}) e
 }
 
 func (e CustomerSegmentMembersQueryUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `CustomerSendAccountInviteEmailUserError`.
+type CustomerSendAccountInviteEmailUserErrorCode string
+
+const (
+	// The input value is invalid.
+	CustomerSendAccountInviteEmailUserErrorCodeInvalid CustomerSendAccountInviteEmailUserErrorCode = "INVALID"
+)
+
+var AllCustomerSendAccountInviteEmailUserErrorCode = []CustomerSendAccountInviteEmailUserErrorCode{
+	CustomerSendAccountInviteEmailUserErrorCodeInvalid,
+}
+
+func (e CustomerSendAccountInviteEmailUserErrorCode) IsValid() bool {
+	switch e {
+	case CustomerSendAccountInviteEmailUserErrorCodeInvalid:
+		return true
+	}
+	return false
+}
+
+func (e CustomerSendAccountInviteEmailUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *CustomerSendAccountInviteEmailUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = CustomerSendAccountInviteEmailUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid CustomerSendAccountInviteEmailUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e CustomerSendAccountInviteEmailUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -41471,9 +45304,9 @@ const (
 	DeliveryMethodTypeShipping DeliveryMethodType = "SHIPPING"
 	// The order is picked up by the customer.
 	DeliveryMethodTypePickUp DeliveryMethodType = "PICK_UP"
-	// No delivery is needed.
+	// Non-physical items, no delivery needed.
 	DeliveryMethodTypeNone DeliveryMethodType = "NONE"
-	// The order is delivered to a retail store.
+	// In-store sale, no delivery needed.
 	DeliveryMethodTypeRetail DeliveryMethodType = "RETAIL"
 	// The order is delivered using a local delivery service.
 	DeliveryMethodTypeLocal DeliveryMethodType = "LOCAL"
@@ -42715,6 +46548,99 @@ func (e EventSortKeys) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// The type of the resource that generated the event.
+type EventSubjectType string
+
+const (
+	// A CompanyLocation resource generated the event.
+	EventSubjectTypeCompanyLocation EventSubjectType = "COMPANY_LOCATION"
+	// A Company resource generated the event.
+	EventSubjectTypeCompany EventSubjectType = "COMPANY"
+	// A Customer resource generated the event.
+	EventSubjectTypeCustomer EventSubjectType = "CUSTOMER"
+	// A DraftOrder resource generated the event.
+	EventSubjectTypeDraftOrder EventSubjectType = "DRAFT_ORDER"
+	// A Collection resource generated the event.
+	EventSubjectTypeCollection EventSubjectType = "COLLECTION"
+	// A Product resource generated the event.
+	EventSubjectTypeProduct EventSubjectType = "PRODUCT"
+	// A ProductVariant resource generated the event.
+	EventSubjectTypeProductVariant EventSubjectType = "PRODUCT_VARIANT"
+	// A Article resource generated the event.
+	EventSubjectTypeArticle EventSubjectType = "ARTICLE"
+	// A Blog resource generated the event.
+	EventSubjectTypeBlog EventSubjectType = "BLOG"
+	// A Comment resource generated the event.
+	EventSubjectTypeComment EventSubjectType = "COMMENT"
+	// A Page resource generated the event.
+	EventSubjectTypePage EventSubjectType = "PAGE"
+	// A DiscountAutomaticBxgy resource generated the event.
+	EventSubjectTypeDiscountAutomaticBxgy EventSubjectType = "DISCOUNT_AUTOMATIC_BXGY"
+	// A DiscountAutomaticNode resource generated the event.
+	EventSubjectTypeDiscountAutomaticNode EventSubjectType = "DISCOUNT_AUTOMATIC_NODE"
+	// A DiscountCodeNode resource generated the event.
+	EventSubjectTypeDiscountCodeNode EventSubjectType = "DISCOUNT_CODE_NODE"
+	// A DiscountNode resource generated the event.
+	EventSubjectTypeDiscountNode EventSubjectType = "DISCOUNT_NODE"
+	// A PriceRule resource generated the event.
+	EventSubjectTypePriceRule EventSubjectType = "PRICE_RULE"
+	// A Order resource generated the event.
+	EventSubjectTypeOrder EventSubjectType = "ORDER"
+	// Subject type is not available. This usually means that the subject isn't available in the current
+	//         version of the API, using a newer API version may resolve this.
+	EventSubjectTypeUnknown EventSubjectType = "UNKNOWN"
+)
+
+var AllEventSubjectType = []EventSubjectType{
+	EventSubjectTypeCompanyLocation,
+	EventSubjectTypeCompany,
+	EventSubjectTypeCustomer,
+	EventSubjectTypeDraftOrder,
+	EventSubjectTypeCollection,
+	EventSubjectTypeProduct,
+	EventSubjectTypeProductVariant,
+	EventSubjectTypeArticle,
+	EventSubjectTypeBlog,
+	EventSubjectTypeComment,
+	EventSubjectTypePage,
+	EventSubjectTypeDiscountAutomaticBxgy,
+	EventSubjectTypeDiscountAutomaticNode,
+	EventSubjectTypeDiscountCodeNode,
+	EventSubjectTypeDiscountNode,
+	EventSubjectTypePriceRule,
+	EventSubjectTypeOrder,
+	EventSubjectTypeUnknown,
+}
+
+func (e EventSubjectType) IsValid() bool {
+	switch e {
+	case EventSubjectTypeCompanyLocation, EventSubjectTypeCompany, EventSubjectTypeCustomer, EventSubjectTypeDraftOrder, EventSubjectTypeCollection, EventSubjectTypeProduct, EventSubjectTypeProductVariant, EventSubjectTypeArticle, EventSubjectTypeBlog, EventSubjectTypeComment, EventSubjectTypePage, EventSubjectTypeDiscountAutomaticBxgy, EventSubjectTypeDiscountAutomaticNode, EventSubjectTypeDiscountCodeNode, EventSubjectTypeDiscountNode, EventSubjectTypePriceRule, EventSubjectTypeOrder, EventSubjectTypeUnknown:
+		return true
+	}
+	return false
+}
+
+func (e EventSubjectType) String() string {
+	return string(e)
+}
+
+func (e *EventSubjectType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EventSubjectType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EventSubjectType", str)
+	}
+	return nil
+}
+
+func (e EventSubjectType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The possible content types for a file object.
 type FileContentType string
 
@@ -43275,6 +47201,50 @@ func (e FulfillmentConstraintRuleDeleteUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible error codes that can be returned by `FulfillmentConstraintRuleUpdateUserError`.
+type FulfillmentConstraintRuleUpdateUserErrorCode string
+
+const (
+	// Could not find fulfillment constraint rule for provided id.
+	FulfillmentConstraintRuleUpdateUserErrorCodeNotFound FulfillmentConstraintRuleUpdateUserErrorCode = "NOT_FOUND"
+	// Unauthorized app scope.
+	FulfillmentConstraintRuleUpdateUserErrorCodeUnauthorizedAppScope FulfillmentConstraintRuleUpdateUserErrorCode = "UNAUTHORIZED_APP_SCOPE"
+)
+
+var AllFulfillmentConstraintRuleUpdateUserErrorCode = []FulfillmentConstraintRuleUpdateUserErrorCode{
+	FulfillmentConstraintRuleUpdateUserErrorCodeNotFound,
+	FulfillmentConstraintRuleUpdateUserErrorCodeUnauthorizedAppScope,
+}
+
+func (e FulfillmentConstraintRuleUpdateUserErrorCode) IsValid() bool {
+	switch e {
+	case FulfillmentConstraintRuleUpdateUserErrorCodeNotFound, FulfillmentConstraintRuleUpdateUserErrorCodeUnauthorizedAppScope:
+		return true
+	}
+	return false
+}
+
+func (e FulfillmentConstraintRuleUpdateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *FulfillmentConstraintRuleUpdateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FulfillmentConstraintRuleUpdateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FulfillmentConstraintRuleUpdateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e FulfillmentConstraintRuleUpdateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The display status of a fulfillment.
 type FulfillmentDisplayStatus string
 
@@ -43554,7 +47524,7 @@ const (
 	FulfillmentOrderActionMarkAsOpen FulfillmentOrderAction = "MARK_AS_OPEN"
 	// Releases the fulfillment hold on the fulfillment order. The corresponding mutation for this action is `fulfillmentOrderReleaseHold`.
 	FulfillmentOrderActionReleaseHold FulfillmentOrderAction = "RELEASE_HOLD"
-	// Applies a fulfillment hold on an open fulfillment order. The corresponding mutation for this action is `fulfillmentOrderHold`.
+	// Applies a fulfillment hold on the fulfillment order. The corresponding mutation for this action is `fulfillmentOrderHold`.
 	FulfillmentOrderActionHold FulfillmentOrderAction = "HOLD"
 	// Opens an external URL to initiate the fulfillment process outside Shopify. This action should be paired with `FulfillmentOrderSupportedAction.externalUrl`.
 	FulfillmentOrderActionExternal FulfillmentOrderAction = "EXTERNAL"
@@ -43907,21 +47877,18 @@ type FulfillmentOrderReleaseHoldUserErrorCode string
 const (
 	// The fulfillment order wasn't found.
 	FulfillmentOrderReleaseHoldUserErrorCodeFulfillmentOrderNotFound FulfillmentOrderReleaseHoldUserErrorCode = "FULFILLMENT_ORDER_NOT_FOUND"
-	// The fulfillment order line item quantity must be greater than 0.
-	FulfillmentOrderReleaseHoldUserErrorCodeGreaterThanZero FulfillmentOrderReleaseHoldUserErrorCode = "GREATER_THAN_ZERO"
-	// The fulfillment order line item quantity is invalid.
-	FulfillmentOrderReleaseHoldUserErrorCodeInvalidLineItemQuantity FulfillmentOrderReleaseHoldUserErrorCode = "INVALID_LINE_ITEM_QUANTITY"
+	// The app doesn't have access to release the fulfillment hold.
+	FulfillmentOrderReleaseHoldUserErrorCodeInvalidAccess FulfillmentOrderReleaseHoldUserErrorCode = "INVALID_ACCESS"
 )
 
 var AllFulfillmentOrderReleaseHoldUserErrorCode = []FulfillmentOrderReleaseHoldUserErrorCode{
 	FulfillmentOrderReleaseHoldUserErrorCodeFulfillmentOrderNotFound,
-	FulfillmentOrderReleaseHoldUserErrorCodeGreaterThanZero,
-	FulfillmentOrderReleaseHoldUserErrorCodeInvalidLineItemQuantity,
+	FulfillmentOrderReleaseHoldUserErrorCodeInvalidAccess,
 }
 
 func (e FulfillmentOrderReleaseHoldUserErrorCode) IsValid() bool {
 	switch e {
-	case FulfillmentOrderReleaseHoldUserErrorCodeFulfillmentOrderNotFound, FulfillmentOrderReleaseHoldUserErrorCodeGreaterThanZero, FulfillmentOrderReleaseHoldUserErrorCodeInvalidLineItemQuantity:
+	case FulfillmentOrderReleaseHoldUserErrorCodeFulfillmentOrderNotFound, FulfillmentOrderReleaseHoldUserErrorCodeInvalidAccess:
 		return true
 	}
 	return false
@@ -44209,47 +48176,6 @@ func (e FulfillmentOrderStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible error codes that can be returned by `FulfillmentOrdersReleaseHoldsUserError`.
-type FulfillmentOrdersReleaseHoldsUserErrorCode string
-
-const (
-	// Failed to create release fulfillment order holds job.
-	FulfillmentOrdersReleaseHoldsUserErrorCodeFailedToCreateJob FulfillmentOrdersReleaseHoldsUserErrorCode = "FAILED_TO_CREATE_JOB"
-)
-
-var AllFulfillmentOrdersReleaseHoldsUserErrorCode = []FulfillmentOrdersReleaseHoldsUserErrorCode{
-	FulfillmentOrdersReleaseHoldsUserErrorCodeFailedToCreateJob,
-}
-
-func (e FulfillmentOrdersReleaseHoldsUserErrorCode) IsValid() bool {
-	switch e {
-	case FulfillmentOrdersReleaseHoldsUserErrorCodeFailedToCreateJob:
-		return true
-	}
-	return false
-}
-
-func (e FulfillmentOrdersReleaseHoldsUserErrorCode) String() string {
-	return string(e)
-}
-
-func (e *FulfillmentOrdersReleaseHoldsUserErrorCode) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = FulfillmentOrdersReleaseHoldsUserErrorCode(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid FulfillmentOrdersReleaseHoldsUserErrorCode", str)
-	}
-	return nil
-}
-
-func (e FulfillmentOrdersReleaseHoldsUserErrorCode) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 // Possible error codes that can be returned by `FulfillmentOrdersSetFulfillmentDeadlineUserError`.
 type FulfillmentOrdersSetFulfillmentDeadlineUserErrorCode string
 
@@ -44288,6 +48214,53 @@ func (e *FulfillmentOrdersSetFulfillmentDeadlineUserErrorCode) UnmarshalGQL(v in
 }
 
 func (e FulfillmentOrdersSetFulfillmentDeadlineUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Actions that can be taken at the location when a client requests the deletion of the fulfillment service.
+type FulfillmentServiceDeleteInventoryAction string
+
+const (
+	// Deactivate and delete the inventory and location.
+	FulfillmentServiceDeleteInventoryActionDelete FulfillmentServiceDeleteInventoryAction = "DELETE"
+	// Keep the inventory in place and convert the Fulfillment Service's location to be merchant managed.
+	FulfillmentServiceDeleteInventoryActionKeep FulfillmentServiceDeleteInventoryAction = "KEEP"
+	// Transfer the inventory and other dependencies to the provided location.
+	FulfillmentServiceDeleteInventoryActionTransfer FulfillmentServiceDeleteInventoryAction = "TRANSFER"
+)
+
+var AllFulfillmentServiceDeleteInventoryAction = []FulfillmentServiceDeleteInventoryAction{
+	FulfillmentServiceDeleteInventoryActionDelete,
+	FulfillmentServiceDeleteInventoryActionKeep,
+	FulfillmentServiceDeleteInventoryActionTransfer,
+}
+
+func (e FulfillmentServiceDeleteInventoryAction) IsValid() bool {
+	switch e {
+	case FulfillmentServiceDeleteInventoryActionDelete, FulfillmentServiceDeleteInventoryActionKeep, FulfillmentServiceDeleteInventoryActionTransfer:
+		return true
+	}
+	return false
+}
+
+func (e FulfillmentServiceDeleteInventoryAction) String() string {
+	return string(e)
+}
+
+func (e *FulfillmentServiceDeleteInventoryAction) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = FulfillmentServiceDeleteInventoryAction(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid FulfillmentServiceDeleteInventoryAction", str)
+	}
+	return nil
+}
+
+func (e FulfillmentServiceDeleteInventoryAction) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -44394,6 +48367,47 @@ func (e FulfillmentStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible error codes that can be returned by `GiftCardDeactivateUserError`.
+type GiftCardDeactivateUserErrorCode string
+
+const (
+	// The gift card could not be found.
+	GiftCardDeactivateUserErrorCodeGiftCardNotFound GiftCardDeactivateUserErrorCode = "GIFT_CARD_NOT_FOUND"
+)
+
+var AllGiftCardDeactivateUserErrorCode = []GiftCardDeactivateUserErrorCode{
+	GiftCardDeactivateUserErrorCodeGiftCardNotFound,
+}
+
+func (e GiftCardDeactivateUserErrorCode) IsValid() bool {
+	switch e {
+	case GiftCardDeactivateUserErrorCodeGiftCardNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GiftCardDeactivateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *GiftCardDeactivateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GiftCardDeactivateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GiftCardDeactivateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e GiftCardDeactivateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible error codes that can be returned by `GiftCardUserError`.
 type GiftCardErrorCode string
 
@@ -44412,6 +48426,10 @@ const (
 	GiftCardErrorCodeMissingArgument GiftCardErrorCode = "MISSING_ARGUMENT"
 	// The input value should be greater than the minimum allowed value.
 	GiftCardErrorCodeGreaterThan GiftCardErrorCode = "GREATER_THAN"
+	// The customer could not be found.
+	GiftCardErrorCodeCustomerNotFound GiftCardErrorCode = "CUSTOMER_NOT_FOUND"
+	// The recipient could not be found.
+	GiftCardErrorCodeRecipientNotFound GiftCardErrorCode = "RECIPIENT_NOT_FOUND"
 )
 
 var AllGiftCardErrorCode = []GiftCardErrorCode{
@@ -44422,11 +48440,13 @@ var AllGiftCardErrorCode = []GiftCardErrorCode{
 	GiftCardErrorCodeInternalError,
 	GiftCardErrorCodeMissingArgument,
 	GiftCardErrorCodeGreaterThan,
+	GiftCardErrorCodeCustomerNotFound,
+	GiftCardErrorCodeRecipientNotFound,
 }
 
 func (e GiftCardErrorCode) IsValid() bool {
 	switch e {
-	case GiftCardErrorCodeTooLong, GiftCardErrorCodeTooShort, GiftCardErrorCodeTaken, GiftCardErrorCodeInvalid, GiftCardErrorCodeInternalError, GiftCardErrorCodeMissingArgument, GiftCardErrorCodeGreaterThan:
+	case GiftCardErrorCodeTooLong, GiftCardErrorCodeTooShort, GiftCardErrorCodeTaken, GiftCardErrorCodeInvalid, GiftCardErrorCodeInternalError, GiftCardErrorCodeMissingArgument, GiftCardErrorCodeGreaterThan, GiftCardErrorCodeCustomerNotFound, GiftCardErrorCodeRecipientNotFound:
 		return true
 	}
 	return false
@@ -44450,6 +48470,100 @@ func (e *GiftCardErrorCode) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GiftCardErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `GiftCardSendNotificationToCustomerUserError`.
+type GiftCardSendNotificationToCustomerUserErrorCode string
+
+const (
+	// The input value is invalid.
+	GiftCardSendNotificationToCustomerUserErrorCodeInvalid GiftCardSendNotificationToCustomerUserErrorCode = "INVALID"
+	// The customer could not be found.
+	GiftCardSendNotificationToCustomerUserErrorCodeCustomerNotFound GiftCardSendNotificationToCustomerUserErrorCode = "CUSTOMER_NOT_FOUND"
+	// The gift card could not be found.
+	GiftCardSendNotificationToCustomerUserErrorCodeGiftCardNotFound GiftCardSendNotificationToCustomerUserErrorCode = "GIFT_CARD_NOT_FOUND"
+)
+
+var AllGiftCardSendNotificationToCustomerUserErrorCode = []GiftCardSendNotificationToCustomerUserErrorCode{
+	GiftCardSendNotificationToCustomerUserErrorCodeInvalid,
+	GiftCardSendNotificationToCustomerUserErrorCodeCustomerNotFound,
+	GiftCardSendNotificationToCustomerUserErrorCodeGiftCardNotFound,
+}
+
+func (e GiftCardSendNotificationToCustomerUserErrorCode) IsValid() bool {
+	switch e {
+	case GiftCardSendNotificationToCustomerUserErrorCodeInvalid, GiftCardSendNotificationToCustomerUserErrorCodeCustomerNotFound, GiftCardSendNotificationToCustomerUserErrorCodeGiftCardNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GiftCardSendNotificationToCustomerUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *GiftCardSendNotificationToCustomerUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GiftCardSendNotificationToCustomerUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GiftCardSendNotificationToCustomerUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e GiftCardSendNotificationToCustomerUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `GiftCardSendNotificationToRecipientUserError`.
+type GiftCardSendNotificationToRecipientUserErrorCode string
+
+const (
+	// The input value is invalid.
+	GiftCardSendNotificationToRecipientUserErrorCodeInvalid GiftCardSendNotificationToRecipientUserErrorCode = "INVALID"
+	// The recipient could not be found.
+	GiftCardSendNotificationToRecipientUserErrorCodeRecipientNotFound GiftCardSendNotificationToRecipientUserErrorCode = "RECIPIENT_NOT_FOUND"
+	// The gift card could not be found.
+	GiftCardSendNotificationToRecipientUserErrorCodeGiftCardNotFound GiftCardSendNotificationToRecipientUserErrorCode = "GIFT_CARD_NOT_FOUND"
+)
+
+var AllGiftCardSendNotificationToRecipientUserErrorCode = []GiftCardSendNotificationToRecipientUserErrorCode{
+	GiftCardSendNotificationToRecipientUserErrorCodeInvalid,
+	GiftCardSendNotificationToRecipientUserErrorCodeRecipientNotFound,
+	GiftCardSendNotificationToRecipientUserErrorCodeGiftCardNotFound,
+}
+
+func (e GiftCardSendNotificationToRecipientUserErrorCode) IsValid() bool {
+	switch e {
+	case GiftCardSendNotificationToRecipientUserErrorCodeInvalid, GiftCardSendNotificationToRecipientUserErrorCodeRecipientNotFound, GiftCardSendNotificationToRecipientUserErrorCodeGiftCardNotFound:
+		return true
+	}
+	return false
+}
+
+func (e GiftCardSendNotificationToRecipientUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *GiftCardSendNotificationToRecipientUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GiftCardSendNotificationToRecipientUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GiftCardSendNotificationToRecipientUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e GiftCardSendNotificationToRecipientUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -44522,6 +48636,65 @@ func (e *GiftCardSortKeys) UnmarshalGQL(v interface{}) error {
 }
 
 func (e GiftCardSortKeys) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `GiftCardTransactionUserError`.
+type GiftCardTransactionUserErrorCode string
+
+const (
+	// The input value is invalid.
+	GiftCardTransactionUserErrorCodeInvalid GiftCardTransactionUserErrorCode = "INVALID"
+	// Unexpected internal error happened.
+	GiftCardTransactionUserErrorCodeInternalError GiftCardTransactionUserErrorCode = "INTERNAL_ERROR"
+	// The gift card's value exceeds the allowed limits.
+	GiftCardTransactionUserErrorCodeGiftCardLimitExceeded GiftCardTransactionUserErrorCode = "GIFT_CARD_LIMIT_EXCEEDED"
+	// The gift card could not be found.
+	GiftCardTransactionUserErrorCodeGiftCardNotFound GiftCardTransactionUserErrorCode = "GIFT_CARD_NOT_FOUND"
+	// A positive amount must be used.
+	GiftCardTransactionUserErrorCodeNegativeOrZeroAmount GiftCardTransactionUserErrorCode = "NEGATIVE_OR_ZERO_AMOUNT"
+	// The gift card does not have sufficient funds to satisfy the request.
+	GiftCardTransactionUserErrorCodeInsufficientFunds GiftCardTransactionUserErrorCode = "INSUFFICIENT_FUNDS"
+	// The currency provided does not match the currency of the gift card.
+	GiftCardTransactionUserErrorCodeMismatchingCurrency GiftCardTransactionUserErrorCode = "MISMATCHING_CURRENCY"
+)
+
+var AllGiftCardTransactionUserErrorCode = []GiftCardTransactionUserErrorCode{
+	GiftCardTransactionUserErrorCodeInvalid,
+	GiftCardTransactionUserErrorCodeInternalError,
+	GiftCardTransactionUserErrorCodeGiftCardLimitExceeded,
+	GiftCardTransactionUserErrorCodeGiftCardNotFound,
+	GiftCardTransactionUserErrorCodeNegativeOrZeroAmount,
+	GiftCardTransactionUserErrorCodeInsufficientFunds,
+	GiftCardTransactionUserErrorCodeMismatchingCurrency,
+}
+
+func (e GiftCardTransactionUserErrorCode) IsValid() bool {
+	switch e {
+	case GiftCardTransactionUserErrorCodeInvalid, GiftCardTransactionUserErrorCodeInternalError, GiftCardTransactionUserErrorCodeGiftCardLimitExceeded, GiftCardTransactionUserErrorCodeGiftCardNotFound, GiftCardTransactionUserErrorCodeNegativeOrZeroAmount, GiftCardTransactionUserErrorCodeInsufficientFunds, GiftCardTransactionUserErrorCodeMismatchingCurrency:
+		return true
+	}
+	return false
+}
+
+func (e GiftCardTransactionUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *GiftCardTransactionUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GiftCardTransactionUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GiftCardTransactionUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e GiftCardTransactionUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -44904,6 +49077,8 @@ const (
 	InventorySetQuantitiesUserErrorCodeItemNotStockedAtLocation InventorySetQuantitiesUserErrorCode = "ITEM_NOT_STOCKED_AT_LOCATION"
 	// The total quantity can't be higher than 1,000,000,000.
 	InventorySetQuantitiesUserErrorCodeInvalidQuantityTooHigh InventorySetQuantitiesUserErrorCode = "INVALID_QUANTITY_TOO_HIGH"
+	// The total quantity can't be lower than -1,000,000,000.
+	InventorySetQuantitiesUserErrorCodeInvalidQuantityTooLow InventorySetQuantitiesUserErrorCode = "INVALID_QUANTITY_TOO_LOW"
 	// The compareQuantity argument must be given to each quantity or ignored using ignoreCompareQuantity.
 	InventorySetQuantitiesUserErrorCodeCompareQuantityRequired InventorySetQuantitiesUserErrorCode = "COMPARE_QUANTITY_REQUIRED"
 	// The compareQuantity value does not match persisted value.
@@ -44922,6 +49097,7 @@ var AllInventorySetQuantitiesUserErrorCode = []InventorySetQuantitiesUserErrorCo
 	InventorySetQuantitiesUserErrorCodeInvalidReferenceDocument,
 	InventorySetQuantitiesUserErrorCodeItemNotStockedAtLocation,
 	InventorySetQuantitiesUserErrorCodeInvalidQuantityTooHigh,
+	InventorySetQuantitiesUserErrorCodeInvalidQuantityTooLow,
 	InventorySetQuantitiesUserErrorCodeCompareQuantityRequired,
 	InventorySetQuantitiesUserErrorCodeCompareQuantityStale,
 	InventorySetQuantitiesUserErrorCodeInvalidName,
@@ -44930,7 +49106,7 @@ var AllInventorySetQuantitiesUserErrorCode = []InventorySetQuantitiesUserErrorCo
 
 func (e InventorySetQuantitiesUserErrorCode) IsValid() bool {
 	switch e {
-	case InventorySetQuantitiesUserErrorCodeInvalidInventoryItem, InventorySetQuantitiesUserErrorCodeInvalidLocation, InventorySetQuantitiesUserErrorCodeInvalidQuantityNegative, InventorySetQuantitiesUserErrorCodeInvalidReason, InventorySetQuantitiesUserErrorCodeInvalidReferenceDocument, InventorySetQuantitiesUserErrorCodeItemNotStockedAtLocation, InventorySetQuantitiesUserErrorCodeInvalidQuantityTooHigh, InventorySetQuantitiesUserErrorCodeCompareQuantityRequired, InventorySetQuantitiesUserErrorCodeCompareQuantityStale, InventorySetQuantitiesUserErrorCodeInvalidName, InventorySetQuantitiesUserErrorCodeNoDuplicateInventoryItemIDGroupIDPair:
+	case InventorySetQuantitiesUserErrorCodeInvalidInventoryItem, InventorySetQuantitiesUserErrorCodeInvalidLocation, InventorySetQuantitiesUserErrorCodeInvalidQuantityNegative, InventorySetQuantitiesUserErrorCodeInvalidReason, InventorySetQuantitiesUserErrorCodeInvalidReferenceDocument, InventorySetQuantitiesUserErrorCodeItemNotStockedAtLocation, InventorySetQuantitiesUserErrorCodeInvalidQuantityTooHigh, InventorySetQuantitiesUserErrorCodeInvalidQuantityTooLow, InventorySetQuantitiesUserErrorCodeCompareQuantityRequired, InventorySetQuantitiesUserErrorCodeCompareQuantityStale, InventorySetQuantitiesUserErrorCodeInvalidName, InventorySetQuantitiesUserErrorCodeNoDuplicateInventoryItemIDGroupIDPair:
 		return true
 	}
 	return false
@@ -45989,16 +50165,12 @@ const (
 	LocationDeactivateUserErrorCodeHasActiveInventoryError LocationDeactivateUserErrorCode = "HAS_ACTIVE_INVENTORY_ERROR"
 	// Location could not be deactivated because it has pending orders.
 	LocationDeactivateUserErrorCodeHasFulfillmentOrdersError LocationDeactivateUserErrorCode = "HAS_FULFILLMENT_ORDERS_ERROR"
-	// Location could not be deactivated because it has open transfers.
-	LocationDeactivateUserErrorCodeHasOpenTransfersError LocationDeactivateUserErrorCode = "HAS_OPEN_TRANSFERS_ERROR"
 	// Location could not be deactivated because it has open Shopify Fulfillment Network transfers.
 	LocationDeactivateUserErrorCodeHasIncomingMovementsError LocationDeactivateUserErrorCode = "HAS_INCOMING_MOVEMENTS_ERROR"
 	// Location could not be deactivated because it has open purchase orders.
 	LocationDeactivateUserErrorCodeHasOpenPurchaseOrdersError LocationDeactivateUserErrorCode = "HAS_OPEN_PURCHASE_ORDERS_ERROR"
 	// Failed to relocate active inventories to the destination location.
 	LocationDeactivateUserErrorCodeFailedToRelocateActiveInventories LocationDeactivateUserErrorCode = "FAILED_TO_RELOCATE_ACTIVE_INVENTORIES"
-	// Failed to relocate open transfers to the destination location.
-	LocationDeactivateUserErrorCodeFailedToRelocateOpenTransfers LocationDeactivateUserErrorCode = "FAILED_TO_RELOCATE_OPEN_TRANSFERS"
 	// Failed to relocate open purchase orders to the destination location.
 	LocationDeactivateUserErrorCodeFailedToRelocateOpenPurchaseOrders LocationDeactivateUserErrorCode = "FAILED_TO_RELOCATE_OPEN_PURCHASE_ORDERS"
 	// Failed to relocate incoming movements to the destination location.
@@ -46016,11 +50188,9 @@ var AllLocationDeactivateUserErrorCode = []LocationDeactivateUserErrorCode{
 	LocationDeactivateUserErrorCodeDestinationLocationNotFoundOrInactive,
 	LocationDeactivateUserErrorCodeHasActiveInventoryError,
 	LocationDeactivateUserErrorCodeHasFulfillmentOrdersError,
-	LocationDeactivateUserErrorCodeHasOpenTransfersError,
 	LocationDeactivateUserErrorCodeHasIncomingMovementsError,
 	LocationDeactivateUserErrorCodeHasOpenPurchaseOrdersError,
 	LocationDeactivateUserErrorCodeFailedToRelocateActiveInventories,
-	LocationDeactivateUserErrorCodeFailedToRelocateOpenTransfers,
 	LocationDeactivateUserErrorCodeFailedToRelocateOpenPurchaseOrders,
 	LocationDeactivateUserErrorCodeFailedToRelocateIncomingMovements,
 	LocationDeactivateUserErrorCodeCannotDisableOnlineOrderFulfillment,
@@ -46028,7 +50198,7 @@ var AllLocationDeactivateUserErrorCode = []LocationDeactivateUserErrorCode{
 
 func (e LocationDeactivateUserErrorCode) IsValid() bool {
 	switch e {
-	case LocationDeactivateUserErrorCodeLocationNotFound, LocationDeactivateUserErrorCodePermanentlyBlockedFromDeactivationError, LocationDeactivateUserErrorCodeTemporarilyBlockedFromDeactivationError, LocationDeactivateUserErrorCodeHasActiveRetailSubscriptions, LocationDeactivateUserErrorCodeDestinationLocationIsTheSameLocation, LocationDeactivateUserErrorCodeDestinationLocationNotFoundOrInactive, LocationDeactivateUserErrorCodeHasActiveInventoryError, LocationDeactivateUserErrorCodeHasFulfillmentOrdersError, LocationDeactivateUserErrorCodeHasOpenTransfersError, LocationDeactivateUserErrorCodeHasIncomingMovementsError, LocationDeactivateUserErrorCodeHasOpenPurchaseOrdersError, LocationDeactivateUserErrorCodeFailedToRelocateActiveInventories, LocationDeactivateUserErrorCodeFailedToRelocateOpenTransfers, LocationDeactivateUserErrorCodeFailedToRelocateOpenPurchaseOrders, LocationDeactivateUserErrorCodeFailedToRelocateIncomingMovements, LocationDeactivateUserErrorCodeCannotDisableOnlineOrderFulfillment:
+	case LocationDeactivateUserErrorCodeLocationNotFound, LocationDeactivateUserErrorCodePermanentlyBlockedFromDeactivationError, LocationDeactivateUserErrorCodeTemporarilyBlockedFromDeactivationError, LocationDeactivateUserErrorCodeHasActiveRetailSubscriptions, LocationDeactivateUserErrorCodeDestinationLocationIsTheSameLocation, LocationDeactivateUserErrorCodeDestinationLocationNotFoundOrInactive, LocationDeactivateUserErrorCodeHasActiveInventoryError, LocationDeactivateUserErrorCodeHasFulfillmentOrdersError, LocationDeactivateUserErrorCodeHasIncomingMovementsError, LocationDeactivateUserErrorCodeHasOpenPurchaseOrdersError, LocationDeactivateUserErrorCodeFailedToRelocateActiveInventories, LocationDeactivateUserErrorCodeFailedToRelocateOpenPurchaseOrders, LocationDeactivateUserErrorCodeFailedToRelocateIncomingMovements, LocationDeactivateUserErrorCodeCannotDisableOnlineOrderFulfillment:
 		return true
 	}
 	return false
@@ -47796,6 +51966,8 @@ const (
 	MenuItemTypeHTTP MenuItemType = "HTTP"
 	// The metaobject menu item type.
 	MenuItemTypeMetaobject MenuItemType = "METAOBJECT"
+	// The customer_account_page menu item type.
+	MenuItemTypeCustomerAccountPage MenuItemType = "CUSTOMER_ACCOUNT_PAGE"
 )
 
 var AllMenuItemType = []MenuItemType{
@@ -47811,11 +51983,12 @@ var AllMenuItemType = []MenuItemType{
 	MenuItemTypeShopPolicy,
 	MenuItemTypeHTTP,
 	MenuItemTypeMetaobject,
+	MenuItemTypeCustomerAccountPage,
 }
 
 func (e MenuItemType) IsValid() bool {
 	switch e {
-	case MenuItemTypeFrontpage, MenuItemTypeCollection, MenuItemTypeCollections, MenuItemTypeProduct, MenuItemTypeCatalog, MenuItemTypePage, MenuItemTypeBlog, MenuItemTypeArticle, MenuItemTypeSearch, MenuItemTypeShopPolicy, MenuItemTypeHTTP, MenuItemTypeMetaobject:
+	case MenuItemTypeFrontpage, MenuItemTypeCollection, MenuItemTypeCollections, MenuItemTypeProduct, MenuItemTypeCatalog, MenuItemTypePage, MenuItemTypeBlog, MenuItemTypeArticle, MenuItemTypeSearch, MenuItemTypeShopPolicy, MenuItemTypeHTTP, MenuItemTypeMetaobject, MenuItemTypeCustomerAccountPage:
 		return true
 	}
 	return false
@@ -48181,6 +52354,56 @@ func (e MetafieldCustomerAccountAccessInput) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible filter statuses associated with a metafield definition for use in admin filtering.
+type MetafieldDefinitionAdminFilterStatus string
+
+const (
+	// The metafield definition cannot be used for admin filtering.
+	MetafieldDefinitionAdminFilterStatusNotFilterable MetafieldDefinitionAdminFilterStatus = "NOT_FILTERABLE"
+	// The metafield definition's metafields are currently being processed for admin filtering.
+	MetafieldDefinitionAdminFilterStatusInProgress MetafieldDefinitionAdminFilterStatus = "IN_PROGRESS"
+	// The metafield definition allows admin filtering by matching metafield values.
+	MetafieldDefinitionAdminFilterStatusFilterable MetafieldDefinitionAdminFilterStatus = "FILTERABLE"
+	// The metafield definition has failed to be enabled for admin filtering.
+	MetafieldDefinitionAdminFilterStatusFailed MetafieldDefinitionAdminFilterStatus = "FAILED"
+)
+
+var AllMetafieldDefinitionAdminFilterStatus = []MetafieldDefinitionAdminFilterStatus{
+	MetafieldDefinitionAdminFilterStatusNotFilterable,
+	MetafieldDefinitionAdminFilterStatusInProgress,
+	MetafieldDefinitionAdminFilterStatusFilterable,
+	MetafieldDefinitionAdminFilterStatusFailed,
+}
+
+func (e MetafieldDefinitionAdminFilterStatus) IsValid() bool {
+	switch e {
+	case MetafieldDefinitionAdminFilterStatusNotFilterable, MetafieldDefinitionAdminFilterStatusInProgress, MetafieldDefinitionAdminFilterStatusFilterable, MetafieldDefinitionAdminFilterStatusFailed:
+		return true
+	}
+	return false
+}
+
+func (e MetafieldDefinitionAdminFilterStatus) String() string {
+	return string(e)
+}
+
+func (e *MetafieldDefinitionAdminFilterStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = MetafieldDefinitionAdminFilterStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid MetafieldDefinitionAdminFilterStatus", str)
+	}
+	return nil
+}
+
+func (e MetafieldDefinitionAdminFilterStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Metafield definition constraint criteria to filter metafield definitions by.
 type MetafieldDefinitionConstraintStatus string
 
@@ -48268,6 +52491,8 @@ const (
 	MetafieldDefinitionCreateUserErrorCodeGrantLimitExceeded MetafieldDefinitionCreateUserErrorCode = "GRANT_LIMIT_EXCEEDED"
 	// The input combination is invalid.
 	MetafieldDefinitionCreateUserErrorCodeInvalidInputCombination MetafieldDefinitionCreateUserErrorCode = "INVALID_INPUT_COMBINATION"
+	// The metafield definition capability is invalid.
+	MetafieldDefinitionCreateUserErrorCodeInvalidCapability MetafieldDefinitionCreateUserErrorCode = "INVALID_CAPABILITY"
 )
 
 var AllMetafieldDefinitionCreateUserErrorCode = []MetafieldDefinitionCreateUserErrorCode{
@@ -48289,11 +52514,12 @@ var AllMetafieldDefinitionCreateUserErrorCode = []MetafieldDefinitionCreateUserE
 	MetafieldDefinitionCreateUserErrorCodeOwnerTypeLimitExceededForAutomatedCollections,
 	MetafieldDefinitionCreateUserErrorCodeGrantLimitExceeded,
 	MetafieldDefinitionCreateUserErrorCodeInvalidInputCombination,
+	MetafieldDefinitionCreateUserErrorCodeInvalidCapability,
 }
 
 func (e MetafieldDefinitionCreateUserErrorCode) IsValid() bool {
 	switch e {
-	case MetafieldDefinitionCreateUserErrorCodeInvalid, MetafieldDefinitionCreateUserErrorCodeInclusion, MetafieldDefinitionCreateUserErrorCodePresent, MetafieldDefinitionCreateUserErrorCodeTaken, MetafieldDefinitionCreateUserErrorCodeTooLong, MetafieldDefinitionCreateUserErrorCodeTooShort, MetafieldDefinitionCreateUserErrorCodeResourceTypeLimitExceeded, MetafieldDefinitionCreateUserErrorCodeLimitExceeded, MetafieldDefinitionCreateUserErrorCodeInvalidOption, MetafieldDefinitionCreateUserErrorCodeDuplicateOption, MetafieldDefinitionCreateUserErrorCodeReservedNamespaceKey, MetafieldDefinitionCreateUserErrorCodePinnedLimitReached, MetafieldDefinitionCreateUserErrorCodeUnstructuredAlreadyExists, MetafieldDefinitionCreateUserErrorCodeInvalidCharacter, MetafieldDefinitionCreateUserErrorCodeTypeNotAllowedForConditions, MetafieldDefinitionCreateUserErrorCodeOwnerTypeLimitExceededForAutomatedCollections, MetafieldDefinitionCreateUserErrorCodeGrantLimitExceeded, MetafieldDefinitionCreateUserErrorCodeInvalidInputCombination:
+	case MetafieldDefinitionCreateUserErrorCodeInvalid, MetafieldDefinitionCreateUserErrorCodeInclusion, MetafieldDefinitionCreateUserErrorCodePresent, MetafieldDefinitionCreateUserErrorCodeTaken, MetafieldDefinitionCreateUserErrorCodeTooLong, MetafieldDefinitionCreateUserErrorCodeTooShort, MetafieldDefinitionCreateUserErrorCodeResourceTypeLimitExceeded, MetafieldDefinitionCreateUserErrorCodeLimitExceeded, MetafieldDefinitionCreateUserErrorCodeInvalidOption, MetafieldDefinitionCreateUserErrorCodeDuplicateOption, MetafieldDefinitionCreateUserErrorCodeReservedNamespaceKey, MetafieldDefinitionCreateUserErrorCodePinnedLimitReached, MetafieldDefinitionCreateUserErrorCodeUnstructuredAlreadyExists, MetafieldDefinitionCreateUserErrorCodeInvalidCharacter, MetafieldDefinitionCreateUserErrorCodeTypeNotAllowedForConditions, MetafieldDefinitionCreateUserErrorCodeOwnerTypeLimitExceededForAutomatedCollections, MetafieldDefinitionCreateUserErrorCodeGrantLimitExceeded, MetafieldDefinitionCreateUserErrorCodeInvalidInputCombination, MetafieldDefinitionCreateUserErrorCodeInvalidCapability:
 		return true
 	}
 	return false
@@ -48608,6 +52834,10 @@ const (
 	MetafieldDefinitionUpdateUserErrorCodeGrantLimitExceeded MetafieldDefinitionUpdateUserErrorCode = "GRANT_LIMIT_EXCEEDED"
 	// The input combination is invalid.
 	MetafieldDefinitionUpdateUserErrorCodeInvalidInputCombination MetafieldDefinitionUpdateUserErrorCode = "INVALID_INPUT_COMBINATION"
+	// The metafield definition capability is invalid.
+	MetafieldDefinitionUpdateUserErrorCodeInvalidCapability MetafieldDefinitionUpdateUserErrorCode = "INVALID_CAPABILITY"
+	// The metafield definition capability cannot be disabled.
+	MetafieldDefinitionUpdateUserErrorCodeCapabilityCannotBeDisabled MetafieldDefinitionUpdateUserErrorCode = "CAPABILITY_CANNOT_BE_DISABLED"
 )
 
 var AllMetafieldDefinitionUpdateUserErrorCode = []MetafieldDefinitionUpdateUserErrorCode{
@@ -48623,11 +52853,13 @@ var AllMetafieldDefinitionUpdateUserErrorCode = []MetafieldDefinitionUpdateUserE
 	MetafieldDefinitionUpdateUserErrorCodeMetaobjectDefinitionChanged,
 	MetafieldDefinitionUpdateUserErrorCodeGrantLimitExceeded,
 	MetafieldDefinitionUpdateUserErrorCodeInvalidInputCombination,
+	MetafieldDefinitionUpdateUserErrorCodeInvalidCapability,
+	MetafieldDefinitionUpdateUserErrorCodeCapabilityCannotBeDisabled,
 }
 
 func (e MetafieldDefinitionUpdateUserErrorCode) IsValid() bool {
 	switch e {
-	case MetafieldDefinitionUpdateUserErrorCodePresent, MetafieldDefinitionUpdateUserErrorCodeTooLong, MetafieldDefinitionUpdateUserErrorCodeNotFound, MetafieldDefinitionUpdateUserErrorCodeInvalidInput, MetafieldDefinitionUpdateUserErrorCodePinnedLimitReached, MetafieldDefinitionUpdateUserErrorCodeInternalError, MetafieldDefinitionUpdateUserErrorCodeTypeNotAllowedForConditions, MetafieldDefinitionUpdateUserErrorCodeMetafieldDefinitionInUse, MetafieldDefinitionUpdateUserErrorCodeOwnerTypeLimitExceededForAutomatedCollections, MetafieldDefinitionUpdateUserErrorCodeMetaobjectDefinitionChanged, MetafieldDefinitionUpdateUserErrorCodeGrantLimitExceeded, MetafieldDefinitionUpdateUserErrorCodeInvalidInputCombination:
+	case MetafieldDefinitionUpdateUserErrorCodePresent, MetafieldDefinitionUpdateUserErrorCodeTooLong, MetafieldDefinitionUpdateUserErrorCodeNotFound, MetafieldDefinitionUpdateUserErrorCodeInvalidInput, MetafieldDefinitionUpdateUserErrorCodePinnedLimitReached, MetafieldDefinitionUpdateUserErrorCodeInternalError, MetafieldDefinitionUpdateUserErrorCodeTypeNotAllowedForConditions, MetafieldDefinitionUpdateUserErrorCodeMetafieldDefinitionInUse, MetafieldDefinitionUpdateUserErrorCodeOwnerTypeLimitExceededForAutomatedCollections, MetafieldDefinitionUpdateUserErrorCodeMetaobjectDefinitionChanged, MetafieldDefinitionUpdateUserErrorCodeGrantLimitExceeded, MetafieldDefinitionUpdateUserErrorCodeInvalidInputCombination, MetafieldDefinitionUpdateUserErrorCodeInvalidCapability, MetafieldDefinitionUpdateUserErrorCodeCapabilityCannotBeDisabled:
 		return true
 	}
 	return false
@@ -48765,6 +52997,8 @@ const (
 	MetafieldOwnerTypeDeliveryCustomization MetafieldOwnerType = "DELIVERY_CUSTOMIZATION"
 	// The draft order metafield owner type.
 	MetafieldOwnerTypeDraftorder MetafieldOwnerType = "DRAFTORDER"
+	// The GiftCardTransaction metafield owner type.
+	MetafieldOwnerTypeGiftCardTransaction MetafieldOwnerType = "GIFT_CARD_TRANSACTION"
 	// The Market metafield owner type.
 	MetafieldOwnerTypeMarket MetafieldOwnerType = "MARKET"
 	// The Cart Transform metafield owner type.
@@ -48773,8 +53007,6 @@ const (
 	MetafieldOwnerTypeCollection MetafieldOwnerType = "COLLECTION"
 	// The Media Image metafield owner type.
 	MetafieldOwnerTypeMediaImage MetafieldOwnerType = "MEDIA_IMAGE"
-	// The Product Image metafield owner type.
-	MetafieldOwnerTypeProductimage MetafieldOwnerType = "PRODUCTIMAGE"
 	// The Product metafield owner type.
 	MetafieldOwnerTypeProduct MetafieldOwnerType = "PRODUCT"
 	// The Product Variant metafield owner type.
@@ -48810,11 +53042,11 @@ var AllMetafieldOwnerType = []MetafieldOwnerType{
 	MetafieldOwnerTypeCustomer,
 	MetafieldOwnerTypeDeliveryCustomization,
 	MetafieldOwnerTypeDraftorder,
+	MetafieldOwnerTypeGiftCardTransaction,
 	MetafieldOwnerTypeMarket,
 	MetafieldOwnerTypeCarttransform,
 	MetafieldOwnerTypeCollection,
 	MetafieldOwnerTypeMediaImage,
-	MetafieldOwnerTypeProductimage,
 	MetafieldOwnerTypeProduct,
 	MetafieldOwnerTypeProductvariant,
 	MetafieldOwnerTypeSellingPlan,
@@ -48831,7 +53063,7 @@ var AllMetafieldOwnerType = []MetafieldOwnerType{
 
 func (e MetafieldOwnerType) IsValid() bool {
 	switch e {
-	case MetafieldOwnerTypeAPIPermission, MetafieldOwnerTypeCompany, MetafieldOwnerTypeCompanyLocation, MetafieldOwnerTypePaymentCustomization, MetafieldOwnerTypeValidation, MetafieldOwnerTypeCustomer, MetafieldOwnerTypeDeliveryCustomization, MetafieldOwnerTypeDraftorder, MetafieldOwnerTypeMarket, MetafieldOwnerTypeCarttransform, MetafieldOwnerTypeCollection, MetafieldOwnerTypeMediaImage, MetafieldOwnerTypeProductimage, MetafieldOwnerTypeProduct, MetafieldOwnerTypeProductvariant, MetafieldOwnerTypeSellingPlan, MetafieldOwnerTypeArticle, MetafieldOwnerTypeBlog, MetafieldOwnerTypePage, MetafieldOwnerTypeFulfillmentConstraintRule, MetafieldOwnerTypeOrderRoutingLocationRule, MetafieldOwnerTypeDiscount, MetafieldOwnerTypeOrder, MetafieldOwnerTypeLocation, MetafieldOwnerTypeShop:
+	case MetafieldOwnerTypeAPIPermission, MetafieldOwnerTypeCompany, MetafieldOwnerTypeCompanyLocation, MetafieldOwnerTypePaymentCustomization, MetafieldOwnerTypeValidation, MetafieldOwnerTypeCustomer, MetafieldOwnerTypeDeliveryCustomization, MetafieldOwnerTypeDraftorder, MetafieldOwnerTypeGiftCardTransaction, MetafieldOwnerTypeMarket, MetafieldOwnerTypeCarttransform, MetafieldOwnerTypeCollection, MetafieldOwnerTypeMediaImage, MetafieldOwnerTypeProduct, MetafieldOwnerTypeProductvariant, MetafieldOwnerTypeSellingPlan, MetafieldOwnerTypeArticle, MetafieldOwnerTypeBlog, MetafieldOwnerTypePage, MetafieldOwnerTypeFulfillmentConstraintRule, MetafieldOwnerTypeOrderRoutingLocationRule, MetafieldOwnerTypeDiscount, MetafieldOwnerTypeOrder, MetafieldOwnerTypeLocation, MetafieldOwnerTypeShop:
 		return true
 	}
 	return false
@@ -49490,6 +53722,174 @@ func (e MobilePlatformApplicationUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// The input type for a theme file body.
+type OnlineStoreThemeFileBodyInputType string
+
+const (
+	// The text body of the theme file.
+	OnlineStoreThemeFileBodyInputTypeText OnlineStoreThemeFileBodyInputType = "TEXT"
+	// The base64 encoded body of a theme file.
+	OnlineStoreThemeFileBodyInputTypeBase64 OnlineStoreThemeFileBodyInputType = "BASE64"
+	// The url of the body of a theme file.
+	OnlineStoreThemeFileBodyInputTypeURL OnlineStoreThemeFileBodyInputType = "URL"
+)
+
+var AllOnlineStoreThemeFileBodyInputType = []OnlineStoreThemeFileBodyInputType{
+	OnlineStoreThemeFileBodyInputTypeText,
+	OnlineStoreThemeFileBodyInputTypeBase64,
+	OnlineStoreThemeFileBodyInputTypeURL,
+}
+
+func (e OnlineStoreThemeFileBodyInputType) IsValid() bool {
+	switch e {
+	case OnlineStoreThemeFileBodyInputTypeText, OnlineStoreThemeFileBodyInputTypeBase64, OnlineStoreThemeFileBodyInputTypeURL:
+		return true
+	}
+	return false
+}
+
+func (e OnlineStoreThemeFileBodyInputType) String() string {
+	return string(e)
+}
+
+func (e *OnlineStoreThemeFileBodyInputType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OnlineStoreThemeFileBodyInputType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OnlineStoreThemeFileBodyInputType", str)
+	}
+	return nil
+}
+
+func (e OnlineStoreThemeFileBodyInputType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Type of a theme file operation result.
+type OnlineStoreThemeFileResultType string
+
+const (
+	// Operation was successful.
+	OnlineStoreThemeFileResultTypeSuccess OnlineStoreThemeFileResultType = "SUCCESS"
+	// Operation encountered an error.
+	OnlineStoreThemeFileResultTypeError OnlineStoreThemeFileResultType = "ERROR"
+	// Operation faced a conflict with the current state of the file.
+	OnlineStoreThemeFileResultTypeConflict OnlineStoreThemeFileResultType = "CONFLICT"
+	// Operation could not be processed due to issues with input data.
+	OnlineStoreThemeFileResultTypeUnprocessableEntity OnlineStoreThemeFileResultType = "UNPROCESSABLE_ENTITY"
+	// Operation was malformed or invalid.
+	OnlineStoreThemeFileResultTypeBadRequest OnlineStoreThemeFileResultType = "BAD_REQUEST"
+	// Operation timed out.
+	OnlineStoreThemeFileResultTypeTimeout OnlineStoreThemeFileResultType = "TIMEOUT"
+	// Operation file could not be found.
+	OnlineStoreThemeFileResultTypeNotFound OnlineStoreThemeFileResultType = "NOT_FOUND"
+)
+
+var AllOnlineStoreThemeFileResultType = []OnlineStoreThemeFileResultType{
+	OnlineStoreThemeFileResultTypeSuccess,
+	OnlineStoreThemeFileResultTypeError,
+	OnlineStoreThemeFileResultTypeConflict,
+	OnlineStoreThemeFileResultTypeUnprocessableEntity,
+	OnlineStoreThemeFileResultTypeBadRequest,
+	OnlineStoreThemeFileResultTypeTimeout,
+	OnlineStoreThemeFileResultTypeNotFound,
+}
+
+func (e OnlineStoreThemeFileResultType) IsValid() bool {
+	switch e {
+	case OnlineStoreThemeFileResultTypeSuccess, OnlineStoreThemeFileResultTypeError, OnlineStoreThemeFileResultTypeConflict, OnlineStoreThemeFileResultTypeUnprocessableEntity, OnlineStoreThemeFileResultTypeBadRequest, OnlineStoreThemeFileResultTypeTimeout, OnlineStoreThemeFileResultTypeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e OnlineStoreThemeFileResultType) String() string {
+	return string(e)
+}
+
+func (e *OnlineStoreThemeFileResultType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OnlineStoreThemeFileResultType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OnlineStoreThemeFileResultType", str)
+	}
+	return nil
+}
+
+func (e OnlineStoreThemeFileResultType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `OnlineStoreThemeFilesUserErrors`.
+type OnlineStoreThemeFilesUserErrorsCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	OnlineStoreThemeFilesUserErrorsCodeNotFound OnlineStoreThemeFilesUserErrorsCode = "NOT_FOUND"
+	// The input value should be less than or equal to the maximum value allowed.
+	OnlineStoreThemeFilesUserErrorsCodeLessThanOrEqualTo OnlineStoreThemeFilesUserErrorsCode = "LESS_THAN_OR_EQUAL_TO"
+	// There are theme files with conflicts.
+	OnlineStoreThemeFilesUserErrorsCodeThemeFilesConflict OnlineStoreThemeFilesUserErrorsCode = "THEME_FILES_CONFLICT"
+	// There are files with the same filename.
+	OnlineStoreThemeFilesUserErrorsCodeDuplicateFileInput OnlineStoreThemeFilesUserErrorsCode = "DUPLICATE_FILE_INPUT"
+	// Access denied.
+	OnlineStoreThemeFilesUserErrorsCodeAccessDenied OnlineStoreThemeFilesUserErrorsCode = "ACCESS_DENIED"
+	// This action is not available on your current plan. Please upgrade to access theme editing features.
+	OnlineStoreThemeFilesUserErrorsCodeThemeLimitedPlan OnlineStoreThemeFilesUserErrorsCode = "THEME_LIMITED_PLAN"
+	// The file is invalid.
+	OnlineStoreThemeFilesUserErrorsCodeFileValidationError OnlineStoreThemeFilesUserErrorsCode = "FILE_VALIDATION_ERROR"
+	// Error.
+	OnlineStoreThemeFilesUserErrorsCodeError OnlineStoreThemeFilesUserErrorsCode = "ERROR"
+)
+
+var AllOnlineStoreThemeFilesUserErrorsCode = []OnlineStoreThemeFilesUserErrorsCode{
+	OnlineStoreThemeFilesUserErrorsCodeNotFound,
+	OnlineStoreThemeFilesUserErrorsCodeLessThanOrEqualTo,
+	OnlineStoreThemeFilesUserErrorsCodeThemeFilesConflict,
+	OnlineStoreThemeFilesUserErrorsCodeDuplicateFileInput,
+	OnlineStoreThemeFilesUserErrorsCodeAccessDenied,
+	OnlineStoreThemeFilesUserErrorsCodeThemeLimitedPlan,
+	OnlineStoreThemeFilesUserErrorsCodeFileValidationError,
+	OnlineStoreThemeFilesUserErrorsCodeError,
+}
+
+func (e OnlineStoreThemeFilesUserErrorsCode) IsValid() bool {
+	switch e {
+	case OnlineStoreThemeFilesUserErrorsCodeNotFound, OnlineStoreThemeFilesUserErrorsCodeLessThanOrEqualTo, OnlineStoreThemeFilesUserErrorsCodeThemeFilesConflict, OnlineStoreThemeFilesUserErrorsCodeDuplicateFileInput, OnlineStoreThemeFilesUserErrorsCodeAccessDenied, OnlineStoreThemeFilesUserErrorsCodeThemeLimitedPlan, OnlineStoreThemeFilesUserErrorsCodeFileValidationError, OnlineStoreThemeFilesUserErrorsCodeError:
+		return true
+	}
+	return false
+}
+
+func (e OnlineStoreThemeFilesUserErrorsCode) String() string {
+	return string(e)
+}
+
+func (e *OnlineStoreThemeFilesUserErrorsCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OnlineStoreThemeFilesUserErrorsCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OnlineStoreThemeFilesUserErrorsCode", str)
+	}
+	return nil
+}
+
+func (e OnlineStoreThemeFilesUserErrorsCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The possible order action types for a
 // [sales agreement](https://shopify.dev/api/admin-graphql/latest/interfaces/salesagreement).
 type OrderActionType string
@@ -49541,6 +53941,112 @@ func (e *OrderActionType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e OrderActionType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Discrepancy reasons for order adjustments.
+type OrderAdjustmentDiscrepancyReason string
+
+const (
+	// The discrepancy reason is restocking.
+	OrderAdjustmentDiscrepancyReasonRestock OrderAdjustmentDiscrepancyReason = "RESTOCK"
+	// The discrepancy reason is damage.
+	OrderAdjustmentDiscrepancyReasonDamage OrderAdjustmentDiscrepancyReason = "DAMAGE"
+	// The discrepancy reason is customer.
+	OrderAdjustmentDiscrepancyReasonCustomer OrderAdjustmentDiscrepancyReason = "CUSTOMER"
+	// The discrepancy reason is not one of the predefined reasons.
+	OrderAdjustmentDiscrepancyReasonRefundDiscrepancy OrderAdjustmentDiscrepancyReason = "REFUND_DISCREPANCY"
+	// The discrepancy reason is balance adjustment.
+	OrderAdjustmentDiscrepancyReasonFullReturnBalancingAdjustment OrderAdjustmentDiscrepancyReason = "FULL_RETURN_BALANCING_ADJUSTMENT"
+	// The discrepancy reason is pending refund.
+	OrderAdjustmentDiscrepancyReasonPendingRefundDiscrepancy OrderAdjustmentDiscrepancyReason = "PENDING_REFUND_DISCREPANCY"
+)
+
+var AllOrderAdjustmentDiscrepancyReason = []OrderAdjustmentDiscrepancyReason{
+	OrderAdjustmentDiscrepancyReasonRestock,
+	OrderAdjustmentDiscrepancyReasonDamage,
+	OrderAdjustmentDiscrepancyReasonCustomer,
+	OrderAdjustmentDiscrepancyReasonRefundDiscrepancy,
+	OrderAdjustmentDiscrepancyReasonFullReturnBalancingAdjustment,
+	OrderAdjustmentDiscrepancyReasonPendingRefundDiscrepancy,
+}
+
+func (e OrderAdjustmentDiscrepancyReason) IsValid() bool {
+	switch e {
+	case OrderAdjustmentDiscrepancyReasonRestock, OrderAdjustmentDiscrepancyReasonDamage, OrderAdjustmentDiscrepancyReasonCustomer, OrderAdjustmentDiscrepancyReasonRefundDiscrepancy, OrderAdjustmentDiscrepancyReasonFullReturnBalancingAdjustment, OrderAdjustmentDiscrepancyReasonPendingRefundDiscrepancy:
+		return true
+	}
+	return false
+}
+
+func (e OrderAdjustmentDiscrepancyReason) String() string {
+	return string(e)
+}
+
+func (e *OrderAdjustmentDiscrepancyReason) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderAdjustmentDiscrepancyReason(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderAdjustmentDiscrepancyReason", str)
+	}
+	return nil
+}
+
+func (e OrderAdjustmentDiscrepancyReason) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Discrepancy reasons for order adjustments.
+type OrderAdjustmentInputDiscrepancyReason string
+
+const (
+	// The discrepancy reason is restocking.
+	OrderAdjustmentInputDiscrepancyReasonRestock OrderAdjustmentInputDiscrepancyReason = "RESTOCK"
+	// The discrepancy reason is damage.
+	OrderAdjustmentInputDiscrepancyReasonDamage OrderAdjustmentInputDiscrepancyReason = "DAMAGE"
+	// The discrepancy reason is customer.
+	OrderAdjustmentInputDiscrepancyReasonCustomer OrderAdjustmentInputDiscrepancyReason = "CUSTOMER"
+	// The discrepancy reason is not one of the predefined reasons.
+	OrderAdjustmentInputDiscrepancyReasonOther OrderAdjustmentInputDiscrepancyReason = "OTHER"
+)
+
+var AllOrderAdjustmentInputDiscrepancyReason = []OrderAdjustmentInputDiscrepancyReason{
+	OrderAdjustmentInputDiscrepancyReasonRestock,
+	OrderAdjustmentInputDiscrepancyReasonDamage,
+	OrderAdjustmentInputDiscrepancyReasonCustomer,
+	OrderAdjustmentInputDiscrepancyReasonOther,
+}
+
+func (e OrderAdjustmentInputDiscrepancyReason) IsValid() bool {
+	switch e {
+	case OrderAdjustmentInputDiscrepancyReasonRestock, OrderAdjustmentInputDiscrepancyReasonDamage, OrderAdjustmentInputDiscrepancyReasonCustomer, OrderAdjustmentInputDiscrepancyReasonOther:
+		return true
+	}
+	return false
+}
+
+func (e OrderAdjustmentInputDiscrepancyReason) String() string {
+	return string(e)
+}
+
+func (e *OrderAdjustmentInputDiscrepancyReason) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderAdjustmentInputDiscrepancyReason(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderAdjustmentInputDiscrepancyReason", str)
+	}
+	return nil
+}
+
+func (e OrderAdjustmentInputDiscrepancyReason) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -49647,6 +54153,162 @@ func (e OrderCancelUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// The status of payments associated with the order. Can only be set when the order is created.
+type OrderCreateFinancialStatus string
+
+const (
+	// The payments are pending. Payment might fail in this state. Check again to confirm whether the payments have been paid successfully.
+	OrderCreateFinancialStatusPending OrderCreateFinancialStatus = "PENDING"
+	// The payments have been authorized.
+	OrderCreateFinancialStatusAuthorized OrderCreateFinancialStatus = "AUTHORIZED"
+	// The order has been partially paid.
+	OrderCreateFinancialStatusPartiallyPaid OrderCreateFinancialStatus = "PARTIALLY_PAID"
+	// The payments have been paid.
+	OrderCreateFinancialStatusPaid OrderCreateFinancialStatus = "PAID"
+	// The payments have been partially refunded.
+	OrderCreateFinancialStatusPartiallyRefunded OrderCreateFinancialStatus = "PARTIALLY_REFUNDED"
+	// The payments have been refunded.
+	OrderCreateFinancialStatusRefunded OrderCreateFinancialStatus = "REFUNDED"
+	// The payments have been voided.
+	OrderCreateFinancialStatusVoided OrderCreateFinancialStatus = "VOIDED"
+	// The payments have been expired.
+	OrderCreateFinancialStatusExpired OrderCreateFinancialStatus = "EXPIRED"
+)
+
+var AllOrderCreateFinancialStatus = []OrderCreateFinancialStatus{
+	OrderCreateFinancialStatusPending,
+	OrderCreateFinancialStatusAuthorized,
+	OrderCreateFinancialStatusPartiallyPaid,
+	OrderCreateFinancialStatusPaid,
+	OrderCreateFinancialStatusPartiallyRefunded,
+	OrderCreateFinancialStatusRefunded,
+	OrderCreateFinancialStatusVoided,
+	OrderCreateFinancialStatusExpired,
+}
+
+func (e OrderCreateFinancialStatus) IsValid() bool {
+	switch e {
+	case OrderCreateFinancialStatusPending, OrderCreateFinancialStatusAuthorized, OrderCreateFinancialStatusPartiallyPaid, OrderCreateFinancialStatusPaid, OrderCreateFinancialStatusPartiallyRefunded, OrderCreateFinancialStatusRefunded, OrderCreateFinancialStatusVoided, OrderCreateFinancialStatusExpired:
+		return true
+	}
+	return false
+}
+
+func (e OrderCreateFinancialStatus) String() string {
+	return string(e)
+}
+
+func (e *OrderCreateFinancialStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderCreateFinancialStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderCreateFinancialStatus", str)
+	}
+	return nil
+}
+
+func (e OrderCreateFinancialStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The order's status in terms of fulfilled line items.
+type OrderCreateFulfillmentStatus string
+
+const (
+	// Every line item in the order has been fulfilled.
+	OrderCreateFulfillmentStatusFulfilled OrderCreateFulfillmentStatus = "FULFILLED"
+	// At least one line item in the order has been fulfilled.
+	OrderCreateFulfillmentStatusPartial OrderCreateFulfillmentStatus = "PARTIAL"
+	// Every line item in the order has been restocked and the order canceled.
+	OrderCreateFulfillmentStatusRestocked OrderCreateFulfillmentStatus = "RESTOCKED"
+)
+
+var AllOrderCreateFulfillmentStatus = []OrderCreateFulfillmentStatus{
+	OrderCreateFulfillmentStatusFulfilled,
+	OrderCreateFulfillmentStatusPartial,
+	OrderCreateFulfillmentStatusRestocked,
+}
+
+func (e OrderCreateFulfillmentStatus) IsValid() bool {
+	switch e {
+	case OrderCreateFulfillmentStatusFulfilled, OrderCreateFulfillmentStatusPartial, OrderCreateFulfillmentStatusRestocked:
+		return true
+	}
+	return false
+}
+
+func (e OrderCreateFulfillmentStatus) String() string {
+	return string(e)
+}
+
+func (e *OrderCreateFulfillmentStatus) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderCreateFulfillmentStatus(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderCreateFulfillmentStatus", str)
+	}
+	return nil
+}
+
+func (e OrderCreateFulfillmentStatus) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The types of behavior to use when updating inventory.
+type OrderCreateInputsInventoryBehavior string
+
+const (
+	// Do not claim inventory.
+	OrderCreateInputsInventoryBehaviorBypass OrderCreateInputsInventoryBehavior = "BYPASS"
+	// Ignore the product's inventory policy and claim inventory.
+	OrderCreateInputsInventoryBehaviorDecrementIgnoringPolicy OrderCreateInputsInventoryBehavior = "DECREMENT_IGNORING_POLICY"
+	// Follow the product's inventory policy and claim inventory, if possible.
+	OrderCreateInputsInventoryBehaviorDecrementObeyingPolicy OrderCreateInputsInventoryBehavior = "DECREMENT_OBEYING_POLICY"
+)
+
+var AllOrderCreateInputsInventoryBehavior = []OrderCreateInputsInventoryBehavior{
+	OrderCreateInputsInventoryBehaviorBypass,
+	OrderCreateInputsInventoryBehaviorDecrementIgnoringPolicy,
+	OrderCreateInputsInventoryBehaviorDecrementObeyingPolicy,
+}
+
+func (e OrderCreateInputsInventoryBehavior) IsValid() bool {
+	switch e {
+	case OrderCreateInputsInventoryBehaviorBypass, OrderCreateInputsInventoryBehaviorDecrementIgnoringPolicy, OrderCreateInputsInventoryBehaviorDecrementObeyingPolicy:
+		return true
+	}
+	return false
+}
+
+func (e OrderCreateInputsInventoryBehavior) String() string {
+	return string(e)
+}
+
+func (e *OrderCreateInputsInventoryBehavior) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderCreateInputsInventoryBehavior(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderCreateInputsInventoryBehavior", str)
+	}
+	return nil
+}
+
+func (e OrderCreateInputsInventoryBehavior) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible error codes that can be returned by `OrderCreateMandatePaymentUserError`.
 type OrderCreateMandatePaymentUserErrorCode string
 
@@ -49685,6 +54347,59 @@ func (e *OrderCreateMandatePaymentUserErrorCode) UnmarshalGQL(v interface{}) err
 }
 
 func (e OrderCreateMandatePaymentUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `OrderCreateUserError`.
+type OrderCreateUserErrorCode string
+
+const (
+	// The input value is invalid.
+	OrderCreateUserErrorCodeInvalid OrderCreateUserErrorCode = "INVALID"
+	// Indicates that the line item fulfillment service handle is invalid.
+	OrderCreateUserErrorCodeFulfillmentServiceInvalid OrderCreateUserErrorCode = "FULFILLMENT_SERVICE_INVALID"
+	// Indicates that the inventory claim failed during order creation.
+	OrderCreateUserErrorCodeInventoryClaimFailed OrderCreateUserErrorCode = "INVENTORY_CLAIM_FAILED"
+	// Indicates that the processed_at field is invalid, such as when it references a future date.
+	OrderCreateUserErrorCodeProcessedAtInvalid OrderCreateUserErrorCode = "PROCESSED_AT_INVALID"
+	// Indicates that the tax line rate is missing - only enforced for LineItem or ShippingLine-level tax lines.
+	OrderCreateUserErrorCodeTaxLineRateMissing OrderCreateUserErrorCode = "TAX_LINE_RATE_MISSING"
+)
+
+var AllOrderCreateUserErrorCode = []OrderCreateUserErrorCode{
+	OrderCreateUserErrorCodeInvalid,
+	OrderCreateUserErrorCodeFulfillmentServiceInvalid,
+	OrderCreateUserErrorCodeInventoryClaimFailed,
+	OrderCreateUserErrorCodeProcessedAtInvalid,
+	OrderCreateUserErrorCodeTaxLineRateMissing,
+}
+
+func (e OrderCreateUserErrorCode) IsValid() bool {
+	switch e {
+	case OrderCreateUserErrorCodeInvalid, OrderCreateUserErrorCodeFulfillmentServiceInvalid, OrderCreateUserErrorCodeInventoryClaimFailed, OrderCreateUserErrorCodeProcessedAtInvalid, OrderCreateUserErrorCodeTaxLineRateMissing:
+		return true
+	}
+	return false
+}
+
+func (e OrderCreateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *OrderCreateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = OrderCreateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid OrderCreateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e OrderCreateUserErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -49816,6 +54531,8 @@ const (
 	OrderDisplayFulfillmentStatusOnHold OrderDisplayFulfillmentStatus = "ON_HOLD"
 	// Displayed as **Scheduled**. All of the unfulfilled items in this order are scheduled for fulfillment at later time.
 	OrderDisplayFulfillmentStatusScheduled OrderDisplayFulfillmentStatus = "SCHEDULED"
+	// Displayed as **Request declined**. Some of the items in the order have been rejected for fulfillment by the fulfillment service.
+	OrderDisplayFulfillmentStatusRequestDeclined OrderDisplayFulfillmentStatus = "REQUEST_DECLINED"
 )
 
 var AllOrderDisplayFulfillmentStatus = []OrderDisplayFulfillmentStatus{
@@ -49828,11 +54545,12 @@ var AllOrderDisplayFulfillmentStatus = []OrderDisplayFulfillmentStatus{
 	OrderDisplayFulfillmentStatusInProgress,
 	OrderDisplayFulfillmentStatusOnHold,
 	OrderDisplayFulfillmentStatusScheduled,
+	OrderDisplayFulfillmentStatusRequestDeclined,
 }
 
 func (e OrderDisplayFulfillmentStatus) IsValid() bool {
 	switch e {
-	case OrderDisplayFulfillmentStatusUnfulfilled, OrderDisplayFulfillmentStatusPartiallyFulfilled, OrderDisplayFulfillmentStatusFulfilled, OrderDisplayFulfillmentStatusRestocked, OrderDisplayFulfillmentStatusPendingFulfillment, OrderDisplayFulfillmentStatusOpen, OrderDisplayFulfillmentStatusInProgress, OrderDisplayFulfillmentStatusOnHold, OrderDisplayFulfillmentStatusScheduled:
+	case OrderDisplayFulfillmentStatusUnfulfilled, OrderDisplayFulfillmentStatusPartiallyFulfilled, OrderDisplayFulfillmentStatusFulfilled, OrderDisplayFulfillmentStatusRestocked, OrderDisplayFulfillmentStatusPendingFulfillment, OrderDisplayFulfillmentStatusOpen, OrderDisplayFulfillmentStatusInProgress, OrderDisplayFulfillmentStatusOnHold, OrderDisplayFulfillmentStatusScheduled, OrderDisplayFulfillmentStatusRequestDeclined:
 		return true
 	}
 	return false
@@ -50704,6 +55422,153 @@ func (e OrderTransactionStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible error codes that can be returned by `PageCreateUserError`.
+type PageCreateUserErrorCode string
+
+const (
+	// Can’t set isPublished to true and also set a future publish date.
+	PageCreateUserErrorCodeInvalidPublishDate PageCreateUserErrorCode = "INVALID_PUBLISH_DATE"
+	// The input value is too long.
+	PageCreateUserErrorCodeTooLong PageCreateUserErrorCode = "TOO_LONG"
+	// The input value is already taken.
+	PageCreateUserErrorCodeTaken PageCreateUserErrorCode = "TAKEN"
+	// The value is invalid for the metafield type or for the definition options.
+	PageCreateUserErrorCodeInvalidValue PageCreateUserErrorCode = "INVALID_VALUE"
+	// The metafield type is invalid.
+	PageCreateUserErrorCodeInvalidType PageCreateUserErrorCode = "INVALID_TYPE"
+)
+
+var AllPageCreateUserErrorCode = []PageCreateUserErrorCode{
+	PageCreateUserErrorCodeInvalidPublishDate,
+	PageCreateUserErrorCodeTooLong,
+	PageCreateUserErrorCodeTaken,
+	PageCreateUserErrorCodeInvalidValue,
+	PageCreateUserErrorCodeInvalidType,
+}
+
+func (e PageCreateUserErrorCode) IsValid() bool {
+	switch e {
+	case PageCreateUserErrorCodeInvalidPublishDate, PageCreateUserErrorCodeTooLong, PageCreateUserErrorCodeTaken, PageCreateUserErrorCodeInvalidValue, PageCreateUserErrorCodeInvalidType:
+		return true
+	}
+	return false
+}
+
+func (e PageCreateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *PageCreateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PageCreateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PageCreateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e PageCreateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `PageDeleteUserError`.
+type PageDeleteUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	PageDeleteUserErrorCodeNotFound PageDeleteUserErrorCode = "NOT_FOUND"
+)
+
+var AllPageDeleteUserErrorCode = []PageDeleteUserErrorCode{
+	PageDeleteUserErrorCodeNotFound,
+}
+
+func (e PageDeleteUserErrorCode) IsValid() bool {
+	switch e {
+	case PageDeleteUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e PageDeleteUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *PageDeleteUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PageDeleteUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PageDeleteUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e PageDeleteUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `PageUpdateUserError`.
+type PageUpdateUserErrorCode string
+
+const (
+	// Can’t set isPublished to true and also set a future publish date.
+	PageUpdateUserErrorCodeInvalidPublishDate PageUpdateUserErrorCode = "INVALID_PUBLISH_DATE"
+	// The record with the ID used as the input value couldn't be found.
+	PageUpdateUserErrorCodeNotFound PageUpdateUserErrorCode = "NOT_FOUND"
+	// The input value is blank.
+	PageUpdateUserErrorCodeBlank PageUpdateUserErrorCode = "BLANK"
+	// The input value is too long.
+	PageUpdateUserErrorCodeTooLong PageUpdateUserErrorCode = "TOO_LONG"
+	// The input value is already taken.
+	PageUpdateUserErrorCodeTaken PageUpdateUserErrorCode = "TAKEN"
+)
+
+var AllPageUpdateUserErrorCode = []PageUpdateUserErrorCode{
+	PageUpdateUserErrorCodeInvalidPublishDate,
+	PageUpdateUserErrorCodeNotFound,
+	PageUpdateUserErrorCodeBlank,
+	PageUpdateUserErrorCodeTooLong,
+	PageUpdateUserErrorCodeTaken,
+}
+
+func (e PageUpdateUserErrorCode) IsValid() bool {
+	switch e {
+	case PageUpdateUserErrorCodeInvalidPublishDate, PageUpdateUserErrorCodeNotFound, PageUpdateUserErrorCodeBlank, PageUpdateUserErrorCodeTooLong, PageUpdateUserErrorCodeTaken:
+		return true
+	}
+	return false
+}
+
+func (e PageUpdateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *PageUpdateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PageUpdateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PageUpdateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e PageUpdateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // Possible error codes that can be returned by `PaymentCustomizationError`.
 type PaymentCustomizationErrorCode string
 
@@ -51086,6 +55951,8 @@ const (
 	PayoutSortKeysAdjustmentGross PayoutSortKeys = "ADJUSTMENT_GROSS"
 	// Sort by the `duties_gross` value.
 	PayoutSortKeysDutiesGross PayoutSortKeys = "DUTIES_GROSS"
+	// Sort by the `advance_gross` value.
+	PayoutSortKeysAdvanceGross PayoutSortKeys = "ADVANCE_GROSS"
 	// Sort by the `shipping_label_gross` value.
 	PayoutSortKeysShippingLabelGross PayoutSortKeys = "SHIPPING_LABEL_GROSS"
 	// Sort by the `fee_amount` value.
@@ -51106,6 +55973,7 @@ var AllPayoutSortKeys = []PayoutSortKeys{
 	PayoutSortKeysRefundGross,
 	PayoutSortKeysAdjustmentGross,
 	PayoutSortKeysDutiesGross,
+	PayoutSortKeysAdvanceGross,
 	PayoutSortKeysShippingLabelGross,
 	PayoutSortKeysFeeAmount,
 	PayoutSortKeysAmount,
@@ -51115,7 +55983,7 @@ var AllPayoutSortKeys = []PayoutSortKeys{
 
 func (e PayoutSortKeys) IsValid() bool {
 	switch e {
-	case PayoutSortKeysIssuedAt, PayoutSortKeysStatus, PayoutSortKeysChargeGross, PayoutSortKeysRefundGross, PayoutSortKeysAdjustmentGross, PayoutSortKeysDutiesGross, PayoutSortKeysShippingLabelGross, PayoutSortKeysFeeAmount, PayoutSortKeysAmount, PayoutSortKeysID, PayoutSortKeysRelevance:
+	case PayoutSortKeysIssuedAt, PayoutSortKeysStatus, PayoutSortKeysChargeGross, PayoutSortKeysRefundGross, PayoutSortKeysAdjustmentGross, PayoutSortKeysDutiesGross, PayoutSortKeysAdvanceGross, PayoutSortKeysShippingLabelGross, PayoutSortKeysFeeAmount, PayoutSortKeysAmount, PayoutSortKeysID, PayoutSortKeysRelevance:
 		return true
 	}
 	return false
@@ -51703,269 +56571,6 @@ func (e PriceRuleAllocationMethod) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible error codes that could be returned by a price rule mutation.
-type PriceRuleErrorCode string
-
-const (
-	// The input value is blank.
-	PriceRuleErrorCodeBlank PriceRuleErrorCode = "BLANK"
-	// The input value should be equal to the value allowed.
-	PriceRuleErrorCodeEqualTo PriceRuleErrorCode = "EQUAL_TO"
-	// The input value should be greater than the minimum allowed value.
-	PriceRuleErrorCodeGreaterThan PriceRuleErrorCode = "GREATER_THAN"
-	// The input value should be greater than or equal to the minimum value allowed.
-	PriceRuleErrorCodeGreaterThanOrEqualTo PriceRuleErrorCode = "GREATER_THAN_OR_EQUAL_TO"
-	// The input value is invalid.
-	PriceRuleErrorCodeInvalid PriceRuleErrorCode = "INVALID"
-	// The input value should be less than the maximum value allowed.
-	PriceRuleErrorCodeLessThan PriceRuleErrorCode = "LESS_THAN"
-	// The input value should be less than or equal to the maximum value allowed.
-	PriceRuleErrorCodeLessThanOrEqualTo PriceRuleErrorCode = "LESS_THAN_OR_EQUAL_TO"
-	// The input value is already taken.
-	PriceRuleErrorCodeTaken PriceRuleErrorCode = "TAKEN"
-	// The input value is too long.
-	PriceRuleErrorCodeTooLong PriceRuleErrorCode = "TOO_LONG"
-	// The input value is too short.
-	PriceRuleErrorCodeTooShort PriceRuleErrorCode = "TOO_SHORT"
-	// Unexpected internal error happened.
-	PriceRuleErrorCodeInternalError PriceRuleErrorCode = "INTERNAL_ERROR"
-	// Too many arguments provided.
-	PriceRuleErrorCodeTooManyArguments PriceRuleErrorCode = "TOO_MANY_ARGUMENTS"
-	// Missing a required argument.
-	PriceRuleErrorCodeMissingArgument PriceRuleErrorCode = "MISSING_ARGUMENT"
-	// Can't exceed the maximum number.
-	PriceRuleErrorCodeExceededMax PriceRuleErrorCode = "EXCEEDED_MAX"
-	// The allocation limit can only be set on Buy x, get y (BXGY) discounts.
-	PriceRuleErrorCodePriceRuleAllocationLimitOnNonBogo PriceRuleErrorCode = "PRICE_RULE_ALLOCATION_LIMIT_ON_NON_BOGO"
-	// The allocation limit must be a non-zero positive number.
-	PriceRuleErrorCodePriceRuleAllocationLimitIsZero PriceRuleErrorCode = "PRICE_RULE_ALLOCATION_LIMIT_IS_ZERO"
-	// The number of discount codes in the shop has reached its limit.
-	PriceRuleErrorCodePriceRuleExceededMaxDiscountCode PriceRuleErrorCode = "PRICE_RULE_EXCEEDED_MAX_DISCOUNT_CODE"
-	// The number of discounts in the shop has reached its limit.
-	PriceRuleErrorCodeShopExceededMaxPriceRules PriceRuleErrorCode = "SHOP_EXCEEDED_MAX_PRICE_RULES"
-	// The discount end date must be after the start date.
-	PriceRuleErrorCodeEndDateBeforeStartDate PriceRuleErrorCode = "END_DATE_BEFORE_START_DATE"
-	// The percentage value must be between 0 and -100.
-	PriceRuleErrorCodePriceRulePercentageValueOutsideRange PriceRuleErrorCode = "PRICE_RULE_PERCENTAGE_VALUE_OUTSIDE_RANGE"
-	// Only one of the minimum subtotal or minimum quantity condition can be defined.
-	PriceRuleErrorCodePrerequisiteSubtotalAndQuantityRangeBothPresent PriceRuleErrorCode = "PREREQUISITE_SUBTOTAL_AND_QUANTITY_RANGE_BOTH_PRESENT"
-	// The allocation method must be `ACROSS` for the provided target selection.
-	PriceRuleErrorCodeAllocationMethodMustBeAcrossForGivenTargetSelection PriceRuleErrorCode = "ALLOCATION_METHOD_MUST_BE_ACROSS_FOR_GIVEN_TARGET_SELECTION"
-	// The discount must apply on either one-time purchase or subscription items, or both.
-	PriceRuleErrorCodeAppliesOnNothing PriceRuleErrorCode = "APPLIES_ON_NOTHING"
-	// The recurring cycle limit must be 1 when a discount doesn't apply on subscription items.
-	PriceRuleErrorCodeMultipleRecurringCycleLimitForNonSubscriptionItems PriceRuleErrorCode = "MULTIPLE_RECURRING_CYCLE_LIMIT_FOR_NON_SUBSCRIPTION_ITEMS"
-	// Invalid BOGO target selection.
-	PriceRuleErrorCodeBogoInvalidTargetSelection PriceRuleErrorCode = "BOGO_INVALID_TARGET_SELECTION"
-	// Invalid BOGO target type.
-	PriceRuleErrorCodeBogoInvalidTargetType PriceRuleErrorCode = "BOGO_INVALID_TARGET_TYPE"
-	// Invalid BOGO value type.
-	PriceRuleErrorCodeBogoInvalidValueType PriceRuleErrorCode = "BOGO_INVALID_VALUE_TYPE"
-	// A duplicate discount code exists.
-	PriceRuleErrorCodeDiscountCodeDuplicate PriceRuleErrorCode = "DISCOUNT_CODE_DUPLICATE"
-	// Can't use both prerequisite customers and saved search.
-	PriceRuleErrorCodeBothCustomerAndSavedSearchPrerequisitesSelected PriceRuleErrorCode = "BOTH_CUSTOMER_AND_SAVED_SEARCH_PREREQUISITES_SELECTED"
-	// A duplicate customer saved search exists.
-	PriceRuleErrorCodeCustomerSavedSearchDuplicate PriceRuleErrorCode = "CUSTOMER_SAVED_SEARCH_DUPLICATE"
-	// The customer saved search exceeded the maximum number.
-	PriceRuleErrorCodeCustomerSavedSearchExceededMax PriceRuleErrorCode = "CUSTOMER_SAVED_SEARCH_EXCEEDED_MAX"
-	// Invalid customer saved search.
-	PriceRuleErrorCodeCustomerSavedSearchInvalid PriceRuleErrorCode = "CUSTOMER_SAVED_SEARCH_INVALID"
-	// The customer prerequisites exceeded the maximum number.
-	PriceRuleErrorCodeCustomerPrerequisitesExceededMax PriceRuleErrorCode = "CUSTOMER_PREREQUISITES_EXCEEDED_MAX"
-	// Invalid customer prerequisites selection.
-	PriceRuleErrorCodeCustomerPrerequisitesInvalidSelection PriceRuleErrorCode = "CUSTOMER_PREREQUISITES_INVALID_SELECTION"
-	// A duplicate customer prerequisite ID exists.
-	PriceRuleErrorCodeCustomerPrerequisiteDuplicate PriceRuleErrorCode = "CUSTOMER_PREREQUISITE_DUPLICATE"
-	// Customer prerequisites are missing.
-	PriceRuleErrorCodeCustomerPrerequisitesMissing PriceRuleErrorCode = "CUSTOMER_PREREQUISITES_MISSING"
-	// Can't have both prerequisite customers and prerequisite segments.
-	PriceRuleErrorCodeBothCustomerAndSegmentPrerequisitesSelected PriceRuleErrorCode = "BOTH_CUSTOMER_AND_SEGMENT_PREREQUISITES_SELECTED"
-	// Can't have both saved searches and segments prerequisites.
-	PriceRuleErrorCodeBothSavedSearchAndSegmentPrerequisitesSelected PriceRuleErrorCode = "BOTH_SAVED_SEARCH_AND_SEGMENT_PREREQUISITES_SELECTED"
-	// The customer segment prerequisites exceeded the maximum number.
-	PriceRuleErrorCodeCustomerSegmentExceededMax PriceRuleErrorCode = "CUSTOMER_SEGMENT_EXCEEDED_MAX"
-	// The customer segment prerequisite ID is invalid.
-	PriceRuleErrorCodeCustomerSegmentInvalid PriceRuleErrorCode = "CUSTOMER_SEGMENT_INVALID"
-	// A duplicate customer segment prerequisite ID exists.
-	PriceRuleErrorCodeCustomerSegmentPrerequisiteDuplicate PriceRuleErrorCode = "CUSTOMER_SEGMENT_PREREQUISITE_DUPLICATE"
-	// Can't use collections as a prequisite in combination with product variants or products.
-	PriceRuleErrorCodeCannotPrerequisiteCollectionWithProductOrVariants PriceRuleErrorCode = "CANNOT_PREREQUISITE_COLLECTION_WITH_PRODUCT_OR_VARIANTS"
-	// Can't add the same collection twice.
-	PriceRuleErrorCodeItemPrerequisitesDuplicateCollection PriceRuleErrorCode = "ITEM_PREREQUISITES_DUPLICATE_COLLECTION"
-	// Can't add the same product twice.
-	PriceRuleErrorCodeItemPrerequisitesDuplicateProduct PriceRuleErrorCode = "ITEM_PREREQUISITES_DUPLICATE_PRODUCT"
-	// Can't add the same variant twice.
-	PriceRuleErrorCodeItemPrerequisitesDuplicateVariant PriceRuleErrorCode = "ITEM_PREREQUISITES_DUPLICATE_VARIANT"
-	// Can't exceed the maximum number of item prerequisites.
-	PriceRuleErrorCodeItemPrerequisitesExceededMax PriceRuleErrorCode = "ITEM_PREREQUISITES_EXCEEDED_MAX"
-	// Invalid collection.
-	PriceRuleErrorCodeItemPrerequisitesInvalidCollection PriceRuleErrorCode = "ITEM_PREREQUISITES_INVALID_COLLECTION"
-	// Invalid type.
-	PriceRuleErrorCodeItemPrerequisitesInvalidType PriceRuleErrorCode = "ITEM_PREREQUISITES_INVALID_TYPE"
-	// Invalid product.
-	PriceRuleErrorCodeItemPrerequisitesInvalidProduct PriceRuleErrorCode = "ITEM_PREREQUISITES_INVALID_PRODUCT"
-	// Invalid variant.
-	PriceRuleErrorCodeItemPrerequisitesInvalidVariant PriceRuleErrorCode = "ITEM_PREREQUISITES_INVALID_VARIANT"
-	// Item prerequisites must be empty if the prerequisite quantity ratio isn't defined.
-	PriceRuleErrorCodeItemPrerequisitesMustBeEmpty PriceRuleErrorCode = "ITEM_PREREQUISITES_MUST_BE_EMPTY"
-	// Item prerequisites must have at least one item prerequisite if the prerequisite quantity ratio is defined.
-	PriceRuleErrorCodeItemPrerequisitesMissing PriceRuleErrorCode = "ITEM_PREREQUISITES_MISSING"
-	// Can't entitle collections in combination with product variants or products.
-	PriceRuleErrorCodeCannotEntitleCollectionsWithProductsOrVariants PriceRuleErrorCode = "CANNOT_ENTITLE_COLLECTIONS_WITH_PRODUCTS_OR_VARIANTS"
-	// Can't add the same collection twice.
-	PriceRuleErrorCodeItemEntitlementsDuplicateCollection PriceRuleErrorCode = "ITEM_ENTITLEMENTS_DUPLICATE_COLLECTION"
-	// Can't add the same product twice.
-	PriceRuleErrorCodeItemEntitlementsDuplicateProduct PriceRuleErrorCode = "ITEM_ENTITLEMENTS_DUPLICATE_PRODUCT"
-	// Can't add the same collection twice.
-	PriceRuleErrorCodeItemEntitlementsDuplicateVariant PriceRuleErrorCode = "ITEM_ENTITLEMENTS_DUPLICATE_VARIANT"
-	// Can't exceed the maximum number of collection entitlements.
-	PriceRuleErrorCodeItemEntitlementsExceededMaxCollection PriceRuleErrorCode = "ITEM_ENTITLEMENTS_EXCEEDED_MAX_COLLECTION"
-	// Can't exceed the maximum number of product entitlements.
-	PriceRuleErrorCodeItemEntitlementsExceededMaxProduct PriceRuleErrorCode = "ITEM_ENTITLEMENTS_EXCEEDED_MAX_PRODUCT"
-	// Can't exceed the maximum number of variant entitlements.
-	PriceRuleErrorCodeItemEntitlementsExceededMaxVariant PriceRuleErrorCode = "ITEM_ENTITLEMENTS_EXCEEDED_MAX_VARIANT"
-	// Invalid entitlement type.
-	PriceRuleErrorCodeItemEntitlementInvalidType PriceRuleErrorCode = "ITEM_ENTITLEMENT_INVALID_TYPE"
-	// Invalid collection.
-	PriceRuleErrorCodeItemEntitlementsInvalidCollection PriceRuleErrorCode = "ITEM_ENTITLEMENTS_INVALID_COLLECTION"
-	// Invalid product.
-	PriceRuleErrorCodeItemEntitlementsInvalidProduct PriceRuleErrorCode = "ITEM_ENTITLEMENTS_INVALID_PRODUCT"
-	// Invalid variant.
-	PriceRuleErrorCodeItemEntitlementsInvalidVariant PriceRuleErrorCode = "ITEM_ENTITLEMENTS_INVALID_VARIANT"
-	// Invalid combination of target type and selection.
-	PriceRuleErrorCodeItemEntitlementsInvalidTargetTypeOrSelection PriceRuleErrorCode = "ITEM_ENTITLEMENTS_INVALID_TARGET_TYPE_OR_SELECTION"
-	// Entitlements are missing.
-	PriceRuleErrorCodeItemEntitlementsMissing PriceRuleErrorCode = "ITEM_ENTITLEMENTS_MISSING"
-	// The variant is already entitled through a product.
-	PriceRuleErrorCodeVariantAlreadyEntitledThroughProduct PriceRuleErrorCode = "VARIANT_ALREADY_ENTITLED_THROUGH_PRODUCT"
-	// A duplicate country code exists.
-	PriceRuleErrorCodeShippingEntitlementsDuplicateCountry PriceRuleErrorCode = "SHIPPING_ENTITLEMENTS_DUPLICATE_COUNTRY"
-	// Can't exceed the maximum number of entitlements.
-	PriceRuleErrorCodeShippingEntitlementsExceededMax PriceRuleErrorCode = "SHIPPING_ENTITLEMENTS_EXCEEDED_MAX"
-	// The country is unknown.
-	PriceRuleErrorCodeShippingEntitlementsInvalidCountry PriceRuleErrorCode = "SHIPPING_ENTITLEMENTS_INVALID_COUNTRY"
-	// Invalid target type or selection.
-	PriceRuleErrorCodeShippingEntitlementsInvalidTargetTypeOrSelection PriceRuleErrorCode = "SHIPPING_ENTITLEMENTS_INVALID_TARGET_TYPE_OR_SELECTION"
-	// Missing entitlements.
-	PriceRuleErrorCodeShippingEntitlementsMissing PriceRuleErrorCode = "SHIPPING_ENTITLEMENTS_MISSING"
-	// Unsupported destination type.
-	PriceRuleErrorCodeShippingEntitlementsUnsupportedDestinationType PriceRuleErrorCode = "SHIPPING_ENTITLEMENTS_UNSUPPORTED_DESTINATION_TYPE"
-	// The target type is invalid when defining a prerequisite shipping price range.
-	PriceRuleErrorCodeInvalidTargetTypePrerequisiteShippingPriceRange PriceRuleErrorCode = "INVALID_TARGET_TYPE_PREREQUISITE_SHIPPING_PRICE_RANGE"
-	// The `combinesWith` settings are invalid for the discount class.
-	PriceRuleErrorCodeInvalidCombinesWithForDiscountClass PriceRuleErrorCode = "INVALID_COMBINES_WITH_FOR_DISCOUNT_CLASS"
-	// The discountClass is invalid for the price rule.
-	PriceRuleErrorCodeInvalidDiscountClassForPriceRule PriceRuleErrorCode = "INVALID_DISCOUNT_CLASS_FOR_PRICE_RULE"
-)
-
-var AllPriceRuleErrorCode = []PriceRuleErrorCode{
-	PriceRuleErrorCodeBlank,
-	PriceRuleErrorCodeEqualTo,
-	PriceRuleErrorCodeGreaterThan,
-	PriceRuleErrorCodeGreaterThanOrEqualTo,
-	PriceRuleErrorCodeInvalid,
-	PriceRuleErrorCodeLessThan,
-	PriceRuleErrorCodeLessThanOrEqualTo,
-	PriceRuleErrorCodeTaken,
-	PriceRuleErrorCodeTooLong,
-	PriceRuleErrorCodeTooShort,
-	PriceRuleErrorCodeInternalError,
-	PriceRuleErrorCodeTooManyArguments,
-	PriceRuleErrorCodeMissingArgument,
-	PriceRuleErrorCodeExceededMax,
-	PriceRuleErrorCodePriceRuleAllocationLimitOnNonBogo,
-	PriceRuleErrorCodePriceRuleAllocationLimitIsZero,
-	PriceRuleErrorCodePriceRuleExceededMaxDiscountCode,
-	PriceRuleErrorCodeShopExceededMaxPriceRules,
-	PriceRuleErrorCodeEndDateBeforeStartDate,
-	PriceRuleErrorCodePriceRulePercentageValueOutsideRange,
-	PriceRuleErrorCodePrerequisiteSubtotalAndQuantityRangeBothPresent,
-	PriceRuleErrorCodeAllocationMethodMustBeAcrossForGivenTargetSelection,
-	PriceRuleErrorCodeAppliesOnNothing,
-	PriceRuleErrorCodeMultipleRecurringCycleLimitForNonSubscriptionItems,
-	PriceRuleErrorCodeBogoInvalidTargetSelection,
-	PriceRuleErrorCodeBogoInvalidTargetType,
-	PriceRuleErrorCodeBogoInvalidValueType,
-	PriceRuleErrorCodeDiscountCodeDuplicate,
-	PriceRuleErrorCodeBothCustomerAndSavedSearchPrerequisitesSelected,
-	PriceRuleErrorCodeCustomerSavedSearchDuplicate,
-	PriceRuleErrorCodeCustomerSavedSearchExceededMax,
-	PriceRuleErrorCodeCustomerSavedSearchInvalid,
-	PriceRuleErrorCodeCustomerPrerequisitesExceededMax,
-	PriceRuleErrorCodeCustomerPrerequisitesInvalidSelection,
-	PriceRuleErrorCodeCustomerPrerequisiteDuplicate,
-	PriceRuleErrorCodeCustomerPrerequisitesMissing,
-	PriceRuleErrorCodeBothCustomerAndSegmentPrerequisitesSelected,
-	PriceRuleErrorCodeBothSavedSearchAndSegmentPrerequisitesSelected,
-	PriceRuleErrorCodeCustomerSegmentExceededMax,
-	PriceRuleErrorCodeCustomerSegmentInvalid,
-	PriceRuleErrorCodeCustomerSegmentPrerequisiteDuplicate,
-	PriceRuleErrorCodeCannotPrerequisiteCollectionWithProductOrVariants,
-	PriceRuleErrorCodeItemPrerequisitesDuplicateCollection,
-	PriceRuleErrorCodeItemPrerequisitesDuplicateProduct,
-	PriceRuleErrorCodeItemPrerequisitesDuplicateVariant,
-	PriceRuleErrorCodeItemPrerequisitesExceededMax,
-	PriceRuleErrorCodeItemPrerequisitesInvalidCollection,
-	PriceRuleErrorCodeItemPrerequisitesInvalidType,
-	PriceRuleErrorCodeItemPrerequisitesInvalidProduct,
-	PriceRuleErrorCodeItemPrerequisitesInvalidVariant,
-	PriceRuleErrorCodeItemPrerequisitesMustBeEmpty,
-	PriceRuleErrorCodeItemPrerequisitesMissing,
-	PriceRuleErrorCodeCannotEntitleCollectionsWithProductsOrVariants,
-	PriceRuleErrorCodeItemEntitlementsDuplicateCollection,
-	PriceRuleErrorCodeItemEntitlementsDuplicateProduct,
-	PriceRuleErrorCodeItemEntitlementsDuplicateVariant,
-	PriceRuleErrorCodeItemEntitlementsExceededMaxCollection,
-	PriceRuleErrorCodeItemEntitlementsExceededMaxProduct,
-	PriceRuleErrorCodeItemEntitlementsExceededMaxVariant,
-	PriceRuleErrorCodeItemEntitlementInvalidType,
-	PriceRuleErrorCodeItemEntitlementsInvalidCollection,
-	PriceRuleErrorCodeItemEntitlementsInvalidProduct,
-	PriceRuleErrorCodeItemEntitlementsInvalidVariant,
-	PriceRuleErrorCodeItemEntitlementsInvalidTargetTypeOrSelection,
-	PriceRuleErrorCodeItemEntitlementsMissing,
-	PriceRuleErrorCodeVariantAlreadyEntitledThroughProduct,
-	PriceRuleErrorCodeShippingEntitlementsDuplicateCountry,
-	PriceRuleErrorCodeShippingEntitlementsExceededMax,
-	PriceRuleErrorCodeShippingEntitlementsInvalidCountry,
-	PriceRuleErrorCodeShippingEntitlementsInvalidTargetTypeOrSelection,
-	PriceRuleErrorCodeShippingEntitlementsMissing,
-	PriceRuleErrorCodeShippingEntitlementsUnsupportedDestinationType,
-	PriceRuleErrorCodeInvalidTargetTypePrerequisiteShippingPriceRange,
-	PriceRuleErrorCodeInvalidCombinesWithForDiscountClass,
-	PriceRuleErrorCodeInvalidDiscountClassForPriceRule,
-}
-
-func (e PriceRuleErrorCode) IsValid() bool {
-	switch e {
-	case PriceRuleErrorCodeBlank, PriceRuleErrorCodeEqualTo, PriceRuleErrorCodeGreaterThan, PriceRuleErrorCodeGreaterThanOrEqualTo, PriceRuleErrorCodeInvalid, PriceRuleErrorCodeLessThan, PriceRuleErrorCodeLessThanOrEqualTo, PriceRuleErrorCodeTaken, PriceRuleErrorCodeTooLong, PriceRuleErrorCodeTooShort, PriceRuleErrorCodeInternalError, PriceRuleErrorCodeTooManyArguments, PriceRuleErrorCodeMissingArgument, PriceRuleErrorCodeExceededMax, PriceRuleErrorCodePriceRuleAllocationLimitOnNonBogo, PriceRuleErrorCodePriceRuleAllocationLimitIsZero, PriceRuleErrorCodePriceRuleExceededMaxDiscountCode, PriceRuleErrorCodeShopExceededMaxPriceRules, PriceRuleErrorCodeEndDateBeforeStartDate, PriceRuleErrorCodePriceRulePercentageValueOutsideRange, PriceRuleErrorCodePrerequisiteSubtotalAndQuantityRangeBothPresent, PriceRuleErrorCodeAllocationMethodMustBeAcrossForGivenTargetSelection, PriceRuleErrorCodeAppliesOnNothing, PriceRuleErrorCodeMultipleRecurringCycleLimitForNonSubscriptionItems, PriceRuleErrorCodeBogoInvalidTargetSelection, PriceRuleErrorCodeBogoInvalidTargetType, PriceRuleErrorCodeBogoInvalidValueType, PriceRuleErrorCodeDiscountCodeDuplicate, PriceRuleErrorCodeBothCustomerAndSavedSearchPrerequisitesSelected, PriceRuleErrorCodeCustomerSavedSearchDuplicate, PriceRuleErrorCodeCustomerSavedSearchExceededMax, PriceRuleErrorCodeCustomerSavedSearchInvalid, PriceRuleErrorCodeCustomerPrerequisitesExceededMax, PriceRuleErrorCodeCustomerPrerequisitesInvalidSelection, PriceRuleErrorCodeCustomerPrerequisiteDuplicate, PriceRuleErrorCodeCustomerPrerequisitesMissing, PriceRuleErrorCodeBothCustomerAndSegmentPrerequisitesSelected, PriceRuleErrorCodeBothSavedSearchAndSegmentPrerequisitesSelected, PriceRuleErrorCodeCustomerSegmentExceededMax, PriceRuleErrorCodeCustomerSegmentInvalid, PriceRuleErrorCodeCustomerSegmentPrerequisiteDuplicate, PriceRuleErrorCodeCannotPrerequisiteCollectionWithProductOrVariants, PriceRuleErrorCodeItemPrerequisitesDuplicateCollection, PriceRuleErrorCodeItemPrerequisitesDuplicateProduct, PriceRuleErrorCodeItemPrerequisitesDuplicateVariant, PriceRuleErrorCodeItemPrerequisitesExceededMax, PriceRuleErrorCodeItemPrerequisitesInvalidCollection, PriceRuleErrorCodeItemPrerequisitesInvalidType, PriceRuleErrorCodeItemPrerequisitesInvalidProduct, PriceRuleErrorCodeItemPrerequisitesInvalidVariant, PriceRuleErrorCodeItemPrerequisitesMustBeEmpty, PriceRuleErrorCodeItemPrerequisitesMissing, PriceRuleErrorCodeCannotEntitleCollectionsWithProductsOrVariants, PriceRuleErrorCodeItemEntitlementsDuplicateCollection, PriceRuleErrorCodeItemEntitlementsDuplicateProduct, PriceRuleErrorCodeItemEntitlementsDuplicateVariant, PriceRuleErrorCodeItemEntitlementsExceededMaxCollection, PriceRuleErrorCodeItemEntitlementsExceededMaxProduct, PriceRuleErrorCodeItemEntitlementsExceededMaxVariant, PriceRuleErrorCodeItemEntitlementInvalidType, PriceRuleErrorCodeItemEntitlementsInvalidCollection, PriceRuleErrorCodeItemEntitlementsInvalidProduct, PriceRuleErrorCodeItemEntitlementsInvalidVariant, PriceRuleErrorCodeItemEntitlementsInvalidTargetTypeOrSelection, PriceRuleErrorCodeItemEntitlementsMissing, PriceRuleErrorCodeVariantAlreadyEntitledThroughProduct, PriceRuleErrorCodeShippingEntitlementsDuplicateCountry, PriceRuleErrorCodeShippingEntitlementsExceededMax, PriceRuleErrorCodeShippingEntitlementsInvalidCountry, PriceRuleErrorCodeShippingEntitlementsInvalidTargetTypeOrSelection, PriceRuleErrorCodeShippingEntitlementsMissing, PriceRuleErrorCodeShippingEntitlementsUnsupportedDestinationType, PriceRuleErrorCodeInvalidTargetTypePrerequisiteShippingPriceRange, PriceRuleErrorCodeInvalidCombinesWithForDiscountClass, PriceRuleErrorCodeInvalidDiscountClassForPriceRule:
-		return true
-	}
-	return false
-}
-
-func (e PriceRuleErrorCode) String() string {
-	return string(e)
-}
-
-func (e *PriceRuleErrorCode) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = PriceRuleErrorCode(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid PriceRuleErrorCode", str)
-	}
-	return nil
-}
-
-func (e PriceRuleErrorCode) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 // The list of features that can be supported by a price rule.
 type PriceRuleFeature string
 
@@ -52063,66 +56668,6 @@ func (e *PriceRuleShareableURLTargetType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e PriceRuleShareableURLTargetType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// The set of valid sort keys for the PriceRule query.
-type PriceRuleSortKeys string
-
-const (
-	// Sort by the `starts_at` value.
-	PriceRuleSortKeysStartsAt PriceRuleSortKeys = "STARTS_AT"
-	// Sort by the `ends_at` value.
-	PriceRuleSortKeysEndsAt PriceRuleSortKeys = "ENDS_AT"
-	// Sort by the `title` value.
-	PriceRuleSortKeysTitle PriceRuleSortKeys = "TITLE"
-	// Sort by the `created_at` value.
-	PriceRuleSortKeysCreatedAt PriceRuleSortKeys = "CREATED_AT"
-	// Sort by the `updated_at` value.
-	PriceRuleSortKeysUpdatedAt PriceRuleSortKeys = "UPDATED_AT"
-	// Sort by the `id` value.
-	PriceRuleSortKeysID PriceRuleSortKeys = "ID"
-	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
-	// Don't use this sort key when no search query is specified.
-	PriceRuleSortKeysRelevance PriceRuleSortKeys = "RELEVANCE"
-)
-
-var AllPriceRuleSortKeys = []PriceRuleSortKeys{
-	PriceRuleSortKeysStartsAt,
-	PriceRuleSortKeysEndsAt,
-	PriceRuleSortKeysTitle,
-	PriceRuleSortKeysCreatedAt,
-	PriceRuleSortKeysUpdatedAt,
-	PriceRuleSortKeysID,
-	PriceRuleSortKeysRelevance,
-}
-
-func (e PriceRuleSortKeys) IsValid() bool {
-	switch e {
-	case PriceRuleSortKeysStartsAt, PriceRuleSortKeysEndsAt, PriceRuleSortKeysTitle, PriceRuleSortKeysCreatedAt, PriceRuleSortKeysUpdatedAt, PriceRuleSortKeysID, PriceRuleSortKeysRelevance:
-		return true
-	}
-	return false
-}
-
-func (e PriceRuleSortKeys) String() string {
-	return string(e)
-}
-
-func (e *PriceRuleSortKeys) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = PriceRuleSortKeys(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid PriceRuleSortKeys", str)
-	}
-	return nil
-}
-
-func (e PriceRuleSortKeys) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -52524,106 +57069,6 @@ func (e ProductCollectionSortKeys) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
-// Possible error codes that can be returned by `ProductDeleteUserError`.
-type ProductDeleteUserErrorCode string
-
-const (
-	// Product does not exist.
-	ProductDeleteUserErrorCodeProductDoesNotExist ProductDeleteUserErrorCode = "PRODUCT_DOES_NOT_EXIST"
-	// Something went wrong, please try again.
-	ProductDeleteUserErrorCodeGenericError ProductDeleteUserErrorCode = "GENERIC_ERROR"
-)
-
-var AllProductDeleteUserErrorCode = []ProductDeleteUserErrorCode{
-	ProductDeleteUserErrorCodeProductDoesNotExist,
-	ProductDeleteUserErrorCodeGenericError,
-}
-
-func (e ProductDeleteUserErrorCode) IsValid() bool {
-	switch e {
-	case ProductDeleteUserErrorCodeProductDoesNotExist, ProductDeleteUserErrorCodeGenericError:
-		return true
-	}
-	return false
-}
-
-func (e ProductDeleteUserErrorCode) String() string {
-	return string(e)
-}
-
-func (e *ProductDeleteUserErrorCode) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ProductDeleteUserErrorCode(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ProductDeleteUserErrorCode", str)
-	}
-	return nil
-}
-
-func (e ProductDeleteUserErrorCode) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// Possible error codes that can be returned by `ProductDuplicateUserError`.
-type ProductDuplicateUserErrorCode string
-
-const (
-	// The product does not exist.
-	ProductDuplicateUserErrorCodeProductDoesNotExist ProductDuplicateUserErrorCode = "PRODUCT_DOES_NOT_EXIST"
-	// Cannot duplicate a product which has no variants.
-	ProductDuplicateUserErrorCodeEmptyVariant ProductDuplicateUserErrorCode = "EMPTY_VARIANT"
-	// The title cannot be empty.
-	ProductDuplicateUserErrorCodeEmptyTitle ProductDuplicateUserErrorCode = "EMPTY_TITLE"
-	// Cannot duplicate a bundle product.
-	ProductDuplicateUserErrorCodeBundlesError ProductDuplicateUserErrorCode = "BUNDLES_ERROR"
-	// Something went wrong, please try again.
-	ProductDuplicateUserErrorCodeGenericError ProductDuplicateUserErrorCode = "GENERIC_ERROR"
-	// Something went wrong when saving the product, please try again.
-	ProductDuplicateUserErrorCodeFailedToSave ProductDuplicateUserErrorCode = "FAILED_TO_SAVE"
-)
-
-var AllProductDuplicateUserErrorCode = []ProductDuplicateUserErrorCode{
-	ProductDuplicateUserErrorCodeProductDoesNotExist,
-	ProductDuplicateUserErrorCodeEmptyVariant,
-	ProductDuplicateUserErrorCodeEmptyTitle,
-	ProductDuplicateUserErrorCodeBundlesError,
-	ProductDuplicateUserErrorCodeGenericError,
-	ProductDuplicateUserErrorCodeFailedToSave,
-}
-
-func (e ProductDuplicateUserErrorCode) IsValid() bool {
-	switch e {
-	case ProductDuplicateUserErrorCodeProductDoesNotExist, ProductDuplicateUserErrorCodeEmptyVariant, ProductDuplicateUserErrorCodeEmptyTitle, ProductDuplicateUserErrorCodeBundlesError, ProductDuplicateUserErrorCodeGenericError, ProductDuplicateUserErrorCodeFailedToSave:
-		return true
-	}
-	return false
-}
-
-func (e ProductDuplicateUserErrorCode) String() string {
-	return string(e)
-}
-
-func (e *ProductDuplicateUserErrorCode) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ProductDuplicateUserErrorCode(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ProductDuplicateUserErrorCode", str)
-	}
-	return nil
-}
-
-func (e ProductDuplicateUserErrorCode) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
 // Possible error codes that can be returned by `ProductFeedCreateUserError`.
 type ProductFeedCreateUserErrorCode string
 
@@ -52940,6 +57385,52 @@ func (e ProductOperationStatus) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// The set of variant strategies available for use in the `productOptionsCreate` mutation.
+type ProductOptionCreateVariantStrategy string
+
+const (
+	// No additional variants are created in response to the added options. Existing variants are updated with the
+	// first option value of each option added.
+	ProductOptionCreateVariantStrategyLeaveAsIs ProductOptionCreateVariantStrategy = "LEAVE_AS_IS"
+	// Existing variants are updated with the first option value of each added option. New variants are
+	// created for each combination of existing variant option values and new option values.
+	ProductOptionCreateVariantStrategyCreate ProductOptionCreateVariantStrategy = "CREATE"
+)
+
+var AllProductOptionCreateVariantStrategy = []ProductOptionCreateVariantStrategy{
+	ProductOptionCreateVariantStrategyLeaveAsIs,
+	ProductOptionCreateVariantStrategyCreate,
+}
+
+func (e ProductOptionCreateVariantStrategy) IsValid() bool {
+	switch e {
+	case ProductOptionCreateVariantStrategyLeaveAsIs, ProductOptionCreateVariantStrategyCreate:
+		return true
+	}
+	return false
+}
+
+func (e ProductOptionCreateVariantStrategy) String() string {
+	return string(e)
+}
+
+func (e *ProductOptionCreateVariantStrategy) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ProductOptionCreateVariantStrategy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ProductOptionCreateVariantStrategy", str)
+	}
+	return nil
+}
+
+func (e ProductOptionCreateVariantStrategy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The set of strategies available for use on the `productOptionDelete` mutation.
 type ProductOptionDeleteStrategy string
 
@@ -53049,6 +57540,8 @@ const (
 	ProductOptionUpdateUserErrorCodeUnsupportedCombinedListingParentOperation ProductOptionUpdateUserErrorCode = "UNSUPPORTED_COMBINED_LISTING_PARENT_OPERATION"
 	// Cannot update the option because it would result in deleting variants, and you don't have the required permissions.
 	ProductOptionUpdateUserErrorCodeCannotDeleteVariantWithoutPermission ProductOptionUpdateUserErrorCode = "CANNOT_DELETE_VARIANT_WITHOUT_PERMISSION"
+	// The number of option values created with the MANAGE strategy would exceed the variant limit.
+	ProductOptionUpdateUserErrorCodeTooManyVariantsCreated ProductOptionUpdateUserErrorCode = "TOO_MANY_VARIANTS_CREATED"
 )
 
 var AllProductOptionUpdateUserErrorCode = []ProductOptionUpdateUserErrorCode{
@@ -53081,11 +57574,12 @@ var AllProductOptionUpdateUserErrorCode = []ProductOptionUpdateUserErrorCode{
 	ProductOptionUpdateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku,
 	ProductOptionUpdateUserErrorCodeUnsupportedCombinedListingParentOperation,
 	ProductOptionUpdateUserErrorCodeCannotDeleteVariantWithoutPermission,
+	ProductOptionUpdateUserErrorCodeTooManyVariantsCreated,
 }
 
 func (e ProductOptionUpdateUserErrorCode) IsValid() bool {
 	switch e {
-	case ProductOptionUpdateUserErrorCodeProductDoesNotExist, ProductOptionUpdateUserErrorCodeProductSuspended, ProductOptionUpdateUserErrorCodeOptionDoesNotExist, ProductOptionUpdateUserErrorCodeOptionAlreadyExists, ProductOptionUpdateUserErrorCodeInvalidPosition, ProductOptionUpdateUserErrorCodeInvalidName, ProductOptionUpdateUserErrorCodeOptionValuesOverLimit, ProductOptionUpdateUserErrorCodeOptionValueDoesNotExist, ProductOptionUpdateUserErrorCodeOptionValueAlreadyExists, ProductOptionUpdateUserErrorCodeOptionValueHasVariants, ProductOptionUpdateUserErrorCodeCannotDeleteAllOptionValuesInOption, ProductOptionUpdateUserErrorCodeCannotLeaveOptionsWithoutVariants, ProductOptionUpdateUserErrorCodeNoKeyOnCreate, ProductOptionUpdateUserErrorCodeKeyMissingInInput, ProductOptionUpdateUserErrorCodeDuplicatedOptionValue, ProductOptionUpdateUserErrorCodeOptionNameTooLong, ProductOptionUpdateUserErrorCodeOptionValueNameTooLong, ProductOptionUpdateUserErrorCodeOptionValueConflictingOperation, ProductOptionUpdateUserErrorCodeCannotCreateVariantsAboveLimit, ProductOptionUpdateUserErrorCodeCannotCombineLinkedAndNonlinkedOptionValues, ProductOptionUpdateUserErrorCodeInvalidMetafieldValueForLinkedOption, ProductOptionUpdateUserErrorCodeDuplicateLinkedOption, ProductOptionUpdateUserErrorCodeOptionLinkedMetafieldAlreadyTaken, ProductOptionUpdateUserErrorCodeLinkedOptionUpdateMissingValues, ProductOptionUpdateUserErrorCodeLinkedOptionsNotSupportedForShop, ProductOptionUpdateUserErrorCodeLinkedMetafieldDefinitionNotFound, ProductOptionUpdateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku, ProductOptionUpdateUserErrorCodeUnsupportedCombinedListingParentOperation, ProductOptionUpdateUserErrorCodeCannotDeleteVariantWithoutPermission:
+	case ProductOptionUpdateUserErrorCodeProductDoesNotExist, ProductOptionUpdateUserErrorCodeProductSuspended, ProductOptionUpdateUserErrorCodeOptionDoesNotExist, ProductOptionUpdateUserErrorCodeOptionAlreadyExists, ProductOptionUpdateUserErrorCodeInvalidPosition, ProductOptionUpdateUserErrorCodeInvalidName, ProductOptionUpdateUserErrorCodeOptionValuesOverLimit, ProductOptionUpdateUserErrorCodeOptionValueDoesNotExist, ProductOptionUpdateUserErrorCodeOptionValueAlreadyExists, ProductOptionUpdateUserErrorCodeOptionValueHasVariants, ProductOptionUpdateUserErrorCodeCannotDeleteAllOptionValuesInOption, ProductOptionUpdateUserErrorCodeCannotLeaveOptionsWithoutVariants, ProductOptionUpdateUserErrorCodeNoKeyOnCreate, ProductOptionUpdateUserErrorCodeKeyMissingInInput, ProductOptionUpdateUserErrorCodeDuplicatedOptionValue, ProductOptionUpdateUserErrorCodeOptionNameTooLong, ProductOptionUpdateUserErrorCodeOptionValueNameTooLong, ProductOptionUpdateUserErrorCodeOptionValueConflictingOperation, ProductOptionUpdateUserErrorCodeCannotCreateVariantsAboveLimit, ProductOptionUpdateUserErrorCodeCannotCombineLinkedAndNonlinkedOptionValues, ProductOptionUpdateUserErrorCodeInvalidMetafieldValueForLinkedOption, ProductOptionUpdateUserErrorCodeDuplicateLinkedOption, ProductOptionUpdateUserErrorCodeOptionLinkedMetafieldAlreadyTaken, ProductOptionUpdateUserErrorCodeLinkedOptionUpdateMissingValues, ProductOptionUpdateUserErrorCodeLinkedOptionsNotSupportedForShop, ProductOptionUpdateUserErrorCodeLinkedMetafieldDefinitionNotFound, ProductOptionUpdateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku, ProductOptionUpdateUserErrorCodeUnsupportedCombinedListingParentOperation, ProductOptionUpdateUserErrorCodeCannotDeleteVariantWithoutPermission, ProductOptionUpdateUserErrorCodeTooManyVariantsCreated:
 		return true
 	}
 	return false
@@ -53212,6 +57706,10 @@ const (
 	ProductOptionsCreateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku ProductOptionsCreateUserErrorCode = "CANNOT_MAKE_CHANGES_IF_VARIANT_IS_MISSING_REQUIRED_SKU"
 	// Operation is not supported for a combined listing parent product.
 	ProductOptionsCreateUserErrorCodeUnsupportedCombinedListingParentOperation ProductOptionsCreateUserErrorCode = "UNSUPPORTED_COMBINED_LISTING_PARENT_OPERATION"
+	// Cannot specify 'linkedMetafieldValue' for an option that is not linked to a metafield.
+	ProductOptionsCreateUserErrorCodeLinkedMetafieldValueWithoutLinkedOption ProductOptionsCreateUserErrorCode = "LINKED_METAFIELD_VALUE_WITHOUT_LINKED_OPTION"
+	// The number of option values created with the CREATE strategy would exceed the variant limit.
+	ProductOptionsCreateUserErrorCodeTooManyVariantsCreated ProductOptionsCreateUserErrorCode = "TOO_MANY_VARIANTS_CREATED"
 )
 
 var AllProductOptionsCreateUserErrorCode = []ProductOptionsCreateUserErrorCode{
@@ -53237,11 +57735,13 @@ var AllProductOptionsCreateUserErrorCode = []ProductOptionsCreateUserErrorCode{
 	ProductOptionsCreateUserErrorCodeLinkedOptionsNotSupportedForShop,
 	ProductOptionsCreateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku,
 	ProductOptionsCreateUserErrorCodeUnsupportedCombinedListingParentOperation,
+	ProductOptionsCreateUserErrorCodeLinkedMetafieldValueWithoutLinkedOption,
+	ProductOptionsCreateUserErrorCodeTooManyVariantsCreated,
 }
 
 func (e ProductOptionsCreateUserErrorCode) IsValid() bool {
 	switch e {
-	case ProductOptionsCreateUserErrorCodeOptionAlreadyExists, ProductOptionsCreateUserErrorCodeOptionsOverLimit, ProductOptionsCreateUserErrorCodeOptionValuesOverLimit, ProductOptionsCreateUserErrorCodeInvalidName, ProductOptionsCreateUserErrorCodeProductSuspended, ProductOptionsCreateUserErrorCodeNewOptionWithoutValueForExistingVariants, ProductOptionsCreateUserErrorCodeDuplicatedOptionName, ProductOptionsCreateUserErrorCodeDuplicatedOptionValue, ProductOptionsCreateUserErrorCodeOptionNameMissing, ProductOptionsCreateUserErrorCodeOptionValuesMissing, ProductOptionsCreateUserErrorCodePositionOutOfBounds, ProductOptionsCreateUserErrorCodeOptionPositionMissing, ProductOptionsCreateUserErrorCodeProductDoesNotExist, ProductOptionsCreateUserErrorCodeLinkedMetafieldDefinitionNotFound, ProductOptionsCreateUserErrorCodeInvalidMetafieldValueForLinkedOption, ProductOptionsCreateUserErrorCodeMissingMetafieldValuesForLinkedOption, ProductOptionsCreateUserErrorCodeCannotCombineLinkedMetafieldAndOptionValues, ProductOptionsCreateUserErrorCodeDuplicateLinkedOption, ProductOptionsCreateUserErrorCodeOptionLinkedMetafieldAlreadyTaken, ProductOptionsCreateUserErrorCodeLinkedOptionsNotSupportedForShop, ProductOptionsCreateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku, ProductOptionsCreateUserErrorCodeUnsupportedCombinedListingParentOperation:
+	case ProductOptionsCreateUserErrorCodeOptionAlreadyExists, ProductOptionsCreateUserErrorCodeOptionsOverLimit, ProductOptionsCreateUserErrorCodeOptionValuesOverLimit, ProductOptionsCreateUserErrorCodeInvalidName, ProductOptionsCreateUserErrorCodeProductSuspended, ProductOptionsCreateUserErrorCodeNewOptionWithoutValueForExistingVariants, ProductOptionsCreateUserErrorCodeDuplicatedOptionName, ProductOptionsCreateUserErrorCodeDuplicatedOptionValue, ProductOptionsCreateUserErrorCodeOptionNameMissing, ProductOptionsCreateUserErrorCodeOptionValuesMissing, ProductOptionsCreateUserErrorCodePositionOutOfBounds, ProductOptionsCreateUserErrorCodeOptionPositionMissing, ProductOptionsCreateUserErrorCodeProductDoesNotExist, ProductOptionsCreateUserErrorCodeLinkedMetafieldDefinitionNotFound, ProductOptionsCreateUserErrorCodeInvalidMetafieldValueForLinkedOption, ProductOptionsCreateUserErrorCodeMissingMetafieldValuesForLinkedOption, ProductOptionsCreateUserErrorCodeCannotCombineLinkedMetafieldAndOptionValues, ProductOptionsCreateUserErrorCodeDuplicateLinkedOption, ProductOptionsCreateUserErrorCodeOptionLinkedMetafieldAlreadyTaken, ProductOptionsCreateUserErrorCodeLinkedOptionsNotSupportedForShop, ProductOptionsCreateUserErrorCodeCannotMakeChangesIfVariantIsMissingRequiredSku, ProductOptionsCreateUserErrorCodeUnsupportedCombinedListingParentOperation, ProductOptionsCreateUserErrorCodeLinkedMetafieldValueWithoutLinkedOption, ProductOptionsCreateUserErrorCodeTooManyVariantsCreated:
 		return true
 	}
 	return false
@@ -53450,6 +57950,16 @@ const (
 	ProductSetUserErrorCodeJobError ProductSetUserErrorCode = "JOB_ERROR"
 	// The metafield violates a capability restriction.
 	ProductSetUserErrorCodeCapabilityViolation ProductSetUserErrorCode = "CAPABILITY_VIOLATION"
+	// An option cannot have both metafield linked and nonlinked option values.
+	ProductSetUserErrorCodeCannotCombineLinkedAndNonlinkedOptionValues ProductSetUserErrorCode = "CANNOT_COMBINE_LINKED_AND_NONLINKED_OPTION_VALUES"
+	// Invalid metafield value for linked option.
+	ProductSetUserErrorCodeInvalidMetafieldValueForLinkedOption ProductSetUserErrorCode = "INVALID_METAFIELD_VALUE_FOR_LINKED_OPTION"
+	// Cannot link multiple options to the same metafield.
+	ProductSetUserErrorCodeDuplicateLinkedOption ProductSetUserErrorCode = "DUPLICATE_LINKED_OPTION"
+	// Linked options are currently not supported for this shop.
+	ProductSetUserErrorCodeLinkedOptionsNotSupportedForShop ProductSetUserErrorCode = "LINKED_OPTIONS_NOT_SUPPORTED_FOR_SHOP"
+	// No valid metafield definition found for linked option.
+	ProductSetUserErrorCodeLinkedMetafieldDefinitionNotFound ProductSetUserErrorCode = "LINKED_METAFIELD_DEFINITION_NOT_FOUND"
 	// Duplicated value.
 	ProductSetUserErrorCodeDuplicatedValue ProductSetUserErrorCode = "DUPLICATED_VALUE"
 )
@@ -53476,12 +57986,17 @@ var AllProductSetUserErrorCode = []ProductSetUserErrorCode{
 	ProductSetUserErrorCodeInvalidInput,
 	ProductSetUserErrorCodeJobError,
 	ProductSetUserErrorCodeCapabilityViolation,
+	ProductSetUserErrorCodeCannotCombineLinkedAndNonlinkedOptionValues,
+	ProductSetUserErrorCodeInvalidMetafieldValueForLinkedOption,
+	ProductSetUserErrorCodeDuplicateLinkedOption,
+	ProductSetUserErrorCodeLinkedOptionsNotSupportedForShop,
+	ProductSetUserErrorCodeLinkedMetafieldDefinitionNotFound,
 	ProductSetUserErrorCodeDuplicatedValue,
 }
 
 func (e ProductSetUserErrorCode) IsValid() bool {
 	switch e {
-	case ProductSetUserErrorCodeGenericError, ProductSetUserErrorCodeInvalidMetafield, ProductSetUserErrorCodeInvalidVariant, ProductSetUserErrorCodeProductDoesNotExist, ProductSetUserErrorCodeProductVariantDoesNotExist, ProductSetUserErrorCodeOptionDoesNotExist, ProductSetUserErrorCodeOptionValueDoesNotExist, ProductSetUserErrorCodeOptionsOverLimit, ProductSetUserErrorCodeOptionValuesOverLimit, ProductSetUserErrorCodeOptionValuesMissing, ProductSetUserErrorCodeDuplicatedOptionName, ProductSetUserErrorCodeDuplicatedOptionValue, ProductSetUserErrorCodeVariantsOverLimit, ProductSetUserErrorCodeProductOptionsInputMissing, ProductSetUserErrorCodeVariantsInputMissing, ProductSetUserErrorCodeGiftCardsNotActivated, ProductSetUserErrorCodeGiftCardAttributeCannotBeChanged, ProductSetUserErrorCodeInvalidProduct, ProductSetUserErrorCodeInvalidInput, ProductSetUserErrorCodeJobError, ProductSetUserErrorCodeCapabilityViolation, ProductSetUserErrorCodeDuplicatedValue:
+	case ProductSetUserErrorCodeGenericError, ProductSetUserErrorCodeInvalidMetafield, ProductSetUserErrorCodeInvalidVariant, ProductSetUserErrorCodeProductDoesNotExist, ProductSetUserErrorCodeProductVariantDoesNotExist, ProductSetUserErrorCodeOptionDoesNotExist, ProductSetUserErrorCodeOptionValueDoesNotExist, ProductSetUserErrorCodeOptionsOverLimit, ProductSetUserErrorCodeOptionValuesOverLimit, ProductSetUserErrorCodeOptionValuesMissing, ProductSetUserErrorCodeDuplicatedOptionName, ProductSetUserErrorCodeDuplicatedOptionValue, ProductSetUserErrorCodeVariantsOverLimit, ProductSetUserErrorCodeProductOptionsInputMissing, ProductSetUserErrorCodeVariantsInputMissing, ProductSetUserErrorCodeGiftCardsNotActivated, ProductSetUserErrorCodeGiftCardAttributeCannotBeChanged, ProductSetUserErrorCodeInvalidProduct, ProductSetUserErrorCodeInvalidInput, ProductSetUserErrorCodeJobError, ProductSetUserErrorCodeCapabilityViolation, ProductSetUserErrorCodeCannotCombineLinkedAndNonlinkedOptionValues, ProductSetUserErrorCodeInvalidMetafieldValueForLinkedOption, ProductSetUserErrorCodeDuplicateLinkedOption, ProductSetUserErrorCodeLinkedOptionsNotSupportedForShop, ProductSetUserErrorCodeLinkedMetafieldDefinitionNotFound, ProductSetUserErrorCodeDuplicatedValue:
 		return true
 	}
 	return false
@@ -53530,7 +58045,7 @@ const (
 	ProductSortKeysID ProductSortKeys = "ID"
 	// Sort by relevance to the search terms when the `query` parameter is specified on the connection.
 	// Don't use this sort key when no search query is specified.
-	// Pagination isn't supported when using this sort key.
+	// [Pagination](https://shopify.dev/api/usage/pagination-graphql) isn't supported when using this sort key.
 	ProductSortKeysRelevance ProductSortKeys = "RELEVANCE"
 )
 
@@ -55813,10 +60328,13 @@ const (
 	SearchResultTypeProduct    SearchResultType = "PRODUCT"
 	SearchResultTypeCollection SearchResultType = "COLLECTION"
 	// A file.
-	SearchResultTypeFile               SearchResultType = "FILE"
-	SearchResultTypeOnlineStorePage    SearchResultType = "ONLINE_STORE_PAGE"
-	SearchResultTypeOnlineStoreBlog    SearchResultType = "ONLINE_STORE_BLOG"
-	SearchResultTypeOnlineStoreArticle SearchResultType = "ONLINE_STORE_ARTICLE"
+	SearchResultTypeFile SearchResultType = "FILE"
+	// A page.
+	SearchResultTypePage SearchResultType = "PAGE"
+	// A blog.
+	SearchResultTypeBlog SearchResultType = "BLOG"
+	// An article.
+	SearchResultTypeArticle SearchResultType = "ARTICLE"
 	// A URL redirect.
 	SearchResultTypeURLRedirect SearchResultType = "URL_REDIRECT"
 	SearchResultTypePriceRule   SearchResultType = "PRICE_RULE"
@@ -55833,9 +60351,9 @@ var AllSearchResultType = []SearchResultType{
 	SearchResultTypeProduct,
 	SearchResultTypeCollection,
 	SearchResultTypeFile,
-	SearchResultTypeOnlineStorePage,
-	SearchResultTypeOnlineStoreBlog,
-	SearchResultTypeOnlineStoreArticle,
+	SearchResultTypePage,
+	SearchResultTypeBlog,
+	SearchResultTypeArticle,
 	SearchResultTypeURLRedirect,
 	SearchResultTypePriceRule,
 	SearchResultTypeDiscountRedeemCode,
@@ -55845,7 +60363,7 @@ var AllSearchResultType = []SearchResultType{
 
 func (e SearchResultType) IsValid() bool {
 	switch e {
-	case SearchResultTypeCustomer, SearchResultTypeDraftOrder, SearchResultTypeProduct, SearchResultTypeCollection, SearchResultTypeFile, SearchResultTypeOnlineStorePage, SearchResultTypeOnlineStoreBlog, SearchResultTypeOnlineStoreArticle, SearchResultTypeURLRedirect, SearchResultTypePriceRule, SearchResultTypeDiscountRedeemCode, SearchResultTypeOrder, SearchResultTypeBalanceTransaction:
+	case SearchResultTypeCustomer, SearchResultTypeDraftOrder, SearchResultTypeProduct, SearchResultTypeCollection, SearchResultTypeFile, SearchResultTypePage, SearchResultTypeBlog, SearchResultTypeArticle, SearchResultTypeURLRedirect, SearchResultTypePriceRule, SearchResultTypeDiscountRedeemCode, SearchResultTypeOrder, SearchResultTypeBalanceTransaction:
 		return true
 	}
 	return false
@@ -57050,7 +61568,7 @@ const (
 	ShopPolicyTypeTermsOfSale ShopPolicyType = "TERMS_OF_SALE"
 	// The legal notice.
 	ShopPolicyTypeLegalNotice ShopPolicyType = "LEGAL_NOTICE"
-	// The purchase options cancellation policy.
+	// The cancellation policy.
 	ShopPolicyTypeSubscriptionPolicy ShopPolicyType = "SUBSCRIPTION_POLICY"
 	// The contact information.
 	ShopPolicyTypeContactInformation ShopPolicyType = "CONTACT_INFORMATION"
@@ -57826,6 +62344,10 @@ const (
 	ShopifyPaymentsTransactionTypeStripeFee ShopifyPaymentsTransactionType = "STRIPE_FEE"
 	// The transfer_refund transaction type.
 	ShopifyPaymentsTransactionTypeTransferRefund ShopifyPaymentsTransactionType = "TRANSFER_REFUND"
+	// The advance transaction type.
+	ShopifyPaymentsTransactionTypeAdvance ShopifyPaymentsTransactionType = "ADVANCE"
+	// The advance funding transaction type.
+	ShopifyPaymentsTransactionTypeAdvanceFunding ShopifyPaymentsTransactionType = "ADVANCE_FUNDING"
 )
 
 var AllShopifyPaymentsTransactionType = []ShopifyPaymentsTransactionType{
@@ -57920,11 +62442,13 @@ var AllShopifyPaymentsTransactionType = []ShopifyPaymentsTransactionType{
 	ShopifyPaymentsTransactionTypeReservedFunds,
 	ShopifyPaymentsTransactionTypeStripeFee,
 	ShopifyPaymentsTransactionTypeTransferRefund,
+	ShopifyPaymentsTransactionTypeAdvance,
+	ShopifyPaymentsTransactionTypeAdvanceFunding,
 }
 
 func (e ShopifyPaymentsTransactionType) IsValid() bool {
 	switch e {
-	case ShopifyPaymentsTransactionTypeChargebackProtectionCredit, ShopifyPaymentsTransactionTypeChargebackProtectionCreditReversal, ShopifyPaymentsTransactionTypeChargebackProtectionDebit, ShopifyPaymentsTransactionTypeChargebackProtectionDebitReversal, ShopifyPaymentsTransactionTypeCollectionsCredit, ShopifyPaymentsTransactionTypeCollectionsCreditReversal, ShopifyPaymentsTransactionTypePromotionCredit, ShopifyPaymentsTransactionTypePromotionCreditReversal, ShopifyPaymentsTransactionTypeAnomalyCredit, ShopifyPaymentsTransactionTypeAnomalyCreditReversal, ShopifyPaymentsTransactionTypeAnomalyDebit, ShopifyPaymentsTransactionTypeAnomalyDebitReversal, ShopifyPaymentsTransactionTypeVatRefundCredit, ShopifyPaymentsTransactionTypeVatRefundCreditReversal, ShopifyPaymentsTransactionTypeChannelCredit, ShopifyPaymentsTransactionTypeChannelCreditReversal, ShopifyPaymentsTransactionTypeChannelTransferCredit, ShopifyPaymentsTransactionTypeChannelTransferCreditReversal, ShopifyPaymentsTransactionTypeChannelTransferDebit, ShopifyPaymentsTransactionTypeChannelTransferDebitReversal, ShopifyPaymentsTransactionTypeChannelPromotionCredit, ShopifyPaymentsTransactionTypeChannelPromotionCreditReversal, ShopifyPaymentsTransactionTypeMarketplaceFeeCredit, ShopifyPaymentsTransactionTypeMarketplaceFeeCreditReversal, ShopifyPaymentsTransactionTypeMerchantGoodwillCredit, ShopifyPaymentsTransactionTypeMerchantGoodwillCreditReversal, ShopifyPaymentsTransactionTypeTaxAdjustmentDebit, ShopifyPaymentsTransactionTypeTaxAdjustmentDebitReversal, ShopifyPaymentsTransactionTypeTaxAdjustmentCredit, ShopifyPaymentsTransactionTypeTaxAdjustmentCreditReversal, ShopifyPaymentsTransactionTypeBillingDebit, ShopifyPaymentsTransactionTypeBillingDebitReversal, ShopifyPaymentsTransactionTypeShopCashCredit, ShopifyPaymentsTransactionTypeShopCashCreditReversal, ShopifyPaymentsTransactionTypeShopCashBillingDebit, ShopifyPaymentsTransactionTypeShopCashBillingDebitReversal, ShopifyPaymentsTransactionTypeShopCashRefundDebit, ShopifyPaymentsTransactionTypeShopCashRefundDebitReversal, ShopifyPaymentsTransactionTypeShopCashCampaignBillingDebit, ShopifyPaymentsTransactionTypeShopCashCampaignBillingDebitReversal, ShopifyPaymentsTransactionTypeShopCashCampaignBillingCredit, ShopifyPaymentsTransactionTypeShopCashCampaignBillingCreditReversal, ShopifyPaymentsTransactionTypeSellerProtectionCredit, ShopifyPaymentsTransactionTypeSellerProtectionCreditReversal, ShopifyPaymentsTransactionTypeShopifyCollectiveDebit, ShopifyPaymentsTransactionTypeShopifyCollectiveDebitReversal, ShopifyPaymentsTransactionTypeShopifyCollectiveCredit, ShopifyPaymentsTransactionTypeShopifyCollectiveCreditReversal, ShopifyPaymentsTransactionTypeBalanceTransferInbound, ShopifyPaymentsTransactionTypeMarketsProCredit, ShopifyPaymentsTransactionTypeCustomsDutyAdjustment, ShopifyPaymentsTransactionTypeImportTaxAdjustment, ShopifyPaymentsTransactionTypeShippingLabelAdjustment, ShopifyPaymentsTransactionTypeShippingLabelAdjustmentBase, ShopifyPaymentsTransactionTypeShippingLabelAdjustmentSurcharge, ShopifyPaymentsTransactionTypeShippingReturnToOriginAdjustment, ShopifyPaymentsTransactionTypeShippingOtherCarrierChargeAdjustment, ShopifyPaymentsTransactionTypeChargeAdjustment, ShopifyPaymentsTransactionTypeRefundAdjustment, ShopifyPaymentsTransactionTypeChargebackFee, ShopifyPaymentsTransactionTypeChargebackFeeRefund, ShopifyPaymentsTransactionTypeTransfer, ShopifyPaymentsTransactionTypeTransferFailure, ShopifyPaymentsTransactionTypeTransferCancel, ShopifyPaymentsTransactionTypeReservedFundsWithdrawal, ShopifyPaymentsTransactionTypeReservedFundsReversal, ShopifyPaymentsTransactionTypeRiskReversal, ShopifyPaymentsTransactionTypeRiskWithdrawal, ShopifyPaymentsTransactionTypeMerchantToMerchantDebit, ShopifyPaymentsTransactionTypeMerchantToMerchantDebitReversal, ShopifyPaymentsTransactionTypeMerchantToMerchantCredit, ShopifyPaymentsTransactionTypeMerchantToMerchantCreditReversal, ShopifyPaymentsTransactionTypeShopifySourceDebit, ShopifyPaymentsTransactionTypeShopifySourceDebitReversal, ShopifyPaymentsTransactionTypeShopifySourceCredit, ShopifyPaymentsTransactionTypeShopifySourceCreditReversal, ShopifyPaymentsTransactionTypeCharge, ShopifyPaymentsTransactionTypeRefund, ShopifyPaymentsTransactionTypeRefundFailure, ShopifyPaymentsTransactionTypeApplicationFeeRefund, ShopifyPaymentsTransactionTypeAdjustment, ShopifyPaymentsTransactionTypeDisputeWithdrawal, ShopifyPaymentsTransactionTypeDisputeReversal, ShopifyPaymentsTransactionTypeShippingLabel, ShopifyPaymentsTransactionTypeCustomsDuty, ShopifyPaymentsTransactionTypeImportTax, ShopifyPaymentsTransactionTypeChargebackHold, ShopifyPaymentsTransactionTypeChargebackHoldRelease, ShopifyPaymentsTransactionTypeReservedFunds, ShopifyPaymentsTransactionTypeStripeFee, ShopifyPaymentsTransactionTypeTransferRefund:
+	case ShopifyPaymentsTransactionTypeChargebackProtectionCredit, ShopifyPaymentsTransactionTypeChargebackProtectionCreditReversal, ShopifyPaymentsTransactionTypeChargebackProtectionDebit, ShopifyPaymentsTransactionTypeChargebackProtectionDebitReversal, ShopifyPaymentsTransactionTypeCollectionsCredit, ShopifyPaymentsTransactionTypeCollectionsCreditReversal, ShopifyPaymentsTransactionTypePromotionCredit, ShopifyPaymentsTransactionTypePromotionCreditReversal, ShopifyPaymentsTransactionTypeAnomalyCredit, ShopifyPaymentsTransactionTypeAnomalyCreditReversal, ShopifyPaymentsTransactionTypeAnomalyDebit, ShopifyPaymentsTransactionTypeAnomalyDebitReversal, ShopifyPaymentsTransactionTypeVatRefundCredit, ShopifyPaymentsTransactionTypeVatRefundCreditReversal, ShopifyPaymentsTransactionTypeChannelCredit, ShopifyPaymentsTransactionTypeChannelCreditReversal, ShopifyPaymentsTransactionTypeChannelTransferCredit, ShopifyPaymentsTransactionTypeChannelTransferCreditReversal, ShopifyPaymentsTransactionTypeChannelTransferDebit, ShopifyPaymentsTransactionTypeChannelTransferDebitReversal, ShopifyPaymentsTransactionTypeChannelPromotionCredit, ShopifyPaymentsTransactionTypeChannelPromotionCreditReversal, ShopifyPaymentsTransactionTypeMarketplaceFeeCredit, ShopifyPaymentsTransactionTypeMarketplaceFeeCreditReversal, ShopifyPaymentsTransactionTypeMerchantGoodwillCredit, ShopifyPaymentsTransactionTypeMerchantGoodwillCreditReversal, ShopifyPaymentsTransactionTypeTaxAdjustmentDebit, ShopifyPaymentsTransactionTypeTaxAdjustmentDebitReversal, ShopifyPaymentsTransactionTypeTaxAdjustmentCredit, ShopifyPaymentsTransactionTypeTaxAdjustmentCreditReversal, ShopifyPaymentsTransactionTypeBillingDebit, ShopifyPaymentsTransactionTypeBillingDebitReversal, ShopifyPaymentsTransactionTypeShopCashCredit, ShopifyPaymentsTransactionTypeShopCashCreditReversal, ShopifyPaymentsTransactionTypeShopCashBillingDebit, ShopifyPaymentsTransactionTypeShopCashBillingDebitReversal, ShopifyPaymentsTransactionTypeShopCashRefundDebit, ShopifyPaymentsTransactionTypeShopCashRefundDebitReversal, ShopifyPaymentsTransactionTypeShopCashCampaignBillingDebit, ShopifyPaymentsTransactionTypeShopCashCampaignBillingDebitReversal, ShopifyPaymentsTransactionTypeShopCashCampaignBillingCredit, ShopifyPaymentsTransactionTypeShopCashCampaignBillingCreditReversal, ShopifyPaymentsTransactionTypeSellerProtectionCredit, ShopifyPaymentsTransactionTypeSellerProtectionCreditReversal, ShopifyPaymentsTransactionTypeShopifyCollectiveDebit, ShopifyPaymentsTransactionTypeShopifyCollectiveDebitReversal, ShopifyPaymentsTransactionTypeShopifyCollectiveCredit, ShopifyPaymentsTransactionTypeShopifyCollectiveCreditReversal, ShopifyPaymentsTransactionTypeBalanceTransferInbound, ShopifyPaymentsTransactionTypeMarketsProCredit, ShopifyPaymentsTransactionTypeCustomsDutyAdjustment, ShopifyPaymentsTransactionTypeImportTaxAdjustment, ShopifyPaymentsTransactionTypeShippingLabelAdjustment, ShopifyPaymentsTransactionTypeShippingLabelAdjustmentBase, ShopifyPaymentsTransactionTypeShippingLabelAdjustmentSurcharge, ShopifyPaymentsTransactionTypeShippingReturnToOriginAdjustment, ShopifyPaymentsTransactionTypeShippingOtherCarrierChargeAdjustment, ShopifyPaymentsTransactionTypeChargeAdjustment, ShopifyPaymentsTransactionTypeRefundAdjustment, ShopifyPaymentsTransactionTypeChargebackFee, ShopifyPaymentsTransactionTypeChargebackFeeRefund, ShopifyPaymentsTransactionTypeTransfer, ShopifyPaymentsTransactionTypeTransferFailure, ShopifyPaymentsTransactionTypeTransferCancel, ShopifyPaymentsTransactionTypeReservedFundsWithdrawal, ShopifyPaymentsTransactionTypeReservedFundsReversal, ShopifyPaymentsTransactionTypeRiskReversal, ShopifyPaymentsTransactionTypeRiskWithdrawal, ShopifyPaymentsTransactionTypeMerchantToMerchantDebit, ShopifyPaymentsTransactionTypeMerchantToMerchantDebitReversal, ShopifyPaymentsTransactionTypeMerchantToMerchantCredit, ShopifyPaymentsTransactionTypeMerchantToMerchantCreditReversal, ShopifyPaymentsTransactionTypeShopifySourceDebit, ShopifyPaymentsTransactionTypeShopifySourceDebitReversal, ShopifyPaymentsTransactionTypeShopifySourceCredit, ShopifyPaymentsTransactionTypeShopifySourceCreditReversal, ShopifyPaymentsTransactionTypeCharge, ShopifyPaymentsTransactionTypeRefund, ShopifyPaymentsTransactionTypeRefundFailure, ShopifyPaymentsTransactionTypeApplicationFeeRefund, ShopifyPaymentsTransactionTypeAdjustment, ShopifyPaymentsTransactionTypeDisputeWithdrawal, ShopifyPaymentsTransactionTypeDisputeReversal, ShopifyPaymentsTransactionTypeShippingLabel, ShopifyPaymentsTransactionTypeCustomsDuty, ShopifyPaymentsTransactionTypeImportTax, ShopifyPaymentsTransactionTypeChargebackHold, ShopifyPaymentsTransactionTypeChargebackHoldRelease, ShopifyPaymentsTransactionTypeReservedFunds, ShopifyPaymentsTransactionTypeStripeFee, ShopifyPaymentsTransactionTypeTransferRefund, ShopifyPaymentsTransactionTypeAdvance, ShopifyPaymentsTransactionTypeAdvanceFunding:
 		return true
 	}
 	return false
@@ -57948,53 +62472,6 @@ func (e *ShopifyPaymentsTransactionType) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ShopifyPaymentsTransactionType) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-// The types of possible verification documents.
-type ShopifyPaymentsVerificationDocumentType string
-
-const (
-	// The subject's driver's license.
-	ShopifyPaymentsVerificationDocumentTypeDriversLicense ShopifyPaymentsVerificationDocumentType = "DRIVERS_LICENSE"
-	// A government's identification document of the subject.
-	ShopifyPaymentsVerificationDocumentTypeGovernmentIDEntification ShopifyPaymentsVerificationDocumentType = "GOVERNMENT_IDENTIFICATION"
-	// The subject's passport.
-	ShopifyPaymentsVerificationDocumentTypePassport ShopifyPaymentsVerificationDocumentType = "PASSPORT"
-)
-
-var AllShopifyPaymentsVerificationDocumentType = []ShopifyPaymentsVerificationDocumentType{
-	ShopifyPaymentsVerificationDocumentTypeDriversLicense,
-	ShopifyPaymentsVerificationDocumentTypeGovernmentIDEntification,
-	ShopifyPaymentsVerificationDocumentTypePassport,
-}
-
-func (e ShopifyPaymentsVerificationDocumentType) IsValid() bool {
-	switch e {
-	case ShopifyPaymentsVerificationDocumentTypeDriversLicense, ShopifyPaymentsVerificationDocumentTypeGovernmentIDEntification, ShopifyPaymentsVerificationDocumentTypePassport:
-		return true
-	}
-	return false
-}
-
-func (e ShopifyPaymentsVerificationDocumentType) String() string {
-	return string(e)
-}
-
-func (e *ShopifyPaymentsVerificationDocumentType) UnmarshalGQL(v interface{}) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ShopifyPaymentsVerificationDocumentType(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ShopifyPaymentsVerificationDocumentType", str)
-	}
-	return nil
-}
-
-func (e ShopifyPaymentsVerificationDocumentType) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -58204,10 +62681,14 @@ const (
 	StaffMemberPermissionChannels StaffMemberPermission = "CHANNELS"
 	// The staff member can create and edit customers.
 	StaffMemberPermissionCreateAndEditCustomers StaffMemberPermission = "CREATE_AND_EDIT_CUSTOMERS"
+	// The staff member can create and edit gift cards.
+	StaffMemberPermissionCreateAndEditGiftCards StaffMemberPermission = "CREATE_AND_EDIT_GIFT_CARDS"
 	// The staff member can view customers.
 	StaffMemberPermissionCustomers StaffMemberPermission = "CUSTOMERS"
 	// The staff member can view the Shopify Home page, which includes sales information and other shop data.
 	StaffMemberPermissionDashboard StaffMemberPermission = "DASHBOARD"
+	// The staff member can deactivate gift cards.
+	StaffMemberPermissionDeactivateGiftCards StaffMemberPermission = "DEACTIVATE_GIFT_CARDS"
 	// The staff member can delete customers.
 	StaffMemberPermissionDeleteCustomers StaffMemberPermission = "DELETE_CUSTOMERS"
 	// The staff member can view, buy, and manage domains.
@@ -58220,6 +62701,8 @@ const (
 	StaffMemberPermissionEraseCustomerData StaffMemberPermission = "ERASE_CUSTOMER_DATA"
 	// The staff member can export customers.
 	StaffMemberPermissionExportCustomers StaffMemberPermission = "EXPORT_CUSTOMERS"
+	// The staff member can export gift cards.
+	StaffMemberPermissionExportGiftCards StaffMemberPermission = "EXPORT_GIFT_CARDS"
 	// The staff has the same permissions as the [store owner](https://shopify.dev/en/manual/your-account/staff-accounts/staff-permissions#store-owner-permissions) with some exceptions, such as modifying the account billing or deleting staff accounts.
 	StaffMemberPermissionFull StaffMemberPermission = "FULL"
 	// The staff member can view, create, issue, and export gift cards to a CSV file.
@@ -58260,14 +62743,17 @@ var AllStaffMemberPermission = []StaffMemberPermission{
 	StaffMemberPermissionApplications,
 	StaffMemberPermissionChannels,
 	StaffMemberPermissionCreateAndEditCustomers,
+	StaffMemberPermissionCreateAndEditGiftCards,
 	StaffMemberPermissionCustomers,
 	StaffMemberPermissionDashboard,
+	StaffMemberPermissionDeactivateGiftCards,
 	StaffMemberPermissionDeleteCustomers,
 	StaffMemberPermissionDomains,
 	StaffMemberPermissionDraftOrders,
 	StaffMemberPermissionEditOrders,
 	StaffMemberPermissionEraseCustomerData,
 	StaffMemberPermissionExportCustomers,
+	StaffMemberPermissionExportGiftCards,
 	StaffMemberPermissionFull,
 	StaffMemberPermissionGiftCards,
 	StaffMemberPermissionLinks,
@@ -58289,7 +62775,7 @@ var AllStaffMemberPermission = []StaffMemberPermission{
 
 func (e StaffMemberPermission) IsValid() bool {
 	switch e {
-	case StaffMemberPermissionApplications, StaffMemberPermissionChannels, StaffMemberPermissionCreateAndEditCustomers, StaffMemberPermissionCustomers, StaffMemberPermissionDashboard, StaffMemberPermissionDeleteCustomers, StaffMemberPermissionDomains, StaffMemberPermissionDraftOrders, StaffMemberPermissionEditOrders, StaffMemberPermissionEraseCustomerData, StaffMemberPermissionExportCustomers, StaffMemberPermissionFull, StaffMemberPermissionGiftCards, StaffMemberPermissionLinks, StaffMemberPermissionLocations, StaffMemberPermissionMarketing, StaffMemberPermissionMarketingSection, StaffMemberPermissionMergeCustomers, StaffMemberPermissionOrders, StaffMemberPermissionOverviews, StaffMemberPermissionPages, StaffMemberPermissionPayOrdersByVaultedCard, StaffMemberPermissionPreferences, StaffMemberPermissionProducts, StaffMemberPermissionReports, StaffMemberPermissionRequestCustomerData, StaffMemberPermissionThemes, StaffMemberPermissionTranslations:
+	case StaffMemberPermissionApplications, StaffMemberPermissionChannels, StaffMemberPermissionCreateAndEditCustomers, StaffMemberPermissionCreateAndEditGiftCards, StaffMemberPermissionCustomers, StaffMemberPermissionDashboard, StaffMemberPermissionDeactivateGiftCards, StaffMemberPermissionDeleteCustomers, StaffMemberPermissionDomains, StaffMemberPermissionDraftOrders, StaffMemberPermissionEditOrders, StaffMemberPermissionEraseCustomerData, StaffMemberPermissionExportCustomers, StaffMemberPermissionExportGiftCards, StaffMemberPermissionFull, StaffMemberPermissionGiftCards, StaffMemberPermissionLinks, StaffMemberPermissionLocations, StaffMemberPermissionMarketing, StaffMemberPermissionMarketingSection, StaffMemberPermissionMergeCustomers, StaffMemberPermissionOrders, StaffMemberPermissionOverviews, StaffMemberPermissionPages, StaffMemberPermissionPayOrdersByVaultedCard, StaffMemberPermissionPreferences, StaffMemberPermissionProducts, StaffMemberPermissionReports, StaffMemberPermissionRequestCustomerData, StaffMemberPermissionThemes, StaffMemberPermissionTranslations:
 		return true
 	}
 	return false
@@ -58313,6 +62799,56 @@ func (e *StaffMemberPermission) UnmarshalGQL(v interface{}) error {
 }
 
 func (e StaffMemberPermission) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The set of valid sort keys for the StaffMembers query.
+type StaffMembersSortKeys string
+
+const (
+	// Sort by the `first_name` value.
+	StaffMembersSortKeysFirstName StaffMembersSortKeys = "FIRST_NAME"
+	// Sort by the `last_name` value.
+	StaffMembersSortKeysLastName StaffMembersSortKeys = "LAST_NAME"
+	// Sort by the `email` value.
+	StaffMembersSortKeysEmail StaffMembersSortKeys = "EMAIL"
+	// Sort by the `id` value.
+	StaffMembersSortKeysID StaffMembersSortKeys = "ID"
+)
+
+var AllStaffMembersSortKeys = []StaffMembersSortKeys{
+	StaffMembersSortKeysFirstName,
+	StaffMembersSortKeysLastName,
+	StaffMembersSortKeysEmail,
+	StaffMembersSortKeysID,
+}
+
+func (e StaffMembersSortKeys) IsValid() bool {
+	switch e {
+	case StaffMembersSortKeysFirstName, StaffMembersSortKeysLastName, StaffMembersSortKeysEmail, StaffMembersSortKeysID:
+		return true
+	}
+	return false
+}
+
+func (e StaffMembersSortKeys) String() string {
+	return string(e)
+}
+
+func (e *StaffMembersSortKeys) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = StaffMembersSortKeys(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid StaffMembersSortKeys", str)
+	}
+	return nil
+}
+
+func (e StaffMembersSortKeys) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -58484,6 +63020,8 @@ const (
 	StandardMetafieldDefinitionEnableUserErrorCodeUnstructuredAlreadyExists StandardMetafieldDefinitionEnableUserErrorCode = "UNSTRUCTURED_ALREADY_EXISTS"
 	// The definition type is not eligible to be used as collection condition.
 	StandardMetafieldDefinitionEnableUserErrorCodeTypeNotAllowedForConditions StandardMetafieldDefinitionEnableUserErrorCode = "TYPE_NOT_ALLOWED_FOR_CONDITIONS"
+	// The input combination is invalid.
+	StandardMetafieldDefinitionEnableUserErrorCodeInvalidInputCombination StandardMetafieldDefinitionEnableUserErrorCode = "INVALID_INPUT_COMBINATION"
 )
 
 var AllStandardMetafieldDefinitionEnableUserErrorCode = []StandardMetafieldDefinitionEnableUserErrorCode{
@@ -58493,11 +63031,12 @@ var AllStandardMetafieldDefinitionEnableUserErrorCode = []StandardMetafieldDefin
 	StandardMetafieldDefinitionEnableUserErrorCodeLimitExceeded,
 	StandardMetafieldDefinitionEnableUserErrorCodeUnstructuredAlreadyExists,
 	StandardMetafieldDefinitionEnableUserErrorCodeTypeNotAllowedForConditions,
+	StandardMetafieldDefinitionEnableUserErrorCodeInvalidInputCombination,
 }
 
 func (e StandardMetafieldDefinitionEnableUserErrorCode) IsValid() bool {
 	switch e {
-	case StandardMetafieldDefinitionEnableUserErrorCodeInvalid, StandardMetafieldDefinitionEnableUserErrorCodeTaken, StandardMetafieldDefinitionEnableUserErrorCodeTemplateNotFound, StandardMetafieldDefinitionEnableUserErrorCodeLimitExceeded, StandardMetafieldDefinitionEnableUserErrorCodeUnstructuredAlreadyExists, StandardMetafieldDefinitionEnableUserErrorCodeTypeNotAllowedForConditions:
+	case StandardMetafieldDefinitionEnableUserErrorCodeInvalid, StandardMetafieldDefinitionEnableUserErrorCodeTaken, StandardMetafieldDefinitionEnableUserErrorCodeTemplateNotFound, StandardMetafieldDefinitionEnableUserErrorCodeLimitExceeded, StandardMetafieldDefinitionEnableUserErrorCodeUnstructuredAlreadyExists, StandardMetafieldDefinitionEnableUserErrorCodeTypeNotAllowedForConditions, StandardMetafieldDefinitionEnableUserErrorCodeInvalidInputCombination:
 		return true
 	}
 	return false
@@ -59266,6 +63805,56 @@ func (e SubscriptionContractErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// The possible values of the last billing error on a subscription contract.
+type SubscriptionContractLastBillingErrorType string
+
+const (
+	// Subscription billing attempt error due to payment error.
+	SubscriptionContractLastBillingErrorTypePaymentError SubscriptionContractLastBillingErrorType = "PAYMENT_ERROR"
+	// Subscription billing attempt error due to customer error.
+	SubscriptionContractLastBillingErrorTypeCustomerError SubscriptionContractLastBillingErrorType = "CUSTOMER_ERROR"
+	// Subscription billing attempt error due to inventory error.
+	SubscriptionContractLastBillingErrorTypeInventoryError SubscriptionContractLastBillingErrorType = "INVENTORY_ERROR"
+	// All other billing attempt errors.
+	SubscriptionContractLastBillingErrorTypeOther SubscriptionContractLastBillingErrorType = "OTHER"
+)
+
+var AllSubscriptionContractLastBillingErrorType = []SubscriptionContractLastBillingErrorType{
+	SubscriptionContractLastBillingErrorTypePaymentError,
+	SubscriptionContractLastBillingErrorTypeCustomerError,
+	SubscriptionContractLastBillingErrorTypeInventoryError,
+	SubscriptionContractLastBillingErrorTypeOther,
+}
+
+func (e SubscriptionContractLastBillingErrorType) IsValid() bool {
+	switch e {
+	case SubscriptionContractLastBillingErrorTypePaymentError, SubscriptionContractLastBillingErrorTypeCustomerError, SubscriptionContractLastBillingErrorTypeInventoryError, SubscriptionContractLastBillingErrorTypeOther:
+		return true
+	}
+	return false
+}
+
+func (e SubscriptionContractLastBillingErrorType) String() string {
+	return string(e)
+}
+
+func (e *SubscriptionContractLastBillingErrorType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = SubscriptionContractLastBillingErrorType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid SubscriptionContractLastBillingErrorType", str)
+	}
+	return nil
+}
+
+func (e SubscriptionContractLastBillingErrorType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The possible status values of the last payment on a subscription contract.
 type SubscriptionContractLastPaymentStatus string
 
@@ -60031,6 +64620,248 @@ func (e TaxPartnerState) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+// Possible error codes that can be returned by `ThemeCreateUserError`.
+type ThemeCreateUserErrorCode string
+
+const (
+	// Must be a zip file.
+	ThemeCreateUserErrorCodeInvalidZip ThemeCreateUserErrorCode = "INVALID_ZIP"
+	// Zip is empty.
+	ThemeCreateUserErrorCodeZipIsEmpty ThemeCreateUserErrorCode = "ZIP_IS_EMPTY"
+	// May not be used to fetch a file bigger
+	//             than 50MB.
+	ThemeCreateUserErrorCodeZipTooLarge ThemeCreateUserErrorCode = "ZIP_TOO_LARGE"
+)
+
+var AllThemeCreateUserErrorCode = []ThemeCreateUserErrorCode{
+	ThemeCreateUserErrorCodeInvalidZip,
+	ThemeCreateUserErrorCodeZipIsEmpty,
+	ThemeCreateUserErrorCodeZipTooLarge,
+}
+
+func (e ThemeCreateUserErrorCode) IsValid() bool {
+	switch e {
+	case ThemeCreateUserErrorCodeInvalidZip, ThemeCreateUserErrorCodeZipIsEmpty, ThemeCreateUserErrorCodeZipTooLarge:
+		return true
+	}
+	return false
+}
+
+func (e ThemeCreateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ThemeCreateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ThemeCreateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ThemeCreateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ThemeCreateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `ThemeDeleteUserError`.
+type ThemeDeleteUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	ThemeDeleteUserErrorCodeNotFound ThemeDeleteUserErrorCode = "NOT_FOUND"
+)
+
+var AllThemeDeleteUserErrorCode = []ThemeDeleteUserErrorCode{
+	ThemeDeleteUserErrorCodeNotFound,
+}
+
+func (e ThemeDeleteUserErrorCode) IsValid() bool {
+	switch e {
+	case ThemeDeleteUserErrorCodeNotFound:
+		return true
+	}
+	return false
+}
+
+func (e ThemeDeleteUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ThemeDeleteUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ThemeDeleteUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ThemeDeleteUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ThemeDeleteUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `ThemePublishUserError`.
+type ThemePublishUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	ThemePublishUserErrorCodeNotFound ThemePublishUserErrorCode = "NOT_FOUND"
+	// Theme publishing is not available during install.
+	ThemePublishUserErrorCodeCannotPublishThemeDuringInstall ThemePublishUserErrorCode = "CANNOT_PUBLISH_THEME_DURING_INSTALL"
+	// Theme publishing is not allowed on this plan.
+	ThemePublishUserErrorCodeThemePublishNotAvailableForThemeLimitedPlan ThemePublishUserErrorCode = "THEME_PUBLISH_NOT_AVAILABLE_FOR_THEME_LIMITED_PLAN"
+)
+
+var AllThemePublishUserErrorCode = []ThemePublishUserErrorCode{
+	ThemePublishUserErrorCodeNotFound,
+	ThemePublishUserErrorCodeCannotPublishThemeDuringInstall,
+	ThemePublishUserErrorCodeThemePublishNotAvailableForThemeLimitedPlan,
+}
+
+func (e ThemePublishUserErrorCode) IsValid() bool {
+	switch e {
+	case ThemePublishUserErrorCodeNotFound, ThemePublishUserErrorCodeCannotPublishThemeDuringInstall, ThemePublishUserErrorCodeThemePublishNotAvailableForThemeLimitedPlan:
+		return true
+	}
+	return false
+}
+
+func (e ThemePublishUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ThemePublishUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ThemePublishUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ThemePublishUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ThemePublishUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The role of the theme.
+type ThemeRole string
+
+const (
+	// TThe currently published theme. There can only be one main theme at any time.
+	ThemeRoleMain ThemeRole = "MAIN"
+	// The theme is currently not published. It can be transitioned to the main role if it is published by the merchant.
+	ThemeRoleUnpublished ThemeRole = "UNPUBLISHED"
+	// The theme is installed as a trial from the Shopify Theme Store. It can be customized using the theme editor, but access to the code editor and the ability to publish the theme are restricted until it is purchased.
+	ThemeRoleDemo ThemeRole = "DEMO"
+	// The theme is automatically created by the CLI for previewing purposes when in a development session.
+	ThemeRoleDevelopment ThemeRole = "DEVELOPMENT"
+	// The theme is archived if a merchant changes their plan and exceeds the maximum number of themes allowed. Archived themes can be downloaded by merchant, but can not be customized or published until the plan is upgraded.
+	ThemeRoleArchived ThemeRole = "ARCHIVED"
+	// The theme is locked if it is identified as unlicensed. Customization and publishing are restricted until the merchant resolves the licensing issue.
+	ThemeRoleLocked ThemeRole = "LOCKED"
+	// The currently published theme that is only accessible to a mobile client.
+	ThemeRoleMobile ThemeRole = "MOBILE"
+)
+
+var AllThemeRole = []ThemeRole{
+	ThemeRoleMain,
+	ThemeRoleUnpublished,
+	ThemeRoleDemo,
+	ThemeRoleDevelopment,
+	ThemeRoleArchived,
+	ThemeRoleLocked,
+	ThemeRoleMobile,
+}
+
+func (e ThemeRole) IsValid() bool {
+	switch e {
+	case ThemeRoleMain, ThemeRoleUnpublished, ThemeRoleDemo, ThemeRoleDevelopment, ThemeRoleArchived, ThemeRoleLocked, ThemeRoleMobile:
+		return true
+	}
+	return false
+}
+
+func (e ThemeRole) String() string {
+	return string(e)
+}
+
+func (e *ThemeRole) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ThemeRole(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ThemeRole", str)
+	}
+	return nil
+}
+
+func (e ThemeRole) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Possible error codes that can be returned by `ThemeUpdateUserError`.
+type ThemeUpdateUserErrorCode string
+
+const (
+	// The record with the ID used as the input value couldn't be found.
+	ThemeUpdateUserErrorCodeNotFound ThemeUpdateUserErrorCode = "NOT_FOUND"
+	// The input value is too long.
+	ThemeUpdateUserErrorCodeTooLong ThemeUpdateUserErrorCode = "TOO_LONG"
+	// The input value is invalid.
+	ThemeUpdateUserErrorCodeInvalid ThemeUpdateUserErrorCode = "INVALID"
+)
+
+var AllThemeUpdateUserErrorCode = []ThemeUpdateUserErrorCode{
+	ThemeUpdateUserErrorCodeNotFound,
+	ThemeUpdateUserErrorCodeTooLong,
+	ThemeUpdateUserErrorCodeInvalid,
+}
+
+func (e ThemeUpdateUserErrorCode) IsValid() bool {
+	switch e {
+	case ThemeUpdateUserErrorCodeNotFound, ThemeUpdateUserErrorCodeTooLong, ThemeUpdateUserErrorCodeInvalid:
+		return true
+	}
+	return false
+}
+
+func (e ThemeUpdateUserErrorCode) String() string {
+	return string(e)
+}
+
+func (e *ThemeUpdateUserErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ThemeUpdateUserErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ThemeUpdateUserErrorCode", str)
+	}
+	return nil
+}
+
+func (e ThemeUpdateUserErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 // The set of valid sort keys for the Transaction query.
 type TransactionSortKeys string
 
@@ -60129,6 +64960,10 @@ func (e TransactionVoidUserErrorCode) MarshalGQL(w io.Writer) {
 type TranslatableResourceType string
 
 const (
+	// A blog post. Translatable fields: `title`, `body_html`, `summary_html`, `handle`, `meta_title`, `meta_description`.
+	TranslatableResourceTypeArticle TranslatableResourceType = "ARTICLE"
+	// A blog. Translatable fields: `title`, `handle`, `meta_title`, `meta_description`.
+	TranslatableResourceTypeBlog TranslatableResourceType = "BLOG"
 	// A product collection. Translatable fields: `title`, `body_html`, `handle`, `meta_title`, `meta_description`.
 	TranslatableResourceTypeCollection TranslatableResourceType = "COLLECTION"
 	// The delivery method definition. For example, "Standard", or "Expedited". Translatable fields: `name`.
@@ -60139,22 +64974,30 @@ const (
 	TranslatableResourceTypeFilter TranslatableResourceType = "FILTER"
 	// A link to direct users. Translatable fields: `title`.
 	TranslatableResourceTypeLink TranslatableResourceType = "LINK"
+	// A category of links. Translatable fields: `title`.
+	TranslatableResourceTypeMenu TranslatableResourceType = "MENU"
 	// A Metafield. Translatable fields: `value`.
 	TranslatableResourceTypeMetafield TranslatableResourceType = "METAFIELD"
 	// A Metaobject. Translatable fields are determined by the Metaobject type.
 	TranslatableResourceTypeMetaobject TranslatableResourceType = "METAOBJECT"
-	// An online store article. Translatable fields: `title`, `body_html`, `summary_html`, `handle`, `meta_title`, `meta_description`.
-	TranslatableResourceTypeOnlineStoreArticle TranslatableResourceType = "ONLINE_STORE_ARTICLE"
-	// An online store blog. Translatable fields: `title`, `handle`, `meta_title`, `meta_description`.
-	TranslatableResourceTypeOnlineStoreBlog TranslatableResourceType = "ONLINE_STORE_BLOG"
-	// A category of links. Translatable fields: `title`.
-	TranslatableResourceTypeOnlineStoreMenu TranslatableResourceType = "ONLINE_STORE_MENU"
-	// An online store page. Translatable fields: `title`, `body_html`, `handle`, `meta_title`, `meta_description`.
-	TranslatableResourceTypeOnlineStorePage TranslatableResourceType = "ONLINE_STORE_PAGE"
 	// An online store theme. Translatable fields: `dynamic keys based on theme data`.
 	TranslatableResourceTypeOnlineStoreTheme TranslatableResourceType = "ONLINE_STORE_THEME"
+	// A theme app embed. Translatable fields: `dynamic keys based on theme data`.
+	TranslatableResourceTypeOnlineStoreThemeAppEmbed TranslatableResourceType = "ONLINE_STORE_THEME_APP_EMBED"
+	// A theme json template. Translatable fields: `dynamic keys based on theme data`.
+	TranslatableResourceTypeOnlineStoreThemeJSONTemplate TranslatableResourceType = "ONLINE_STORE_THEME_JSON_TEMPLATE"
+	// Locale file content of an online store theme. Translatable fields: `dynamic keys based on theme data`.
+	TranslatableResourceTypeOnlineStoreThemeLocaleContent TranslatableResourceType = "ONLINE_STORE_THEME_LOCALE_CONTENT"
+	// A theme json section group. Translatable fields: `dynamic keys based on theme data`.
+	TranslatableResourceTypeOnlineStoreThemeSectionGroup TranslatableResourceType = "ONLINE_STORE_THEME_SECTION_GROUP"
+	// A theme setting category. Translatable fields: `dynamic keys based on theme data`.
+	TranslatableResourceTypeOnlineStoreThemeSettingsCategory TranslatableResourceType = "ONLINE_STORE_THEME_SETTINGS_CATEGORY"
+	// Shared static sections of an online store theme. Translatable fields: `dynamic keys based on theme data`.
+	TranslatableResourceTypeOnlineStoreThemeSettingsDataSections TranslatableResourceType = "ONLINE_STORE_THEME_SETTINGS_DATA_SECTIONS"
 	// A packing slip template. Translatable fields: `body`.
 	TranslatableResourceTypePackingSlipTemplate TranslatableResourceType = "PACKING_SLIP_TEMPLATE"
+	// A page. Translatable fields: `title`, `body_html`, `handle`, `meta_title`, `meta_description`.
+	TranslatableResourceTypePage TranslatableResourceType = "PAGE"
 	// A payment gateway. Translatable fields: `name`, `message`, `before_payment_instructions`.
 	TranslatableResourceTypePaymentGateway TranslatableResourceType = "PAYMENT_GATEWAY"
 	// An online store product. Translatable fields: `title`, `body_html`, `handle`, `product_type`, `meta_title`, `meta_description`.
@@ -60175,19 +65018,25 @@ const (
 )
 
 var AllTranslatableResourceType = []TranslatableResourceType{
+	TranslatableResourceTypeArticle,
+	TranslatableResourceTypeBlog,
 	TranslatableResourceTypeCollection,
 	TranslatableResourceTypeDeliveryMethodDefinition,
 	TranslatableResourceTypeEmailTemplate,
 	TranslatableResourceTypeFilter,
 	TranslatableResourceTypeLink,
+	TranslatableResourceTypeMenu,
 	TranslatableResourceTypeMetafield,
 	TranslatableResourceTypeMetaobject,
-	TranslatableResourceTypeOnlineStoreArticle,
-	TranslatableResourceTypeOnlineStoreBlog,
-	TranslatableResourceTypeOnlineStoreMenu,
-	TranslatableResourceTypeOnlineStorePage,
 	TranslatableResourceTypeOnlineStoreTheme,
+	TranslatableResourceTypeOnlineStoreThemeAppEmbed,
+	TranslatableResourceTypeOnlineStoreThemeJSONTemplate,
+	TranslatableResourceTypeOnlineStoreThemeLocaleContent,
+	TranslatableResourceTypeOnlineStoreThemeSectionGroup,
+	TranslatableResourceTypeOnlineStoreThemeSettingsCategory,
+	TranslatableResourceTypeOnlineStoreThemeSettingsDataSections,
 	TranslatableResourceTypePackingSlipTemplate,
+	TranslatableResourceTypePage,
 	TranslatableResourceTypePaymentGateway,
 	TranslatableResourceTypeProduct,
 	TranslatableResourceTypeProductOption,
@@ -60200,7 +65049,7 @@ var AllTranslatableResourceType = []TranslatableResourceType{
 
 func (e TranslatableResourceType) IsValid() bool {
 	switch e {
-	case TranslatableResourceTypeCollection, TranslatableResourceTypeDeliveryMethodDefinition, TranslatableResourceTypeEmailTemplate, TranslatableResourceTypeFilter, TranslatableResourceTypeLink, TranslatableResourceTypeMetafield, TranslatableResourceTypeMetaobject, TranslatableResourceTypeOnlineStoreArticle, TranslatableResourceTypeOnlineStoreBlog, TranslatableResourceTypeOnlineStoreMenu, TranslatableResourceTypeOnlineStorePage, TranslatableResourceTypeOnlineStoreTheme, TranslatableResourceTypePackingSlipTemplate, TranslatableResourceTypePaymentGateway, TranslatableResourceTypeProduct, TranslatableResourceTypeProductOption, TranslatableResourceTypeProductOptionValue, TranslatableResourceTypeSellingPlan, TranslatableResourceTypeSellingPlanGroup, TranslatableResourceTypeShop, TranslatableResourceTypeShopPolicy:
+	case TranslatableResourceTypeArticle, TranslatableResourceTypeBlog, TranslatableResourceTypeCollection, TranslatableResourceTypeDeliveryMethodDefinition, TranslatableResourceTypeEmailTemplate, TranslatableResourceTypeFilter, TranslatableResourceTypeLink, TranslatableResourceTypeMenu, TranslatableResourceTypeMetafield, TranslatableResourceTypeMetaobject, TranslatableResourceTypeOnlineStoreTheme, TranslatableResourceTypeOnlineStoreThemeAppEmbed, TranslatableResourceTypeOnlineStoreThemeJSONTemplate, TranslatableResourceTypeOnlineStoreThemeLocaleContent, TranslatableResourceTypeOnlineStoreThemeSectionGroup, TranslatableResourceTypeOnlineStoreThemeSettingsCategory, TranslatableResourceTypeOnlineStoreThemeSettingsDataSections, TranslatableResourceTypePackingSlipTemplate, TranslatableResourceTypePage, TranslatableResourceTypePaymentGateway, TranslatableResourceTypeProduct, TranslatableResourceTypeProductOption, TranslatableResourceTypeProductOptionValue, TranslatableResourceTypeSellingPlan, TranslatableResourceTypeSellingPlanGroup, TranslatableResourceTypeShop, TranslatableResourceTypeShopPolicy:
 		return true
 	}
 	return false
@@ -60316,6 +65165,127 @@ func (e *TranslationErrorCode) UnmarshalGQL(v interface{}) error {
 }
 
 func (e TranslationErrorCode) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The accepted types of unit of measurement.
+type UnitPriceMeasurementMeasuredType string
+
+const (
+	// Unit of measurements representing volumes.
+	UnitPriceMeasurementMeasuredTypeVolume UnitPriceMeasurementMeasuredType = "VOLUME"
+	// Unit of measurements representing weights.
+	UnitPriceMeasurementMeasuredTypeWeight UnitPriceMeasurementMeasuredType = "WEIGHT"
+	// Unit of measurements representing lengths.
+	UnitPriceMeasurementMeasuredTypeLength UnitPriceMeasurementMeasuredType = "LENGTH"
+	// Unit of measurements representing areas.
+	UnitPriceMeasurementMeasuredTypeArea UnitPriceMeasurementMeasuredType = "AREA"
+)
+
+var AllUnitPriceMeasurementMeasuredType = []UnitPriceMeasurementMeasuredType{
+	UnitPriceMeasurementMeasuredTypeVolume,
+	UnitPriceMeasurementMeasuredTypeWeight,
+	UnitPriceMeasurementMeasuredTypeLength,
+	UnitPriceMeasurementMeasuredTypeArea,
+}
+
+func (e UnitPriceMeasurementMeasuredType) IsValid() bool {
+	switch e {
+	case UnitPriceMeasurementMeasuredTypeVolume, UnitPriceMeasurementMeasuredTypeWeight, UnitPriceMeasurementMeasuredTypeLength, UnitPriceMeasurementMeasuredTypeArea:
+		return true
+	}
+	return false
+}
+
+func (e UnitPriceMeasurementMeasuredType) String() string {
+	return string(e)
+}
+
+func (e *UnitPriceMeasurementMeasuredType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UnitPriceMeasurementMeasuredType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UnitPriceMeasurementMeasuredType", str)
+	}
+	return nil
+}
+
+func (e UnitPriceMeasurementMeasuredType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// The valid units of measurement for a unit price measurement.
+type UnitPriceMeasurementMeasuredUnit string
+
+const (
+	// 1000 milliliters equals 1 liter.
+	UnitPriceMeasurementMeasuredUnitMl UnitPriceMeasurementMeasuredUnit = "ML"
+	// 100 centiliters equals 1 liter.
+	UnitPriceMeasurementMeasuredUnitCl UnitPriceMeasurementMeasuredUnit = "CL"
+	// Metric system unit of volume.
+	UnitPriceMeasurementMeasuredUnitL UnitPriceMeasurementMeasuredUnit = "L"
+	// 1 cubic meter equals 1000 liters.
+	UnitPriceMeasurementMeasuredUnitM3 UnitPriceMeasurementMeasuredUnit = "M3"
+	// 1000 milligrams equals 1 gram.
+	UnitPriceMeasurementMeasuredUnitMg UnitPriceMeasurementMeasuredUnit = "MG"
+	// Metric system unit of weight.
+	UnitPriceMeasurementMeasuredUnitG UnitPriceMeasurementMeasuredUnit = "G"
+	// 1 kilogram equals 1000 grams.
+	UnitPriceMeasurementMeasuredUnitKg UnitPriceMeasurementMeasuredUnit = "KG"
+	// 1000 millimeters equals 1 meter.
+	UnitPriceMeasurementMeasuredUnitMm UnitPriceMeasurementMeasuredUnit = "MM"
+	// 100 centimeters equals 1 meter.
+	UnitPriceMeasurementMeasuredUnitCm UnitPriceMeasurementMeasuredUnit = "CM"
+	// Metric system unit of length.
+	UnitPriceMeasurementMeasuredUnitM UnitPriceMeasurementMeasuredUnit = "M"
+	// Metric system unit of area.
+	UnitPriceMeasurementMeasuredUnitM2 UnitPriceMeasurementMeasuredUnit = "M2"
+)
+
+var AllUnitPriceMeasurementMeasuredUnit = []UnitPriceMeasurementMeasuredUnit{
+	UnitPriceMeasurementMeasuredUnitMl,
+	UnitPriceMeasurementMeasuredUnitCl,
+	UnitPriceMeasurementMeasuredUnitL,
+	UnitPriceMeasurementMeasuredUnitM3,
+	UnitPriceMeasurementMeasuredUnitMg,
+	UnitPriceMeasurementMeasuredUnitG,
+	UnitPriceMeasurementMeasuredUnitKg,
+	UnitPriceMeasurementMeasuredUnitMm,
+	UnitPriceMeasurementMeasuredUnitCm,
+	UnitPriceMeasurementMeasuredUnitM,
+	UnitPriceMeasurementMeasuredUnitM2,
+}
+
+func (e UnitPriceMeasurementMeasuredUnit) IsValid() bool {
+	switch e {
+	case UnitPriceMeasurementMeasuredUnitMl, UnitPriceMeasurementMeasuredUnitCl, UnitPriceMeasurementMeasuredUnitL, UnitPriceMeasurementMeasuredUnitM3, UnitPriceMeasurementMeasuredUnitMg, UnitPriceMeasurementMeasuredUnitG, UnitPriceMeasurementMeasuredUnitKg, UnitPriceMeasurementMeasuredUnitMm, UnitPriceMeasurementMeasuredUnitCm, UnitPriceMeasurementMeasuredUnitM, UnitPriceMeasurementMeasuredUnitM2:
+		return true
+	}
+	return false
+}
+
+func (e UnitPriceMeasurementMeasuredUnit) String() string {
+	return string(e)
+}
+
+func (e *UnitPriceMeasurementMeasuredUnit) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = UnitPriceMeasurementMeasuredUnit(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid UnitPriceMeasurementMeasuredUnit", str)
+	}
+	return nil
+}
+
+func (e UnitPriceMeasurementMeasuredUnit) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
@@ -60872,7 +65842,7 @@ func (e WebhookSubscriptionSortKeys) MarshalGQL(w io.Writer) {
 // The supported topics for webhook subscriptions. You can use webhook subscriptions to receive
 // notifications about particular events in a shop.
 //
-// You create mandatory webhooks either via the
+// You create [mandatory webhooks](https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks#mandatory-compliance-webhooks) either via the
 // [Partner Dashboard](https://shopify.dev/apps/webhooks/configuration/mandatory-webhooks#subscribe-to-privacy-webhooks)
 // or by updating the [app configuration file](https://shopify.dev/apps/tools/cli/configuration#app-configuration-file-example).
 //
@@ -60883,6 +65853,8 @@ type WebhookSubscriptionTopic string
 const (
 	// The webhook topic for `app/uninstalled` events. Occurs whenever a shop has uninstalled the app.
 	WebhookSubscriptionTopicAppUninstalled WebhookSubscriptionTopic = "APP_UNINSTALLED"
+	// The webhook topic for `app/scopes_update` events. Occurs whenever the access scopes of any installation are modified. Allows apps to keep track of the granted access scopes of their installations.
+	WebhookSubscriptionTopicAppScopesUpdate WebhookSubscriptionTopic = "APP_SCOPES_UPDATE"
 	// The webhook topic for `carts/create` events. Occurs when a cart is created in the online store. Other types of carts aren't supported. For example, the webhook doesn't support carts that are created in a custom storefront. Requires the `read_orders` scope.
 	WebhookSubscriptionTopicCartsCreate WebhookSubscriptionTopic = "CARTS_CREATE"
 	// The webhook topic for `carts/update` events. Occurs when a cart is updated in the online store. Other types of carts aren't supported. For example, the webhook doesn't support carts that are updated in a custom storefront. Requires the `read_orders` scope.
@@ -60997,7 +65969,10 @@ const (
 	// [Learn more about moving line items](https://shopify.dev/docs/api/admin-graphql/latest/mutations/fulfillmentOrderMove).
 	//  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersMoved WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_MOVED"
-	// The webhook topic for `fulfillment_orders/hold_released` events. Occurs whenever a fulfillment order hold is released. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
+	// The webhook topic for `fulfillment_orders/hold_released` events. Occurs when a fulfillment order is released and is no longer on hold.
+	//
+	// If a fulfillment order has multiple holds then this webhook will only be triggered once when the last hold is released and the status of the fulfillment order is no longer `ON_HOLD`.
+	//  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersHoldReleased WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_HOLD_RELEASED"
 	// The webhook topic for `fulfillment_orders/scheduled_fulfillment_order_ready` events. Occurs whenever a fulfillment order which was scheduled becomes due. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersScheduledFulfillmentOrderReady WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_SCHEDULED_FULFILLMENT_ORDER_READY"
@@ -61015,13 +65990,16 @@ const (
 	WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestAccepted WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_CANCELLATION_REQUEST_ACCEPTED"
 	// The webhook topic for `fulfillment_orders/cancellation_request_rejected` events. Occurs when a 3PL rejects a fulfillment cancellation request, received from a merchant. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestRejected WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_CANCELLATION_REQUEST_REJECTED"
-	// The webhook topic for `fulfillment_orders/fulfillment_request_submitted` events. Occurs when a merchant submits a fulfillment request to a 3PL. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_buyer_membership_orders, read_marketplace_fulfillment_orders.
+	// The webhook topic for `fulfillment_orders/fulfillment_request_submitted` events. Occurs when a merchant submits a fulfillment request to a 3PL. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestSubmitted WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_SUBMITTED"
 	// The webhook topic for `fulfillment_orders/fulfillment_request_accepted` events. Occurs when a fulfillment service accepts a request to fulfill a fulfillment order. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestAccepted WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_FULFILLMENT_REQUEST_ACCEPTED"
 	// The webhook topic for `fulfillment_orders/line_items_prepared_for_local_delivery` events. Occurs whenever a fulfillment order's line items are prepared for local delivery. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersLineItemsPreparedForLocalDelivery WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_LINE_ITEMS_PREPARED_FOR_LOCAL_DELIVERY"
-	// The webhook topic for `fulfillment_orders/placed_on_hold` events. Occurs when a fulfillment order is placed on hold. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
+	// The webhook topic for `fulfillment_orders/placed_on_hold` events. Occurs when a fulfillment order transitions to the `ON_HOLD` status
+	//
+	// For cases where multiple holds are applied to a fulfillment order, this webhook will only trigger once when the first hold is applied and the fulfillment order status changes to `ON_HOLD`.
+	//  Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders, read_marketplace_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersPlacedOnHold WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_PLACED_ON_HOLD"
 	// The webhook topic for `fulfillment_orders/merged` events. Occurs when multiple fulfillment orders are merged into a single fulfillment order. Requires at least one of the following scopes: read_merchant_managed_fulfillment_orders, read_assigned_fulfillment_orders, read_third_party_fulfillment_orders.
 	WebhookSubscriptionTopicFulfillmentOrdersMerged WebhookSubscriptionTopic = "FULFILLMENT_ORDERS_MERGED"
@@ -61039,11 +66017,11 @@ const (
 	WebhookSubscriptionTopicScheduledProductListingsUpdate WebhookSubscriptionTopic = "SCHEDULED_PRODUCT_LISTINGS_UPDATE"
 	// The webhook topic for `scheduled_product_listings/remove` events. Occurs whenever a product is no longer scheduled to be published. Requires the `read_product_listings` scope.
 	WebhookSubscriptionTopicScheduledProductListingsRemove WebhookSubscriptionTopic = "SCHEDULED_PRODUCT_LISTINGS_REMOVE"
-	// The webhook topic for `product_publications/create` events. Occurs whenever a product publication for an active product is created, or whenever an existing product publication is published. Requires the `read_publications` scope.
+	// The webhook topic for `product_publications/create` events. Occurs whenever a product publication for an active product is created, or whenever an existing product publication is published on the app that is subscribed to this webhook topic. Note that a webhook is only emitted when there are publishing changes to the app that is subscribed to the topic (ie. no webhook will be emitted if there is a publishing change to the online store and the webhook subscriber of the topic is a third-party app). Requires the `read_publications` scope.
 	WebhookSubscriptionTopicProductPublicationsCreate WebhookSubscriptionTopic = "PRODUCT_PUBLICATIONS_CREATE"
-	// The webhook topic for `product_publications/delete` events. Occurs whenever a product publication for an active product is removed, or whenever an existing product publication is unpublished. Requires the `read_publications` scope.
+	// The webhook topic for `product_publications/delete` events. Occurs whenever a product publication for an active product is removed, or whenever an existing product publication is unpublished from the app that is subscribed to this webhook topic. Note that a webhook is only emitted when there are publishing changes to the app that is subscribed to the topic (ie. no webhook will be emitted if there is a publishing change to the online store and the webhook subscriber of the topic is a third-party app). Requires the `read_publications` scope.
 	WebhookSubscriptionTopicProductPublicationsDelete WebhookSubscriptionTopic = "PRODUCT_PUBLICATIONS_DELETE"
-	// The webhook topic for `product_publications/update` events. Occurs whenever a product publication is updated. Requires the `read_publications` scope.
+	// The webhook topic for `product_publications/update` events. Occurs whenever a product publication is updated from the app that is subscribed to this webhook topic. Note that a webhook is only emitted when there are publishing changes to the app that is subscribed to the topic (ie. no webhook will be emitted if there is a publishing change to the online store and the webhook subscriber of the topic is a third-party app). Requires the `read_publications` scope.
 	WebhookSubscriptionTopicProductPublicationsUpdate WebhookSubscriptionTopic = "PRODUCT_PUBLICATIONS_UPDATE"
 	// The webhook topic for `products/create` events. Occurs whenever a product is created. Requires the `read_products` scope.
 	WebhookSubscriptionTopicProductsCreate WebhookSubscriptionTopic = "PRODUCTS_CREATE"
@@ -61203,8 +66181,9 @@ const (
 	// The webhook topic for `orders/risk_assessment_changed` events. Triggers when a new risk assessment is available on the order.
 	// This can be the first or a subsequent risk assessment.
 	// New risk assessments can be provided until the order is marked as fulfilled.
-	// Includes the risk level, risk facts and the provider. Does not include the risk recommendation for the order.
-	// The order and shop are identified in the headers.
+	// Includes the risk level, risk facts, the provider and the order ID.
+	// Does not include the risk recommendation for the order.
+	// The Shop ID is available in the headers.
 	//  Requires the `read_orders` scope.
 	WebhookSubscriptionTopicOrdersRiskAssessmentChanged WebhookSubscriptionTopic = "ORDERS_RISK_ASSESSMENT_CHANGED"
 	// The webhook topic for `orders/shopify_protect_eligibility_changed` events. Occurs whenever Shopify Protect's eligibility for an order is changed. Requires the `read_orders` scope.
@@ -61278,10 +66257,17 @@ const (
 	WebhookSubscriptionTopicDiscountsRedeemcodeAdded WebhookSubscriptionTopic = "DISCOUNTS_REDEEMCODE_ADDED"
 	// The webhook topic for `discounts/redeemcode_removed` events. Occurs whenever a redeem code on a code discount is deleted. Requires the `read_discounts` scope.
 	WebhookSubscriptionTopicDiscountsRedeemcodeRemoved WebhookSubscriptionTopic = "DISCOUNTS_REDEEMCODE_REMOVED"
+	// The webhook topic for `metafield_definitions/create` events. Occurs when a metafield definition is created. Requires the `read_content` scope.
+	WebhookSubscriptionTopicMetafieldDefinitionsCreate WebhookSubscriptionTopic = "METAFIELD_DEFINITIONS_CREATE"
+	// The webhook topic for `metafield_definitions/update` events. Occurs when a metafield definition is updated. Requires the `read_content` scope.
+	WebhookSubscriptionTopicMetafieldDefinitionsUpdate WebhookSubscriptionTopic = "METAFIELD_DEFINITIONS_UPDATE"
+	// The webhook topic for `metafield_definitions/delete` events. Occurs when a metafield definition is deleted. Requires the `read_content` scope.
+	WebhookSubscriptionTopicMetafieldDefinitionsDelete WebhookSubscriptionTopic = "METAFIELD_DEFINITIONS_DELETE"
 )
 
 var AllWebhookSubscriptionTopic = []WebhookSubscriptionTopic{
 	WebhookSubscriptionTopicAppUninstalled,
+	WebhookSubscriptionTopicAppScopesUpdate,
 	WebhookSubscriptionTopicCartsCreate,
 	WebhookSubscriptionTopicCartsUpdate,
 	WebhookSubscriptionTopicChannelsDelete,
@@ -61466,11 +66452,14 @@ var AllWebhookSubscriptionTopic = []WebhookSubscriptionTopic{
 	WebhookSubscriptionTopicDiscountsDelete,
 	WebhookSubscriptionTopicDiscountsRedeemcodeAdded,
 	WebhookSubscriptionTopicDiscountsRedeemcodeRemoved,
+	WebhookSubscriptionTopicMetafieldDefinitionsCreate,
+	WebhookSubscriptionTopicMetafieldDefinitionsUpdate,
+	WebhookSubscriptionTopicMetafieldDefinitionsDelete,
 }
 
 func (e WebhookSubscriptionTopic) IsValid() bool {
 	switch e {
-	case WebhookSubscriptionTopicAppUninstalled, WebhookSubscriptionTopicCartsCreate, WebhookSubscriptionTopicCartsUpdate, WebhookSubscriptionTopicChannelsDelete, WebhookSubscriptionTopicCheckoutsCreate, WebhookSubscriptionTopicCheckoutsDelete, WebhookSubscriptionTopicCheckoutsUpdate, WebhookSubscriptionTopicCustomerPaymentMethodsCreate, WebhookSubscriptionTopicCustomerPaymentMethodsUpdate, WebhookSubscriptionTopicCustomerPaymentMethodsRevoke, WebhookSubscriptionTopicCollectionListingsAdd, WebhookSubscriptionTopicCollectionListingsRemove, WebhookSubscriptionTopicCollectionListingsUpdate, WebhookSubscriptionTopicCollectionPublicationsCreate, WebhookSubscriptionTopicCollectionPublicationsDelete, WebhookSubscriptionTopicCollectionPublicationsUpdate, WebhookSubscriptionTopicCollectionsCreate, WebhookSubscriptionTopicCollectionsDelete, WebhookSubscriptionTopicCollectionsUpdate, WebhookSubscriptionTopicCustomerGroupsCreate, WebhookSubscriptionTopicCustomerGroupsDelete, WebhookSubscriptionTopicCustomerGroupsUpdate, WebhookSubscriptionTopicCustomersCreate, WebhookSubscriptionTopicCustomersDelete, WebhookSubscriptionTopicCustomersDisable, WebhookSubscriptionTopicCustomersEnable, WebhookSubscriptionTopicCustomersUpdate, WebhookSubscriptionTopicCustomersMarketingConsentUpdate, WebhookSubscriptionTopicCustomerTagsAdded, WebhookSubscriptionTopicCustomerTagsRemoved, WebhookSubscriptionTopicCustomersEmailMarketingConsentUpdate, WebhookSubscriptionTopicDisputesCreate, WebhookSubscriptionTopicDisputesUpdate, WebhookSubscriptionTopicDraftOrdersCreate, WebhookSubscriptionTopicDraftOrdersDelete, WebhookSubscriptionTopicDraftOrdersUpdate, WebhookSubscriptionTopicFulfillmentEventsCreate, WebhookSubscriptionTopicFulfillmentEventsDelete, WebhookSubscriptionTopicFulfillmentsCreate, WebhookSubscriptionTopicFulfillmentsUpdate, WebhookSubscriptionTopicAttributedSessionsFirst, WebhookSubscriptionTopicAttributedSessionsLast, WebhookSubscriptionTopicOrderTransactionsCreate, WebhookSubscriptionTopicOrdersCancelled, WebhookSubscriptionTopicOrdersCreate, WebhookSubscriptionTopicOrdersDelete, WebhookSubscriptionTopicOrdersEdited, WebhookSubscriptionTopicOrdersFulfilled, WebhookSubscriptionTopicOrdersPaid, WebhookSubscriptionTopicOrdersPartiallyFulfilled, WebhookSubscriptionTopicOrdersUpdated, WebhookSubscriptionTopicFulfillmentOrdersMoved, WebhookSubscriptionTopicFulfillmentOrdersHoldReleased, WebhookSubscriptionTopicFulfillmentOrdersScheduledFulfillmentOrderReady, WebhookSubscriptionTopicFulfillmentOrdersOrderRoutingComplete, WebhookSubscriptionTopicFulfillmentOrdersCancelled, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentServiceFailedToComplete, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestRejected, WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestSubmitted, WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestAccepted, WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestRejected, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestSubmitted, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestAccepted, WebhookSubscriptionTopicFulfillmentOrdersLineItemsPreparedForLocalDelivery, WebhookSubscriptionTopicFulfillmentOrdersPlacedOnHold, WebhookSubscriptionTopicFulfillmentOrdersMerged, WebhookSubscriptionTopicFulfillmentOrdersSplit, WebhookSubscriptionTopicProductListingsAdd, WebhookSubscriptionTopicProductListingsRemove, WebhookSubscriptionTopicProductListingsUpdate, WebhookSubscriptionTopicScheduledProductListingsAdd, WebhookSubscriptionTopicScheduledProductListingsUpdate, WebhookSubscriptionTopicScheduledProductListingsRemove, WebhookSubscriptionTopicProductPublicationsCreate, WebhookSubscriptionTopicProductPublicationsDelete, WebhookSubscriptionTopicProductPublicationsUpdate, WebhookSubscriptionTopicProductsCreate, WebhookSubscriptionTopicProductsDelete, WebhookSubscriptionTopicProductsUpdate, WebhookSubscriptionTopicRefundsCreate, WebhookSubscriptionTopicSegmentsCreate, WebhookSubscriptionTopicSegmentsDelete, WebhookSubscriptionTopicSegmentsUpdate, WebhookSubscriptionTopicShippingAddressesCreate, WebhookSubscriptionTopicShippingAddressesUpdate, WebhookSubscriptionTopicShopUpdate, WebhookSubscriptionTopicTaxPartnersUpdate, WebhookSubscriptionTopicTaxServicesCreate, WebhookSubscriptionTopicTaxServicesUpdate, WebhookSubscriptionTopicThemesCreate, WebhookSubscriptionTopicThemesDelete, WebhookSubscriptionTopicThemesPublish, WebhookSubscriptionTopicThemesUpdate, WebhookSubscriptionTopicVariantsInStock, WebhookSubscriptionTopicVariantsOutOfStock, WebhookSubscriptionTopicInventoryLevelsConnect, WebhookSubscriptionTopicInventoryLevelsUpdate, WebhookSubscriptionTopicInventoryLevelsDisconnect, WebhookSubscriptionTopicInventoryItemsCreate, WebhookSubscriptionTopicInventoryItemsUpdate, WebhookSubscriptionTopicInventoryItemsDelete, WebhookSubscriptionTopicLocationsActivate, WebhookSubscriptionTopicLocationsDeactivate, WebhookSubscriptionTopicLocationsCreate, WebhookSubscriptionTopicLocationsUpdate, WebhookSubscriptionTopicLocationsDelete, WebhookSubscriptionTopicTenderTransactionsCreate, WebhookSubscriptionTopicAppPurchasesOneTimeUpdate, WebhookSubscriptionTopicAppSubscriptionsApproachingCappedAmount, WebhookSubscriptionTopicAppSubscriptionsUpdate, WebhookSubscriptionTopicLocalesCreate, WebhookSubscriptionTopicLocalesUpdate, WebhookSubscriptionTopicDomainsCreate, WebhookSubscriptionTopicDomainsUpdate, WebhookSubscriptionTopicDomainsDestroy, WebhookSubscriptionTopicSubscriptionContractsCreate, WebhookSubscriptionTopicSubscriptionContractsUpdate, WebhookSubscriptionTopicSubscriptionBillingCycleEditsCreate, WebhookSubscriptionTopicSubscriptionBillingCycleEditsUpdate, WebhookSubscriptionTopicSubscriptionBillingCycleEditsDelete, WebhookSubscriptionTopicProfilesCreate, WebhookSubscriptionTopicProfilesUpdate, WebhookSubscriptionTopicProfilesDelete, WebhookSubscriptionTopicSubscriptionBillingAttemptsSuccess, WebhookSubscriptionTopicSubscriptionBillingAttemptsFailure, WebhookSubscriptionTopicSubscriptionBillingAttemptsChallenged, WebhookSubscriptionTopicReturnsCancel, WebhookSubscriptionTopicReturnsClose, WebhookSubscriptionTopicReturnsReopen, WebhookSubscriptionTopicReturnsRequest, WebhookSubscriptionTopicReturnsApprove, WebhookSubscriptionTopicReturnsUpdate, WebhookSubscriptionTopicReturnsDecline, WebhookSubscriptionTopicReverseDeliveriesAttachDeliverable, WebhookSubscriptionTopicReverseFulfillmentOrdersDispose, WebhookSubscriptionTopicPaymentTermsCreate, WebhookSubscriptionTopicPaymentTermsDelete, WebhookSubscriptionTopicPaymentTermsUpdate, WebhookSubscriptionTopicPaymentSchedulesDue, WebhookSubscriptionTopicSellingPlanGroupsCreate, WebhookSubscriptionTopicSellingPlanGroupsUpdate, WebhookSubscriptionTopicSellingPlanGroupsDelete, WebhookSubscriptionTopicBulkOperationsFinish, WebhookSubscriptionTopicProductFeedsCreate, WebhookSubscriptionTopicProductFeedsUpdate, WebhookSubscriptionTopicProductFeedsIncrementalSync, WebhookSubscriptionTopicProductFeedsFullSync, WebhookSubscriptionTopicProductFeedsFullSyncFinish, WebhookSubscriptionTopicMarketsCreate, WebhookSubscriptionTopicMarketsUpdate, WebhookSubscriptionTopicMarketsDelete, WebhookSubscriptionTopicOrdersRiskAssessmentChanged, WebhookSubscriptionTopicOrdersShopifyProtectEligibilityChanged, WebhookSubscriptionTopicFulfillmentOrdersRescheduled, WebhookSubscriptionTopicPublicationsDelete, WebhookSubscriptionTopicAuditEventsAdminAPIActivity, WebhookSubscriptionTopicFulfillmentOrdersLineItemsPreparedForPickup, WebhookSubscriptionTopicCompaniesCreate, WebhookSubscriptionTopicCompaniesUpdate, WebhookSubscriptionTopicCompaniesDelete, WebhookSubscriptionTopicCompanyLocationsCreate, WebhookSubscriptionTopicCompanyLocationsUpdate, WebhookSubscriptionTopicCompanyLocationsDelete, WebhookSubscriptionTopicCompanyContactsCreate, WebhookSubscriptionTopicCompanyContactsUpdate, WebhookSubscriptionTopicCompanyContactsDelete, WebhookSubscriptionTopicCustomersMerge, WebhookSubscriptionTopicCustomerAccountSettingsUpdate, WebhookSubscriptionTopicCompanyContactRolesAssign, WebhookSubscriptionTopicCompanyContactRolesRevoke, WebhookSubscriptionTopicSubscriptionContractsActivate, WebhookSubscriptionTopicSubscriptionContractsPause, WebhookSubscriptionTopicSubscriptionContractsCancel, WebhookSubscriptionTopicSubscriptionContractsFail, WebhookSubscriptionTopicSubscriptionContractsExpire, WebhookSubscriptionTopicSubscriptionBillingCyclesSkip, WebhookSubscriptionTopicSubscriptionBillingCyclesUnskip, WebhookSubscriptionTopicMetaobjectsCreate, WebhookSubscriptionTopicMetaobjectsUpdate, WebhookSubscriptionTopicMetaobjectsDelete, WebhookSubscriptionTopicDiscountsCreate, WebhookSubscriptionTopicDiscountsUpdate, WebhookSubscriptionTopicDiscountsDelete, WebhookSubscriptionTopicDiscountsRedeemcodeAdded, WebhookSubscriptionTopicDiscountsRedeemcodeRemoved:
+	case WebhookSubscriptionTopicAppUninstalled, WebhookSubscriptionTopicAppScopesUpdate, WebhookSubscriptionTopicCartsCreate, WebhookSubscriptionTopicCartsUpdate, WebhookSubscriptionTopicChannelsDelete, WebhookSubscriptionTopicCheckoutsCreate, WebhookSubscriptionTopicCheckoutsDelete, WebhookSubscriptionTopicCheckoutsUpdate, WebhookSubscriptionTopicCustomerPaymentMethodsCreate, WebhookSubscriptionTopicCustomerPaymentMethodsUpdate, WebhookSubscriptionTopicCustomerPaymentMethodsRevoke, WebhookSubscriptionTopicCollectionListingsAdd, WebhookSubscriptionTopicCollectionListingsRemove, WebhookSubscriptionTopicCollectionListingsUpdate, WebhookSubscriptionTopicCollectionPublicationsCreate, WebhookSubscriptionTopicCollectionPublicationsDelete, WebhookSubscriptionTopicCollectionPublicationsUpdate, WebhookSubscriptionTopicCollectionsCreate, WebhookSubscriptionTopicCollectionsDelete, WebhookSubscriptionTopicCollectionsUpdate, WebhookSubscriptionTopicCustomerGroupsCreate, WebhookSubscriptionTopicCustomerGroupsDelete, WebhookSubscriptionTopicCustomerGroupsUpdate, WebhookSubscriptionTopicCustomersCreate, WebhookSubscriptionTopicCustomersDelete, WebhookSubscriptionTopicCustomersDisable, WebhookSubscriptionTopicCustomersEnable, WebhookSubscriptionTopicCustomersUpdate, WebhookSubscriptionTopicCustomersMarketingConsentUpdate, WebhookSubscriptionTopicCustomerTagsAdded, WebhookSubscriptionTopicCustomerTagsRemoved, WebhookSubscriptionTopicCustomersEmailMarketingConsentUpdate, WebhookSubscriptionTopicDisputesCreate, WebhookSubscriptionTopicDisputesUpdate, WebhookSubscriptionTopicDraftOrdersCreate, WebhookSubscriptionTopicDraftOrdersDelete, WebhookSubscriptionTopicDraftOrdersUpdate, WebhookSubscriptionTopicFulfillmentEventsCreate, WebhookSubscriptionTopicFulfillmentEventsDelete, WebhookSubscriptionTopicFulfillmentsCreate, WebhookSubscriptionTopicFulfillmentsUpdate, WebhookSubscriptionTopicAttributedSessionsFirst, WebhookSubscriptionTopicAttributedSessionsLast, WebhookSubscriptionTopicOrderTransactionsCreate, WebhookSubscriptionTopicOrdersCancelled, WebhookSubscriptionTopicOrdersCreate, WebhookSubscriptionTopicOrdersDelete, WebhookSubscriptionTopicOrdersEdited, WebhookSubscriptionTopicOrdersFulfilled, WebhookSubscriptionTopicOrdersPaid, WebhookSubscriptionTopicOrdersPartiallyFulfilled, WebhookSubscriptionTopicOrdersUpdated, WebhookSubscriptionTopicFulfillmentOrdersMoved, WebhookSubscriptionTopicFulfillmentOrdersHoldReleased, WebhookSubscriptionTopicFulfillmentOrdersScheduledFulfillmentOrderReady, WebhookSubscriptionTopicFulfillmentOrdersOrderRoutingComplete, WebhookSubscriptionTopicFulfillmentOrdersCancelled, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentServiceFailedToComplete, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestRejected, WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestSubmitted, WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestAccepted, WebhookSubscriptionTopicFulfillmentOrdersCancellationRequestRejected, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestSubmitted, WebhookSubscriptionTopicFulfillmentOrdersFulfillmentRequestAccepted, WebhookSubscriptionTopicFulfillmentOrdersLineItemsPreparedForLocalDelivery, WebhookSubscriptionTopicFulfillmentOrdersPlacedOnHold, WebhookSubscriptionTopicFulfillmentOrdersMerged, WebhookSubscriptionTopicFulfillmentOrdersSplit, WebhookSubscriptionTopicProductListingsAdd, WebhookSubscriptionTopicProductListingsRemove, WebhookSubscriptionTopicProductListingsUpdate, WebhookSubscriptionTopicScheduledProductListingsAdd, WebhookSubscriptionTopicScheduledProductListingsUpdate, WebhookSubscriptionTopicScheduledProductListingsRemove, WebhookSubscriptionTopicProductPublicationsCreate, WebhookSubscriptionTopicProductPublicationsDelete, WebhookSubscriptionTopicProductPublicationsUpdate, WebhookSubscriptionTopicProductsCreate, WebhookSubscriptionTopicProductsDelete, WebhookSubscriptionTopicProductsUpdate, WebhookSubscriptionTopicRefundsCreate, WebhookSubscriptionTopicSegmentsCreate, WebhookSubscriptionTopicSegmentsDelete, WebhookSubscriptionTopicSegmentsUpdate, WebhookSubscriptionTopicShippingAddressesCreate, WebhookSubscriptionTopicShippingAddressesUpdate, WebhookSubscriptionTopicShopUpdate, WebhookSubscriptionTopicTaxPartnersUpdate, WebhookSubscriptionTopicTaxServicesCreate, WebhookSubscriptionTopicTaxServicesUpdate, WebhookSubscriptionTopicThemesCreate, WebhookSubscriptionTopicThemesDelete, WebhookSubscriptionTopicThemesPublish, WebhookSubscriptionTopicThemesUpdate, WebhookSubscriptionTopicVariantsInStock, WebhookSubscriptionTopicVariantsOutOfStock, WebhookSubscriptionTopicInventoryLevelsConnect, WebhookSubscriptionTopicInventoryLevelsUpdate, WebhookSubscriptionTopicInventoryLevelsDisconnect, WebhookSubscriptionTopicInventoryItemsCreate, WebhookSubscriptionTopicInventoryItemsUpdate, WebhookSubscriptionTopicInventoryItemsDelete, WebhookSubscriptionTopicLocationsActivate, WebhookSubscriptionTopicLocationsDeactivate, WebhookSubscriptionTopicLocationsCreate, WebhookSubscriptionTopicLocationsUpdate, WebhookSubscriptionTopicLocationsDelete, WebhookSubscriptionTopicTenderTransactionsCreate, WebhookSubscriptionTopicAppPurchasesOneTimeUpdate, WebhookSubscriptionTopicAppSubscriptionsApproachingCappedAmount, WebhookSubscriptionTopicAppSubscriptionsUpdate, WebhookSubscriptionTopicLocalesCreate, WebhookSubscriptionTopicLocalesUpdate, WebhookSubscriptionTopicDomainsCreate, WebhookSubscriptionTopicDomainsUpdate, WebhookSubscriptionTopicDomainsDestroy, WebhookSubscriptionTopicSubscriptionContractsCreate, WebhookSubscriptionTopicSubscriptionContractsUpdate, WebhookSubscriptionTopicSubscriptionBillingCycleEditsCreate, WebhookSubscriptionTopicSubscriptionBillingCycleEditsUpdate, WebhookSubscriptionTopicSubscriptionBillingCycleEditsDelete, WebhookSubscriptionTopicProfilesCreate, WebhookSubscriptionTopicProfilesUpdate, WebhookSubscriptionTopicProfilesDelete, WebhookSubscriptionTopicSubscriptionBillingAttemptsSuccess, WebhookSubscriptionTopicSubscriptionBillingAttemptsFailure, WebhookSubscriptionTopicSubscriptionBillingAttemptsChallenged, WebhookSubscriptionTopicReturnsCancel, WebhookSubscriptionTopicReturnsClose, WebhookSubscriptionTopicReturnsReopen, WebhookSubscriptionTopicReturnsRequest, WebhookSubscriptionTopicReturnsApprove, WebhookSubscriptionTopicReturnsUpdate, WebhookSubscriptionTopicReturnsDecline, WebhookSubscriptionTopicReverseDeliveriesAttachDeliverable, WebhookSubscriptionTopicReverseFulfillmentOrdersDispose, WebhookSubscriptionTopicPaymentTermsCreate, WebhookSubscriptionTopicPaymentTermsDelete, WebhookSubscriptionTopicPaymentTermsUpdate, WebhookSubscriptionTopicPaymentSchedulesDue, WebhookSubscriptionTopicSellingPlanGroupsCreate, WebhookSubscriptionTopicSellingPlanGroupsUpdate, WebhookSubscriptionTopicSellingPlanGroupsDelete, WebhookSubscriptionTopicBulkOperationsFinish, WebhookSubscriptionTopicProductFeedsCreate, WebhookSubscriptionTopicProductFeedsUpdate, WebhookSubscriptionTopicProductFeedsIncrementalSync, WebhookSubscriptionTopicProductFeedsFullSync, WebhookSubscriptionTopicProductFeedsFullSyncFinish, WebhookSubscriptionTopicMarketsCreate, WebhookSubscriptionTopicMarketsUpdate, WebhookSubscriptionTopicMarketsDelete, WebhookSubscriptionTopicOrdersRiskAssessmentChanged, WebhookSubscriptionTopicOrdersShopifyProtectEligibilityChanged, WebhookSubscriptionTopicFulfillmentOrdersRescheduled, WebhookSubscriptionTopicPublicationsDelete, WebhookSubscriptionTopicAuditEventsAdminAPIActivity, WebhookSubscriptionTopicFulfillmentOrdersLineItemsPreparedForPickup, WebhookSubscriptionTopicCompaniesCreate, WebhookSubscriptionTopicCompaniesUpdate, WebhookSubscriptionTopicCompaniesDelete, WebhookSubscriptionTopicCompanyLocationsCreate, WebhookSubscriptionTopicCompanyLocationsUpdate, WebhookSubscriptionTopicCompanyLocationsDelete, WebhookSubscriptionTopicCompanyContactsCreate, WebhookSubscriptionTopicCompanyContactsUpdate, WebhookSubscriptionTopicCompanyContactsDelete, WebhookSubscriptionTopicCustomersMerge, WebhookSubscriptionTopicCustomerAccountSettingsUpdate, WebhookSubscriptionTopicCompanyContactRolesAssign, WebhookSubscriptionTopicCompanyContactRolesRevoke, WebhookSubscriptionTopicSubscriptionContractsActivate, WebhookSubscriptionTopicSubscriptionContractsPause, WebhookSubscriptionTopicSubscriptionContractsCancel, WebhookSubscriptionTopicSubscriptionContractsFail, WebhookSubscriptionTopicSubscriptionContractsExpire, WebhookSubscriptionTopicSubscriptionBillingCyclesSkip, WebhookSubscriptionTopicSubscriptionBillingCyclesUnskip, WebhookSubscriptionTopicMetaobjectsCreate, WebhookSubscriptionTopicMetaobjectsUpdate, WebhookSubscriptionTopicMetaobjectsDelete, WebhookSubscriptionTopicDiscountsCreate, WebhookSubscriptionTopicDiscountsUpdate, WebhookSubscriptionTopicDiscountsDelete, WebhookSubscriptionTopicDiscountsRedeemcodeAdded, WebhookSubscriptionTopicDiscountsRedeemcodeRemoved, WebhookSubscriptionTopicMetafieldDefinitionsCreate, WebhookSubscriptionTopicMetafieldDefinitionsUpdate, WebhookSubscriptionTopicMetafieldDefinitionsDelete:
 		return true
 	}
 	return false
